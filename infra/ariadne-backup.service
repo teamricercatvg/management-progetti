@@ -1,0 +1,10 @@
+[Unit]
+Description=Ariadne Hub dedicated Supabase backup
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/ariadne-backup
+User=root
+UMask=0077

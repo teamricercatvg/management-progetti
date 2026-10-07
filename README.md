@@ -5,23 +5,27 @@ logico, attività, cronogramma, indicatori, budget e rapporti operativi.
 
 ## Stato
 
-Milestone 1 completata localmente il 7 ottobre 2026: Git inizializzato e
-collegato a [teamricercatvg/management-progetti](https://github.com/teamricercatvg/management-progetti),
-documentazione e protezioni iniziali predisposte.
-La consegna è inclusa nel commit iniziale; pubblicazione su main autorizzata
-il 7 ottobre 2026. Il remoto era vuoto alla verifica iniziale.
-Non esiste ancora un'applicazione eseguibile: nessuna dipendenza, script npm,
-schema database o configurazione di deploy è stata introdotta.
+Milestone 1 pubblicata su `main` (commit `d1d6af5`). La Milestone 1A ha
+predisposto il backend dedicato, i backup e il progetto Vercel il 7 ottobre 2026.
+Resta aperta per l'attivazione Aruba: `ariadne-hub.it` è in **Attesa Validazione
+DNS**. I domini personalizzati e il loro HTTPS non sono ancora verificati.
+
+Pagina statica temporanea: https://management-progetti.vercel.app.
+Non esiste ancora il gestionale Next.js: nessuna dipendenza npm, schema
+applicativo o migration è stata introdotta. Consegna 1A sul branch dedicato
+`codex/milestone-1a`; infrastruttura remota già configurata.
 
 ## Documentazione
 
 - [Roadmap e requisiti](docs/roadmap-gestione-progetti.md)
 - [Regole operative](AGENTS.md)
 - [Consegna Milestone 1](docs/milestone-1.md)
+- [Consegna Milestone 1A](docs/milestone-1a.md)
+- [Infrastruttura, verifiche e DNS pendenti](docs/infrastructure.md)
 
 Stack previsto: Next.js 16, App Router, React 19, TypeScript, Tailwind CSS 4
  e Supabase self-hosted dedicato su Netcup/Coolify. Frontend previsto su Vercel,
-con indirizzo pubblico https://www.ariadne-hub.it. Servizi da configurare in 1A.
+con indirizzo pubblico https://www.ariadne-hub.it. Servizi predisposti in 1A; DNS personalizzati pendenti.
 
 ## Setup e comandi disponibili
 
@@ -63,8 +67,9 @@ Verificare sempre che l'API restituisca teamricercatvg prima di pubblicare.
 
 ## Ambiente e controlli
 
-`.env.example` contiene soltanto nomi e valori vuoti. Quando sarà disponibile
-l'istanza dedicata, copiarlo in `.env.local` e compilare i valori reali.
+`.env.example` contiene soltanto nomi e valori vuoti. Su questo Mac `.env.local`
+è già configurato con l'istanza dedicata. Per altri computer seguire la guida
+infrastrutturale e recuperare le credenziali da una fonte privata autorizzata.
 La service role resta solo server. Non usare endpoint o credenziali di CDP.
 
 ```bash
@@ -74,4 +79,6 @@ bash -n scripts/github.sh
 
 Leggere anche i nuovi file: git diff non mostra quelli non tracciati.
 Type-check, lint, test applicativi e build saranno introdotti con il codice.
-La Milestone 1A richiede una richiesta dedicata.
+Per i controlli infrastrutturali: `python3 scripts/check-backend.py` e
+`python3 scripts/supabase-cli.py query 'select current_database();'`.
+Per la pagina statica basta un server HTTP su `public/`.

@@ -58,3 +58,21 @@ Git. Introdurre type-check, lint, build e test pertinenti quando esiste codice.
 Modifiche database solo tramite migration versionate dopo approvazione del
 modello dati; verificare vincoli e RLS con ruoli diversi. Aggiornare la
 documentazione distinguendo stato locale, pubblicato, configurato e verificato.
+
+## Stato operativo dopo avvio 1A (7 ottobre 2026)
+
+- Leggere `docs/infrastructure.md` e `docs/milestone-1a.md` prima di intervenire.
+- Scope Vercel verificato: **tor-vergata-igiene**, progetto `management-progetti`.
+  Usare `bash scripts/vercel.sh`, non lo scope personale degli esempi generici.
+- Backend dedicato Coolify: `d4urni99thsq3vsnxxkckjzh`; PostgreSQL via SSH su
+  loopback server `25432`, gateway `28080`. Non usare le porte CDP.
+- Wrapper `scripts/supabase-cli.py` e `scripts/check-backend.py`; credenziali
+  private in `~/.config/ariadne-infra/`, mai stamparle o versionarle.
+- La pagina pubblica provvisoria è statica, `public/`, con `vercel.json`.
+  Il futuro scaffold Next.js richiederà aggiornare il preset/output Vercel.
+- Dominio Aruba in «Attesa Validazione DNS»: completare record e HTTPS prima
+  di dichiarare chiusa 1A. Account e stato servizi vanno sempre ricontrollati.
+- Backup giornaliero alle 03:15 Europe/Rome, retention 14 giorni; ripristino
+  isolato verificato. Copia fuori server iniziale sul Mac, automazione pendente.
+- Le env Vercel nei tre ambienti usano l'istanza dedicata attualmente vuota;
+  staging separato e SMTP da definire prima dei dati reali.

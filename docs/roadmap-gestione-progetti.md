@@ -611,7 +611,7 @@ Le milestone seguenti sono pensate per procedere in modo incrementale. Ogni mile
 
 ### Milestone 1 - Setup repository e documentazione iniziale
 
-Stato al 7 ottobre 2026: completata localmente; commit e push non eseguiti.
+Stato al 7 ottobre 2026: pubblicata su main, commit `d1d6af5`.
 Dettagli: [consegna Milestone 1](milestone-1.md).
 
 | Aspetto | Dettaglio |
@@ -626,6 +626,10 @@ Dettagli: [consegna Milestone 1](milestone-1.md).
 | Criteri di completamento | Repository pronta, documentazione minima leggibile, nessun segreto tracciato |
 
 ### Milestone 1A - Infrastruttura Netcup, Coolify, Supabase e Vercel
+
+Stato al 7 ottobre 2026: backend e Vercel predisposti e verificati;
+chiusura in attesa di attivazione DNS Aruba. Vedere la
+[consegna 1A](milestone-1a.md) e la [guida infrastrutturale](infrastructure.md).
 
 | Aspetto | Dettaglio |
 | --- | --- |
@@ -1005,6 +1009,9 @@ Il workspace locale non risulta ancora inizializzato come repository Git. Questo
 
 La ricognizione sopra è storica. Git è ora inizializzato sul branch main e
 collegato al repository GitHub previsto, verificato vuoto con teamricercatvg.
-Sono presenti i file previsti dalla Milestone 1; commit e push non eseguiti.
-La Milestone 1A e lo sviluppo applicativo non sono iniziati. Vedere
+Sono presenti i file previsti dalla Milestone 1, pubblicati su main nel commit
+`d1d6af5`; la consegna della Milestone 1A è sul branch `codex/milestone-1a`.
+La Milestone 1A è stata avviata con richiesta esplicita e resta aperta per
+attivazione DNS Aruba; vedere [consegna 1A](milestone-1a.md).
+Lo sviluppo applicativo non è iniziato. Per la fase precedente vedere
 [la consegna](milestone-1.md) per convenzioni e decisioni aperte.
