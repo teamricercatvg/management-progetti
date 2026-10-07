@@ -2,7 +2,8 @@
 
 Data: 7 ottobre 2026. Versione 2: indicazioni dell’utente recepite.
 **Stato: modello approvato, Milestone 2 conclusa; consegna versionata su `main`.
-Nessuna migration o modifica al database.**
+Migration fondative introdotte dalla [Milestone 3](milestone-3.md),
+verificate in isolamento e applicate al backend dedicato il 7 ottobre 2026.**
 
 Questa specifica dettaglia le sezioni 4–6 della [roadmap](roadmap-gestione-progetti.md).
 Le scelte sotto recepiscono le indicazioni riportate dall’utente nella consegna.

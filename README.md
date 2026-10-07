@@ -11,15 +11,21 @@ Il dominio Aruba è attivo e i record DNS sono stati configurati. La milestone
 resta aperta per **propagazione DNS e verifica HTTPS** dei domini personalizzati.
 
 Pagina statica temporanea: https://management-progetti.vercel.app.
-Non esiste ancora il gestionale Next.js: nessuna dipendenza npm, schema
-applicativo o migration è stata introdotta. Consegna 1A sul branch dedicato
+Non esiste ancora il gestionale Next.js e non sono state introdotte dipendenze npm.
+Le migration fondative della Milestone 3 sono state testate in isolamento
+e applicate al backend dedicato il 7 ottobre 2026. Consegna 1A sul branch dedicato
 `codex/milestone-1a`; infrastruttura remota già configurata.
 
 La **Milestone 2 è conclusa**: modello dati versione 2 e permessi approvati,
 consegna versionata su `main`:
 [modello dati](docs/data-model.md) e [permessi](docs/permissions.md).
 MVP con Admin e Manager, enti/partenariati per progetto e cambi medi mensili
-previsti per le spese estere. Non sono state create migration.
+previsti per le spese estere.
+
+La **Milestone 3 è completata e applicata al backend dedicato**: due migration per sette tabelle
+fondative, vincoli e audit; RLS abilitata senza policy e accessi API negati.
+Applicazione da zero, integrità e concorrenza verificati su PostgreSQL 15 isolato.
+Vedere la [consegna Milestone 3](docs/milestone-3.md) per confini e riproduzione.
 
 ## Documentazione
 
@@ -28,6 +34,7 @@ previsti per le spese estere. Non sono state create migration.
 - [Consegna Milestone 1](docs/milestone-1.md)
 - [Consegna Milestone 1A](docs/milestone-1a.md)
 - [Consegna Milestone 2](docs/milestone-2.md)
+- [Consegna Milestone 3](docs/milestone-3.md)
 - [Modello dati](docs/data-model.md)
 - [Matrice permessi e contratto RLS](docs/permissions.md)
 - [Infrastruttura, verifiche e DNS pendenti](docs/infrastructure.md)
@@ -91,3 +98,13 @@ Type-check, lint, test applicativi e build saranno introdotti con il codice.
 Per i controlli infrastrutturali: `python3 scripts/check-backend.py` e
 `python3 scripts/supabase-cli.py query 'select current_database();'`.
 Per la pagina statica basta un server HTTP su `public/`.
+
+## Test migration fondative
+
+```bash
+bash scripts/test-migrations.sh
+```
+
+Usa via SSH un container PostgreSQL temporaneo senza rete e senza dati operativi.
+Richiede accesso al server verificato; dettagli e alternativa Docker locale nella
+[consegna della milestone 3](docs/milestone-3.md).

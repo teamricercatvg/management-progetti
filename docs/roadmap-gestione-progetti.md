@@ -1011,3 +1011,15 @@ La Milestone 1A è stata avviata con richiesta esplicita e resta aperta per
 propagazione DNS e verifica HTTPS; vedere [consegna 1A](milestone-1a.md).
 Lo sviluppo applicativo non è iniziato. Per la fase precedente vedere
 [la consegna](milestone-1.md) per convenzioni e decisioni aperte.
+
+
+### Aggiornamento dopo la Milestone 3 — 7 ottobre 2026
+
+Migration fondative create e testate in un container PostgreSQL 15 isolato:
+sette tabelle, chiavi, indici, guardie transazionali e audit. RLS abilitata senza
+policy; grants API revocati. Applicazione da zero ripetibile, test di integrità,
+accesso negato e concorrenza superati. Applicazione al backend dedicato eseguita
+e verificata il 7 ottobre 2026, con backup preventivo e cronologia Supabase
+allineata. Consegna su `main`; commit e push autorizzati dall’utente.
+Auth e bootstrap restano alla 4, autorizzazioni applicative alla 5.
+Vedere [consegna e verifiche](milestone-3.md).

@@ -1,0 +1,35 @@
+# Local development only; never a remote connection configuration.
+project_id = "management-progetti"
+[api]
+enabled = true
+port = 55321
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+[db]
+port = 55322
+shadow_port = 55320
+major_version = 15
+[db.migrations]
+enabled = true
+schema_paths = []
+[db.seed]
+enabled = false
+sql_paths = []
+[studio]
+enabled = true
+port = 55323
+[local_smtp]
+enabled = true
+port = 55324
+[auth]
+enabled = true
+site_url = "http://127.0.0.1:3000"
+additional_redirect_urls = []
+enable_signup = false
+enable_anonymous_sign_ins = false
+[auth.email]
+enable_signup = false
+enable_confirmations = true
+[analytics]
+enabled = false
