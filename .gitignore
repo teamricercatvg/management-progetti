@@ -1,0 +1,25 @@
+# Segreti e configurazioni locali
+.env
+.env.*
+!.env.example
+.vercel/
+*.pem
+*.key
+# Dipendenze e output futuri
+node_modules/
+.next/
+out/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+*.log
+# Stato temporaneo e backup
+supabase/.temp/
+supabase/.branches/
+backups/
+*.dump
+# Sistema ed editor
+.DS_Store
+.idea/
+.vscode/
