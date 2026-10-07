@@ -7,13 +7,19 @@ logico, attività, cronogramma, indicatori, budget e rapporti operativi.
 
 Milestone 1 pubblicata su `main` (commit `d1d6af5`). La Milestone 1A ha
 predisposto il backend dedicato, i backup e il progetto Vercel il 7 ottobre 2026.
-Resta aperta per l'attivazione Aruba: `ariadne-hub.it` è in **Attesa Validazione
-DNS**. I domini personalizzati e il loro HTTPS non sono ancora verificati.
+Il dominio Aruba è attivo e i record DNS sono stati configurati. La milestone
+resta aperta per **propagazione DNS e verifica HTTPS** dei domini personalizzati.
 
 Pagina statica temporanea: https://management-progetti.vercel.app.
 Non esiste ancora il gestionale Next.js: nessuna dipendenza npm, schema
 applicativo o migration è stata introdotta. Consegna 1A sul branch dedicato
 `codex/milestone-1a`; infrastruttura remota già configurata.
+
+La **Milestone 2 è conclusa**: modello dati versione 2 e permessi approvati,
+consegna versionata su `main`:
+[modello dati](docs/data-model.md) e [permessi](docs/permissions.md).
+MVP con Admin e Manager, enti/partenariati per progetto e cambi medi mensili
+previsti per le spese estere. Non sono state create migration.
 
 ## Documentazione
 
@@ -21,6 +27,9 @@ applicativo o migration è stata introdotta. Consegna 1A sul branch dedicato
 - [Regole operative](AGENTS.md)
 - [Consegna Milestone 1](docs/milestone-1.md)
 - [Consegna Milestone 1A](docs/milestone-1a.md)
+- [Consegna Milestone 2](docs/milestone-2.md)
+- [Modello dati](docs/data-model.md)
+- [Matrice permessi e contratto RLS](docs/permissions.md)
 - [Infrastruttura, verifiche e DNS pendenti](docs/infrastructure.md)
 
 Stack previsto: Next.js 16, App Router, React 19, TypeScript, Tailwind CSS 4

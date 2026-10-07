@@ -20,7 +20,7 @@ Prima di ogni modifica futura sara' necessario:
 - controllare il branch attivo;
 - sincronizzarsi con GitHub;
 - evitare modifiche non richieste;
-- lavorare in branch dedicati quando opportuno;
+- lavorare direttamente su `main`, senza creare branch (istruzione dell’utente);
 - produrre commit piccoli, leggibili e coerenti.
 
 Repository confermato (account GitHub `teamricercatvg`): `https://github.com/teamricercatvg/management-progetti`.
@@ -87,6 +87,24 @@ La descrizione iniziale deriva da una registrazione vocale e puo' contenere impr
 #### Documentazione continua
 
 Ogni milestone futura dovra' aggiornare la documentazione tecnica e funzionale rilevante. L'obiettivo e' mantenere il progetto comprensibile anche dopo molte iterazioni, evitando che le decisioni restino solo nella memoria delle conversazioni o nei commit.
+
+
+### Requisiti aggiornati dopo la revisione della Milestone 2
+
+Le sezioni concettuali e i dettagli delle milestone sotto conservano anche le
+ipotesi iniziali e funzionalità future. Per l’MVP prevalgono il
+[modello dati versione 2](data-model.md) e la [matrice permessi](permissions.md):
+
+- piattaforma unica con enti diversi e partenariati per progetto;
+- solo Admin e Manager; operatori/viewer e assegnazioni per attività rinviati;
+- dati registrati da Admin/Manager automaticamente validati, senza secondo validatore;
+- pubblicazione dei piani consentita anche al Manager assegnato;
+- valuta principale e conversione delle spese estere tramite cambio medio mensile.
+
+Le milestone 5, 7, 10 e 14 saranno eseguite inizialmente con i soli ruoli MVP;
+le funzioni operative dei ruoli futuri richiederanno una successiva specifica.
+Le milestone 12–13 comprendono il modello dei cambi mensili; l’importazione
+automatica da fonte ufficiale e la frequenza giornaliera restano evoluzioni.
 
 ## 2. Obiettivo dell'applicazione
 
@@ -542,68 +560,16 @@ Ipotesi consigliata:
 
 ## 6. Ruoli, permessi e sicurezza
 
-### 6.1 Ruoli iniziali
+Aggiornamento Milestone 2: MVP soltanto **Admin** e **Manager**. Admin crea utenti
+ e progetti, assegna i Manager e legge/scrive in tutti i progetti. Manager legge
+ e scrive tutti i dati dei progetti assegnati, pubblica i piani e registra dati
+ immediatamente validati. Ruoli Operator/Viewer, assegnazioni per attività e
+ validazione dei dati degli operatori sono evoluzioni future da definire.
 
-| Ruolo | Ambito | Descrizione |
-| --- | --- | --- |
-| `admin` | Globale | Accesso completo a tutti i progetti e gestione utenti |
-| `manager` | Per progetto | Gestione dei progetti assegnati secondo permessi da confermare |
-| `project_viewer` | Per progetto | Accesso in sola lettura ai progetti assegnati |
-| `operator` | Per attivita'/progetto | Accesso limitato alle attivita' assegnate e ai report collegati |
-
-Raccomandazione: usare `project_viewer` come nome del ruolo in sola lettura, perche' chiarisce l'ambito progettuale meglio di `viewer`.
-
-### 6.2 Permessi per ruolo
-
-| Azione | Admin | Manager | Project viewer | Operator |
-| --- | --- | --- | --- | --- |
-| Vedere tutti i progetti | Si | No | No | No |
-| Creare progetti | Si | Da confermare | No | No |
-| Modificare anagrafica progetto | Si | Da confermare sui progetti assegnati | No | No |
-| Gestire quadro logico | Si | Probabile sui progetti assegnati | No | No |
-| Gestire cronogramma | Si | Probabile sui progetti assegnati | No | No |
-| Gestire budget | Si | Da confermare | No | No |
-| Vedere budget | Si | Probabile sui progetti assegnati | Si, se autorizzato | No, salvo diversa decisione |
-| Gestire utenti progetto | Si | Probabile sui progetti assegnati | No | No |
-| Vedere attivita' assegnate | Si | Si | Si per progetto | Si |
-| Inserire rapporti | Si | Si | No | Si, per attivita' assegnate |
-| Validare rapporti | Si | Probabile | No | No |
-
-### 6.3 RLS Supabase
-
-La sicurezza dovra' essere implementata con Row Level Security su tutte le tabelle contenenti dati applicativi.
-
-Principi consigliati:
-
-- nessun accesso pubblico diretto ai dati di progetto;
-- ogni query deve essere filtrata dall'identita' utente;
-- `profiles` collega `auth.users` ai dati applicativi;
-- `project_memberships` definisce ruolo e accesso per progetto;
-- `activity_assignments` limita l'accesso operativo alle attivita';
-- le policy di budget devono essere piu' restrittive delle policy su attivita' e report;
-- le funzioni SQL helper devono essere piccole, testabili e usate nelle policy.
-
-Esempi di funzioni helper da valutare nelle milestone successive:
-
-- `is_admin(user_id)`;
-- `has_project_role(user_id, project_id, roles[])`;
-- `is_activity_assignee(user_id, activity_id)`;
-- `can_view_budget(user_id, project_id)`;
-- `can_validate_report(user_id, project_id)`.
-
-### 6.4 Separazione dei dati
-
-Il modello dovra' separare:
-
-- dati amministrativi globali;
-- dati di progetto;
-- assegnazioni utenti/progetti;
-- assegnazioni utenti/attivita';
-- dati economici;
-- report e allegati;
-- viste aggregate o dashboard.
-
-Questa separazione aiutera' sia la sicurezza sia la manutenzione delle policy RLS.
+La [matrice aggiornata](permissions.md) è il riferimento per ogni tabella e per
+RLS, audit, API ed esportazioni. Nessun accesso anonimo; nessun accesso del Manager
+ai progetti non assegnati. Anagrafiche globali e assegnazioni utenti restano Admin.
+Le organizzazioni coinvolte nel progetto non concedono permessi automaticamente.
 
 ## 7. Milestone di sviluppo
 
@@ -628,7 +594,7 @@ Dettagli: [consegna Milestone 1](milestone-1.md).
 ### Milestone 1A - Infrastruttura Netcup, Coolify, Supabase e Vercel
 
 Stato al 7 ottobre 2026: backend e Vercel predisposti e verificati;
-chiusura in attesa di attivazione DNS Aruba. Vedere la
+DNS Aruba salvati; chiusura in attesa di propagazione e HTTPS. Vedere la
 [consegna 1A](milestone-1a.md) e la [guida infrastrutturale](infrastructure.md).
 
 | Aspetto | Dettaglio |
@@ -642,7 +608,34 @@ chiusura in attesa di attivazione DNS Aruba. Vedere la
 | Rischi o attenzioni | Riutilizzare per errore database, volumi o segreti di CDP; alterare servizi esistenti; usare scope personali; esporre porte database o service role |
 | Criteri di completamento | Backend dedicato raggiungibile in sicurezza, backup verificato, account e configurazioni documentati senza segreti; prerequisito per applicare migration remote |
 
+### Milestone 1B - Casella email del sito e Google Workspace
+
+**Completata il 7 ottobre 2026**: casella `admin@ariadne-hub.it` operativa,
+SMTP Supabase Auth collaudato con magic link ricevuto, DKIM Google attivo e
+SPF/DKIM/DMARC PASS su mail esterna. Evidenze e limiti in [email.md](email.md).
+Notifiche applicative rinviate su richiesta; flussi di accesso nella Milestone 4.
+
+| Aspetto | Dettaglio |
+| --- | --- |
+| Obiettivo | Creare la casella email dedicata a tutti i servizi del sito sul dominio `ariadne-hub.it` e collegarla a un account Google Workspace |
+| Output atteso | Casella Google Workspace operativa, identita' email del sito definita e invio delle email di autenticazione Supabase configurato |
+| Attivita' principali | Individuare o attivare l'account Google Workspace, verificare il dominio, creare la casella, configurare i record di posta MX, SPF, DKIM e DMARC; definire mittente e indirizzo di risposta per i servizi del sito; configurare l'invio SMTP compatibile con Supabase Auth e con le notifiche applicative previste |
+| File o aree coinvolte | `docs/email.md`, documentazione infrastruttura, `.env.example` per eventuali nomi di variabili, configurazione Supabase Auth e DNS |
+| Decisioni da prendere | Indirizzo della casella, account Workspace nuovo o esistente, piano e licenza, amministratori e recupero accesso, eventuali alias, metodo di invio compatibile e relativi limiti da verificare prima del setup |
+| Verifiche | Invio e ricezione della casella, autenticazione del dominio email, consegna a destinatari di test, mittente e risposta corretti, invio dei messaggi Supabase Auth; nella Milestone 4 verificare anche i flussi completi di invito, conferma email e recupero password previsti |
+| Rischi o attenzioni | Sovrascrivere record DNS esistenti, esporre credenziali SMTP, lasciare senza recupero l'account amministrativo, superare i limiti di invio del servizio scelto |
+| Criteri di completamento | Casella collegata a Google Workspace e verificata in invio/ricezione, canale email Auth collaudato e configurazione documentata senza segreti; completare prima della Milestone 4 |
+
+La casella sara' il riferimento email comune per i servizi del sito, incluse autenticazione utenti, notifiche e comunicazioni di servizio. GitHub e Vercel restano associati agli account gia' concordati; eventuali cambi di titolarita' saranno decisioni separate. Questa milestone riguarda la posta del sito; l'eventuale accesso degli utenti tramite Google sara' valutato nella progettazione dell'autenticazione.
+
 ### Milestone 2 - Definizione dettagliata del modello dati
+
+Stato al 7 ottobre 2026: **conclusa; modello dati versione 2 e permessi approvati**.
+Consegna versionata su `main`.
+Vedere [modello dati](data-model.md), [permessi](permissions.md) e
+[consegna](milestone-2.md). MVP solo Admin e Manager, progetti con enti singoli o
+partenariati, registrazione dei dati subito validata, cambi medi mensili delle
+spese estere. Nessuna migration creata o applicata; Milestone 3 non iniziata.
 
 | Aspetto | Dettaglio |
 | --- | --- |
@@ -672,7 +665,7 @@ chiusura in attesa di attivazione DNS Aruba. Vedere la
 
 | Aspetto | Dettaglio |
 | --- | --- |
-| Obiettivo | Collegare Supabase Auth ai profili applicativi |
+| Obiettivo | Collegare Supabase Auth ai profili applicativi, usando il canale email predisposto nella Milestone 1B |
 | Output atteso | Struttura utenti/profili e base per ruoli globali |
 | Attivita' principali | Definire `profiles`, collegamento a `auth.users`, flusso creazione profilo, gestione admin iniziale |
 | File o aree coinvolte | Supabase migration, client/server auth, documentazione sicurezza |
@@ -957,6 +950,8 @@ Prima di deploy futuri sara' necessario:
 - Esiste gia' un ambiente staging?
 - Quale nome assegnare al progetto Vercel dell'account `teamricercatvg@gmail.com`, cui associare il dominio gia' acquistato `www.ariadne-hub.it`?
 - Quale strategia di backup database e' prevista?
+- Quale indirizzo `@ariadne-hub.it` creare per i servizi del sito e a quale account Google Workspace associarlo?
+- Quali piano Workspace, amministratori e metodo di invio email adottare nella Milestone 1B?
 
 ## 10. Proposta di ordine di lavoro
 
@@ -967,7 +962,7 @@ Ordine consigliato:
 3. definire in dettaglio il modello dati;
 4. progettare ruoli e matrice permessi;
 5. creare migration Supabase iniziali;
-6. implementare autenticazione e profili;
+6. completare la Milestone 1B (casella email su Google Workspace e invio email Supabase), poi implementare autenticazione e profili;
 7. implementare RLS e test di sicurezza;
 8. creare layout base e navigazione;
 9. implementare gestione progetti;
@@ -983,6 +978,7 @@ Ordine consigliato:
 Motivazione dell'ordine:
 
 - prima si stabiliscono repository, documentazione e modello dati;
+- prima dell'autenticazione si predispone la casella Google Workspace e si verifica il canale email;
 - poi si mette in sicurezza il sistema con autenticazione, ruoli e RLS;
 - solo dopo si costruiscono le funzionalita' applicative;
 - budget, report e dashboard arrivano dopo le strutture fondative da cui dipendono;
@@ -1012,6 +1008,6 @@ collegato al repository GitHub previsto, verificato vuoto con teamricercatvg.
 Sono presenti i file previsti dalla Milestone 1, pubblicati su main nel commit
 `d1d6af5`; la consegna della Milestone 1A è sul branch `codex/milestone-1a`.
 La Milestone 1A è stata avviata con richiesta esplicita e resta aperta per
-attivazione DNS Aruba; vedere [consegna 1A](milestone-1a.md).
+propagazione DNS e verifica HTTPS; vedere [consegna 1A](milestone-1a.md).
 Lo sviluppo applicativo non è iniziato. Per la fase precedente vedere
 [la consegna](milestone-1.md) per convenzioni e decisioni aperte.

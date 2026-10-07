@@ -16,8 +16,8 @@ le richieste esplicite successive autorizzano la rispettiva milestone.
 - Prima di modificare verificare stato, branch e remote, poi fare fetch.
   Confrontare eventuali commit remoti prima di integrare cambiamenti.
 - Preservare il lavoro dell'utente; evitare reset e pulizie distruttive.
-- Base main; usare branch dedicati per le prossime milestone, ad esempio
-  docs/milestone-2 o feat/autenticazione, salvo istruzioni diverse.
+- Lavorare sempre direttamente su `main`. Non creare nuovi branch, per
+  istruzione esplicita dell’utente. I branch preesistenti sono storici.
 - Commit piccoli con prefissi docs:, chore:, feat:, fix: o test:.
 - Commit, push e deploy solo quando richiesti; rivedere il diff e selezionare
   i percorsi interessati senza includere automaticamente tutto il checkout.
@@ -70,8 +70,8 @@ documentazione distinguendo stato locale, pubblicato, configurato e verificato.
   private in `~/.config/ariadne-infra/`, mai stamparle o versionarle.
 - La pagina pubblica provvisoria è statica, `public/`, con `vercel.json`.
   Il futuro scaffold Next.js richiederà aggiornare il preset/output Vercel.
-- Dominio Aruba in «Attesa Validazione DNS»: completare record e HTTPS prima
-  di dichiarare chiusa 1A. Account e stato servizi vanno sempre ricontrollati.
+- Dominio Aruba attivo e record DNS salvati: attendere propagazione e verificare
+  HTTPS prima di dichiarare chiusa 1A. Non duplicare i record già inseriti.
 - Backup giornaliero alle 03:15 Europe/Rome, retention 14 giorni; ripristino
   isolato verificato. Copia fuori server iniziale sul Mac, automazione pendente.
 - Le env Vercel nei tre ambienti usano l'istanza dedicata attualmente vuota;
