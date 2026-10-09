@@ -1029,6 +1029,7 @@ Vedere [consegna e verifiche](milestone-3.md).
 
 Implementazione locale di Auth, profili e bootstrap iniziale, con scaffold
 Next.js e test isolati. Rilascio autorizzato dall’utente il 9 ottobre 2026:
-migration applicata e primo Admin predisposto. Collaudo email/browser previsto
-direttamente sul sito pubblico dopo la pubblicazione.
+migration applicata, primo Admin predisposto e frontend pubblicato.
+Sessione Admin e recupero verificati sul dominio pubblico; collaudo manuale
+email/browser dell’utente direttamente in produzione.
 Vedere [consegna e checklist localhost](milestone-4.md).

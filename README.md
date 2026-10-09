@@ -7,8 +7,8 @@ logico, attività, cronogramma, indicatori, budget e rapporti operativi.
 
 Milestone 1 e infrastruttura dedicate predisposte; frontend su Vercel e
 Supabase su Netcup/Coolify. La milestone 4 introduce Next.js e i flussi Auth;
-il rilascio in produzione è autorizzato e il collaudo manuale avverrà sul sito
-https://www.ariadne-hub.it. Stato e verifiche nella [consegna](docs/milestone-4.md).
+la versione è pubblicata e verificata su https://www.ariadne-hub.it.
+Il collaudo manuale dell’utente avviene direttamente sul sito. Stato e verifiche nella [consegna](docs/milestone-4.md).
 
 La **Milestone 2 è conclusa**: modello dati versione 2 e permessi approvati,
 consegna versionata su `main`:
@@ -25,7 +25,6 @@ La **Milestone 4 è implementata**, con migration applicata al backend dedicato
 e primo Admin predisposto. Avvio locale: `npm ci` e `npm run dev`, quindi
 http://127.0.0.1:3000. Il `.env.local` esistente usa il backend operativo;
 per un ambiente isolato configurare Supabase locale con credenziali proprie.
-
 
 ## Documentazione
 

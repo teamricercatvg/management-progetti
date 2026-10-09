@@ -2,7 +2,8 @@
 
 Data: 9 ottobre 2026. Rilascio in produzione autorizzato dall’utente dopo i
 test automatici; collaudo manuale previsto direttamente sul sito pubblico.
-Migration applicata e primo Admin predisposto; frontend in fase di rilascio.
+Migration applicata, primo Admin predisposto e frontend pubblicato e verificato
+su https://www.ariadne-hub.it.
 
 ## Funzionalità e confini
 
@@ -169,7 +170,17 @@ incompatibile di Next.js è stato applicato per nascondere la segnalazione.
 - La build copia i template canonici da `supabase/templates` negli asset pubblici
   con `scripts/prepare-auth-templates.mjs`; non contiene credenziali.
 - Vercel: preset Next.js e `APP_URL=https://www.ariadne-hub.it` in production.
-- Frontend: pubblicazione e verifica del deployment da completare dopo il push.
+- Frontend: commit applicativo `bc07f65`, deployment Vercel
+  `dpl_EHsQFjSfYvby294TDFcz4GEoFYMP` in stato READY, dominio www assegnato.
+- Verifiche live: login e template HTTP 200, anonimi rimandati al login,
+  POST da origine estranea negato, sessione Auth reale con pagina account Admin
+  renderizzata via SSR e Cache-Control no-store. Accesso progetti negato.
+- Recupero: conferma POST sul dominio pubblico, cookie di sessione e pagina
+  password verificati; riutilizzo del token respinto. Nessuna password cambiata.
+- Le sessioni tecniche temporanee sono state chiuse con logout locale;
+  nessuna email di test inviata. Il test di ricezione email resta all’utente.
+- Backend healthy dopo il riavvio Coolify; controlli gateway e signup chiuso
+  superati. Nei log Vercel interrogati dopo il rilascio nessun errore rilevato.
 
 Per iniziare il collaudo, usare l’account `admin@ariadne-hub.it`. Se la password
 applicativa non è nota, utilizzare “Hai dimenticato la password?”: non presumere
