@@ -26,7 +26,12 @@ for db in foundation_test foundation_replay; do
     # Roles are cluster-wide and already exist.
     sed '/^create role /d' "$work/supabase/tests/bootstrap.sql" | run_sql "$db"
   fi
-  for migration in "$work"/supabase/migrations/*.sql; do run_sql "$db" < "$migration"; done
+  for migration in "$work"/supabase/migrations/20261007*.sql; do run_sql "$db" < "$migration"; done
+done
+run_sql foundation_test < "$work/supabase/tests/foundations.sql"
+bash "$work/supabase/tests/concurrency.sh" "$container"
+for db in foundation_test foundation_replay; do
+  for migration in "$work"/supabase/migrations/20261009*.sql; do run_sql "$db" < "$migration"; done
   docker exec "$container" pg_dump -h /tmp -U postgres -d "$db" --schema-only --schema public --schema app_private > "$work/$db.sql"
 done
 # pg_dump 15 does not include database-specific headers, normalize optional restrict tokens.
@@ -34,10 +39,7 @@ sed '/^\\restrict /d; /^\\unrestrict /d' "$work/foundation_test.sql" > "$work/sc
 sed '/^\\restrict /d; /^\\unrestrict /d' "$work/foundation_replay.sql" > "$work/schema-replay.sql"
 diff -u "$work/schema-first.sql" "$work/schema-replay.sql"
 echo 'PASS: migrations apply from zero twice; schema dumps match'
-run_sql foundation_test < "$work/supabase/tests/foundations.sql"
-if [[ -f "$work/supabase/tests/concurrency.sh" ]]; then
-  bash "$work/supabase/tests/concurrency.sh" "$container"
-fi
+run_sql foundation_test < "$work/supabase/tests/auth.sql"
 # Test transaction rollback of the entire migration chain, omitting their wrappers.
 docker exec "$container" createdb -h /tmp -U postgres foundation_rollback
 sed '/^create role /d' "$work/supabase/tests/bootstrap.sql" | run_sql foundation_rollback

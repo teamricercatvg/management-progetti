@@ -5,16 +5,10 @@ logico, attività, cronogramma, indicatori, budget e rapporti operativi.
 
 ## Stato
 
-Milestone 1 pubblicata su `main` (commit `d1d6af5`). La Milestone 1A ha
-predisposto il backend dedicato, i backup e il progetto Vercel il 7 ottobre 2026.
-Il dominio Aruba è attivo e i record DNS sono stati configurati. La milestone
-resta aperta per **propagazione DNS e verifica HTTPS** dei domini personalizzati.
-
-Pagina statica temporanea: https://management-progetti.vercel.app.
-Non esiste ancora il gestionale Next.js e non sono state introdotte dipendenze npm.
-Le migration fondative della Milestone 3 sono state testate in isolamento
-e applicate al backend dedicato il 7 ottobre 2026. Consegna 1A sul branch dedicato
-`codex/milestone-1a`; infrastruttura remota già configurata.
+Milestone 1 e infrastruttura dedicate predisposte; frontend su Vercel e
+Supabase su Netcup/Coolify. La milestone 4 introduce Next.js e i flussi Auth;
+il rilascio in produzione è autorizzato e il collaudo manuale avverrà sul sito
+https://www.ariadne-hub.it. Stato e verifiche nella [consegna](docs/milestone-4.md).
 
 La **Milestone 2 è conclusa**: modello dati versione 2 e permessi approvati,
 consegna versionata su `main`:
@@ -27,6 +21,12 @@ fondative, vincoli e audit; RLS abilitata senza policy e accessi API negati.
 Applicazione da zero, integrità e concorrenza verificati su PostgreSQL 15 isolato.
 Vedere la [consegna Milestone 3](docs/milestone-3.md) per confini e riproduzione.
 
+La **Milestone 4 è implementata**, con migration applicata al backend dedicato
+e primo Admin predisposto. Avvio locale: `npm ci` e `npm run dev`, quindi
+http://127.0.0.1:3000. Il `.env.local` esistente usa il backend operativo;
+per un ambiente isolato configurare Supabase locale con credenziali proprie.
+
+
 ## Documentazione
 
 - [Roadmap e requisiti](docs/roadmap-gestione-progetti.md)
@@ -35,13 +35,14 @@ Vedere la [consegna Milestone 3](docs/milestone-3.md) per confini e riproduzione
 - [Consegna Milestone 1A](docs/milestone-1a.md)
 - [Consegna Milestone 2](docs/milestone-2.md)
 - [Consegna Milestone 3](docs/milestone-3.md)
+- [Consegna Milestone 4 e collaudo](docs/milestone-4.md)
 - [Modello dati](docs/data-model.md)
 - [Matrice permessi e contratto RLS](docs/permissions.md)
 - [Infrastruttura, verifiche e DNS pendenti](docs/infrastructure.md)
 
 Stack previsto: Next.js 16, App Router, React 19, TypeScript, Tailwind CSS 4
  e Supabase self-hosted dedicato su Netcup/Coolify. Frontend previsto su Vercel,
-con indirizzo pubblico https://www.ariadne-hub.it. Servizi predisposti in 1A; DNS personalizzati pendenti.
+con indirizzo pubblico https://www.ariadne-hub.it. Per lo stato del rilascio vedere la consegna della milestone 4.
 
 ## Setup e comandi disponibili
 
@@ -94,10 +95,11 @@ bash -n scripts/github.sh
 ```
 
 Leggere anche i nuovi file: git diff non mostra quelli non tracciati.
-Type-check, lint, test applicativi e build saranno introdotti con il codice.
+Controlli applicativi: `npm run typecheck`, `npm run lint`, `npm test`,
+`npm run build`. Flussi Auth isolati: `bash scripts/test-auth-service.sh`.
 Per i controlli infrastrutturali: `python3 scripts/check-backend.py` e
 `python3 scripts/supabase-cli.py query 'select current_database();'`.
-Per la pagina statica basta un server HTTP su `public/`.
+La vecchia pagina statica resta in `public/index.html` come riferimento storico.
 
 ## Test migration fondative
 

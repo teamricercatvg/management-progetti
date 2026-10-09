@@ -1,0 +1,141 @@
+@import "tailwindcss";
+:root {
+  color-scheme: light;
+}
+body {
+  margin: 0;
+  background: #f3f5f1;
+  color: #183d36;
+  font-family: Arial, Helvetica, sans-serif;
+}
+main {
+  max-width: 520px;
+  margin: 7vh auto;
+  padding: 24px;
+}
+header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 23px;
+  font-weight: 700;
+  margin-bottom: 32px;
+}
+.mark {
+  background: #205b4c;
+  color: white;
+  border-radius: 14px;
+  padding: 12px 19px;
+  font-family: Georgia, serif;
+  font-size: 32px;
+}
+small {
+  display: block;
+  font-size: 12px;
+  font-weight: 400;
+  margin-top: 4px;
+  letter-spacing: 0.08em;
+}
+section {
+  background: white;
+  border: 1px solid #dce5df;
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 14px 45px #173d3608;
+}
+h1 {
+  font:
+    32px Georgia,
+    serif;
+  margin: 0 0 16px;
+}
+h2 {
+  font-size: 18px;
+  margin: 24px 0 12px;
+}
+p {
+  line-height: 1.6;
+  margin: 12px 0;
+  color: #45635b;
+}
+form {
+  display: grid;
+  gap: 12px;
+  margin: 20px 0;
+}
+label {
+  font-size: 14px;
+  font-weight: 600;
+}
+input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #a6bab0;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 6px;
+  font-size: 16px;
+  color: #173d36;
+  background: white;
+}
+button {
+  background: #205b4c;
+  color: white;
+  border: 0;
+  border-radius: 8px;
+  padding: 13px 18px;
+  font-weight: 600;
+  cursor: pointer;
+}
+button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+a {
+  color: #205b4c;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+summary:focus-visible {
+  outline: 3px solid #d49b38;
+  outline-offset: 3px;
+}
+.notice {
+  background: #eef4ed;
+  border-left: 3px solid #648d6c;
+  padding: 12px;
+}
+summary {
+  cursor: pointer;
+  font-size: 14px;
+}
+footer {
+  font-size: 12px;
+  color: #64766e;
+  margin: 24px 0;
+  line-height: 1.5;
+}
+dl {
+  margin: 24px 0;
+}
+dt {
+  font-size: 12px;
+  color: #64766e;
+}
+dd {
+  margin: 4px 0 16px;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 560px) {
+  main {
+    margin: 16px auto;
+    padding: 18px;
+  }
+  section {
+    padding: 24px;
+  }
+}

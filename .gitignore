@@ -23,3 +23,6 @@ backups/
 .DS_Store
 .idea/
 .vscode/
+
+# Template Auth pubblici generati dalla build
+public/auth-templates/

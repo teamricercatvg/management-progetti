@@ -252,6 +252,9 @@ services:
       - 'GOTRUE_DB_DATABASE_URL=postgres://supabase_auth_admin:${SERVICE_PASSWORD_POSTGRES}@${POSTGRES_HOSTNAME:-supabase-db}:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-postgres}'
       - 'GOTRUE_SITE_URL=${GOTRUE_SITE_URL:-${SERVICE_URL_SUPABASEKONG}}'
       - 'GOTRUE_URI_ALLOW_LIST=${ADDITIONAL_REDIRECT_URLS}'
+      - 'GOTRUE_PASSWORD_MIN_LENGTH=12'
+      - 'GOTRUE_MAILER_SUBJECTS_INVITE=Invito ad Ariadne Hub'
+      - 'GOTRUE_MAILER_SUBJECTS_RECOVERY=Reimposta la password di Ariadne Hub'
       - 'GOTRUE_DISABLE_SIGNUP=${DISABLE_SIGNUP:-false}'
       - GOTRUE_JWT_ADMIN_ROLES=service_role
       - GOTRUE_JWT_AUD=authenticated

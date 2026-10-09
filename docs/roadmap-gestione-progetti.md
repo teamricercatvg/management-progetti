@@ -1023,3 +1023,12 @@ e verificata il 7 ottobre 2026, con backup preventivo e cronologia Supabase
 allineata. Consegna su `main`; commit e push autorizzati dall’utente.
 Auth e bootstrap restano alla 4, autorizzazioni applicative alla 5.
 Vedere [consegna e verifiche](milestone-3.md).
+
+
+### Aggiornamento Milestone 4 — 9 ottobre 2026
+
+Implementazione locale di Auth, profili e bootstrap iniziale, con scaffold
+Next.js e test isolati. Rilascio autorizzato dall’utente il 9 ottobre 2026:
+migration applicata e primo Admin predisposto. Collaudo email/browser previsto
+direttamente sul sito pubblico dopo la pubblicazione.
+Vedere [consegna e checklist localhost](milestone-4.md).
