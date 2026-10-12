@@ -8,7 +8,8 @@ const config: NextConfig = {
         source: "/(.*)",
         headers: [
           { key: "X-Robots-Tag", value: "noindex, nofollow" },
-          { key: "Referrer-Policy", value: "no-referrer" },
+          // Preserve Origin on native form POSTs without disclosing token URLs.
+          { key: "Referrer-Policy", value: "strict-origin" },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "X-Frame-Options", value: "DENY" },
         ],

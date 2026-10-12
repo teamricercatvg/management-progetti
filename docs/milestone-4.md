@@ -193,3 +193,28 @@ budget e gestione utenti tramite UI restano alle milestone successive.
 Riferimenti: [Supabase SSR](https://supabase.com/docs/guides/auth/server-side/creating-a-client),
 [flusso token hash](https://supabase.com/docs/guides/getting-started/tutorials/with-nextjs),
 [Next.js Proxy](https://nextjs.org/docs/app/getting-started/proxy).
+
+## Correzione locale conferma invito — 12 ottobre 2026
+
+Non ancora pubblicata. La policy `no-referrer` sopprime anche `Origin` nei
+POST nativi dei form: il controllo di origine respingeva la conferma con un
+403 vuoto, scaricato dal browser come file `confirm`. La policy ora è
+`strict-origin`: conserva l’origine senza trasmettere path o token nel Referer.
+Il controllo usa `APP_URL` quando configurato, evitando differenze fra hostname
+pubblico e interno; origini mancanti, nulle o estranee restano respinte con
+una pagina HTML leggibile. I redirect usano la stessa origine configurata.
+
+Verificati lint, test unitari, typecheck e build con `npm run build -- --webpack`.
+Turbopack è bloccato localmente da un errore di apertura porte; `npm ci` segnala
+incoerenze preesistenti nel lockfile per dipendenze opzionali emnapi su questo Mac.
+Dipendenze installate per il collaudo con `npm install --no-package-lock`, senza
+modificare il lockfile. Il test HTTP ripetibile è
+`node scripts/test-auth-http.mjs http://127.0.0.1:4313`, con build avviata sulla
+stessa porta e `APP_URL=http://127.0.0.1:4313`.
+
+Nel browser locale, Continua con token fittizio raggiunge il messaggio di link
+non valido invece di scaricare un file. Nessun token reale consumato, nessuna
+email inviata, nessuna password modificata. Il completamento con invito reale
+e il controllo sul dominio pubblico restano da effettuare dopo il deploy.
+
+Riferimento: [effetto di Referrer-Policy su Origin](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Referrer-Policy#effect_on_the_origin_header).
