@@ -228,9 +228,9 @@ stato utilizzato; il completamento con invito reale resta al destinatario.
 
 Riferimento: [effetto di Referrer-Policy su Origin](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Referrer-Policy#effect_on_the_origin_header).
 
-## Inviti da Supabase Studio — correzione locale del 12 ottobre 2026
+## Inviti da Supabase Studio — rilascio del 12 ottobre 2026
 
-Non ancora pubblicata. L’invito inviato da Studio per il collaudo separato
+L’invito inviato da Studio per il collaudo separato
 rimanda al login: il vecchio template dipendeva da `.RedirectTo`, passato
 dallo script operatore ma non dal modulo Studio. La homepage rimandava
 incondizionatamente al profilo, poi al login per chi non ha sessione.
@@ -242,5 +242,12 @@ tipi diversi e token vuoti o oltre 512 caratteri non vengono inoltrati;
 eventuali destinazioni esterne sono ignorate. Nessuna password modificata.
 
 Verifiche: lint, test unitari, build Webpack, typecheck e test HTTP locali
-degli inviti precedenti e dei controlli di origine. Dopo il deploy, verificare
-la destinazione del vecchio invito e la pagina di conferma nel browser.
+degli inviti precedenti e dei controlli di origine.
+
+Pubblicata dopo autorizzazione esplicita nel commit `ae3fa73`; deploy Vercel
+`CCgafSjWH4iRHCw2bP1bxBvVyBsY` completato con successo nello scope dedicato.
+Sul dominio pubblico, un link di prova nel vecchio formato arriva a
+`/auth/accept` e mostra “Conferma l’accesso”, senza consumare il token su GET.
+Entrambi i template pubblici espongono il nuovo percorso. Nessun token reale
+utilizzato in questa verifica e nessuna password modificata. La verifica
+completa dell’email e della password rimane al destinatario del collaudo.
