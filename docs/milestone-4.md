@@ -194,9 +194,9 @@ Riferimenti: [Supabase SSR](https://supabase.com/docs/guides/auth/server-side/cr
 [flusso token hash](https://supabase.com/docs/guides/getting-started/tutorials/with-nextjs),
 [Next.js Proxy](https://nextjs.org/docs/app/getting-started/proxy).
 
-## Correzione locale conferma invito — 12 ottobre 2026
+## Correzione conferma invito — 12 ottobre 2026
 
-Non ancora pubblicata. La policy `no-referrer` sopprime anche `Origin` nei
+La policy `no-referrer` sopprime anche `Origin` nei
 POST nativi dei form: il controllo di origine respingeva la conferma con un
 403 vuoto, scaricato dal browser come file `confirm`. La policy ora è
 `strict-origin`: conserva l’origine senza trasmettere path o token nel Referer.
@@ -215,6 +215,13 @@ stessa porta e `APP_URL=http://127.0.0.1:4313`.
 Nel browser locale, Continua con token fittizio raggiunge il messaggio di link
 non valido invece di scaricare un file. Nessun token reale consumato, nessuna
 email inviata, nessuna password modificata. Il completamento con invito reale
-e il controllo sul dominio pubblico restano da effettuare dopo il deploy.
+resta da effettuare dall’utente con la propria password.
+
+Correzione pubblicata su `main` nel commit `b2498f2`, dopo autorizzazione
+esplicita. Deploy automatico Vercel `FLCJZKCiETazvpnfJ9t95bjXZ2RY` completato
+con successo nello scope `tor-vergata-igiene`, progetto `management-progetti`.
+Verificato nel browser su `www.ariadne-hub.it`: Continua con token fittizio
+raggiunge `/login?status=expired`, senza download. Il token dell’utente non è
+stato utilizzato; il completamento con invito reale resta al destinatario.
 
 Riferimento: [effetto di Referrer-Policy su Origin](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Referrer-Policy#effect_on_the_origin_header).
