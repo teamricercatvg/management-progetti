@@ -77,9 +77,11 @@ isolati sul server, rimossi al termine, senza porte pubblicate né rete esterna.
    `http://127.0.0.1:3000/auth/accept` e `/auth/callback` per il collaudo;
    in produzione i corrispondenti URL su `https://www.ariadne-hub.it`.
 3. Configurare i template [invito](../supabase/templates/invite.html) e
-   [recupero](../supabase/templates/recovery.html). Usano `.RedirectTo`,
-   `.TokenHash` e tipi distinti `invite`/`recovery`; i comandi applicativi
-   passano sempre `/auth/accept`. I link standard impliciti con token nel
+   [recupero](../supabase/templates/recovery.html). Usano `.SiteURL` seguito da
+   `/auth/accept`, `.TokenHash` e tipi distinti `invite`/`recovery`, anche quando
+   Studio non passa un redirect esplicito. Site URL deve essere l’origine
+   dell’app, senza slash finale; per backend locale usare l’origine locale.
+   I link standard impliciti con token nel
    frammento URL non sono supportati dal client SSR.
 4. Configurare `APP_URL` nell’ambiente scelto. In produzione deve essere
    `https://www.ariadne-hub.it`, senza path; non derivarla da header del client.
@@ -225,3 +227,20 @@ raggiunge `/login?status=expired`, senza download. Il token dell’utente non è
 stato utilizzato; il completamento con invito reale resta al destinatario.
 
 Riferimento: [effetto di Referrer-Policy su Origin](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Referrer-Policy#effect_on_the_origin_header).
+
+## Inviti da Supabase Studio — correzione locale del 12 ottobre 2026
+
+Non ancora pubblicata. L’invito inviato da Studio per il collaudo separato
+rimanda al login: il vecchio template dipendeva da `.RedirectTo`, passato
+dallo script operatore ma non dal modulo Studio. La homepage rimandava
+incondizionatamente al profilo, poi al login per chi non ha sessione.
+
+I template invito e recupero ora puntano a `.SiteURL/auth/accept`.
+La homepage inoltra i vecchi link con `token_hash` e tipo `invite`/`recovery`
+alla conferma manuale, senza consumare il token su GET. Parametri duplicati,
+tipi diversi e token vuoti o oltre 512 caratteri non vengono inoltrati;
+eventuali destinazioni esterne sono ignorate. Nessuna password modificata.
+
+Verifiche: lint, test unitari, build Webpack, typecheck e test HTTP locali
+degli inviti precedenti e dei controlli di origine. Dopo il deploy, verificare
+la destinazione del vecchio invito e la pagina di conferma nel browser.

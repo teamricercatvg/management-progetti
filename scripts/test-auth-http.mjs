@@ -8,6 +8,26 @@ assert.equal(page.status, 200);
 assert.equal(page.headers.get("referrer-policy"), "strict-origin");
 assert.match(await page.text(), /action="\/auth\/confirm"/);
 
+// Studio invitations issued before the template fix must reach confirmation,
+// without verifying a token on GET or honoring arbitrary redirect targets.
+for (const type of ["invite", "recovery"]) {
+  const params = new URLSearchParams({ token_hash: "test+/=", type });
+  const response = await fetch(`${origin}/?${params}&next=https://foreign.example`, {
+    redirect: "manual",
+  });
+  assert.equal(response.status, 307);
+  assert.equal(response.headers.get("location"), `/auth/accept?${params}`);
+}
+for (const query of [
+  "", "token_hash=test&type=other", "token_hash=&type=invite",
+  "token_hash=a&token_hash=b&type=invite", "token_hash=a&type=invite&type=recovery",
+  `token_hash=${"a".repeat(513)}&type=invite`,
+]) {
+  const response = await fetch(`${origin}/?${query}`, { redirect: "manual" });
+  assert.equal(response.status, 307);
+  assert.equal(response.headers.get("location"), "/account");
+}
+
 for (const suppliedOrigin of [null, "null", "https://foreign.example"]) {
   const headers = suppliedOrigin === null ? {} : { Origin: suppliedOrigin };
   const response = await fetch(`${origin}/auth/confirm`, {
@@ -32,4 +52,4 @@ for (const type of ["invite", "recovery"]) {
   assert.equal(response.status, 303);
   assert.equal(response.headers.get("location"), `${origin}/login?status=expired`);
 }
-console.log("Auth HTTP: policy, origin rejection and safe redirects passed.");
+console.log("Auth HTTP: policy, origin rejection, legacy invitations and safe redirects passed.");
