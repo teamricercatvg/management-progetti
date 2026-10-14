@@ -31,6 +31,11 @@ Admin/Manager sulle tabelle fondative, membership, RPC controllate e audit con
 owner dedicati. Rilascio autorizzato il 14 ottobre 2026; vedere la
 [consegna Milestone 5](docs/milestone-5.md).
 
+La **Milestone 6 è implementata e verificata localmente**: layout autenticato,
+navigazione responsive, panoramica e pagine iniziali Progetti/Amministrazione,
+con accesso Admin controllato sul server. Rilascio autorizzato; vedere la
+[consegna Milestone 6](docs/milestone-6.md).
+
 ## Documentazione
 
 - [Roadmap e requisiti](docs/roadmap-gestione-progetti.md)
@@ -41,6 +46,7 @@ owner dedicati. Rilascio autorizzato il 14 ottobre 2026; vedere la
 - [Consegna Milestone 3](docs/milestone-3.md)
 - [Consegna Milestone 4 e collaudo](docs/milestone-4.md)
 - [Consegna Milestone 5 e autorizzazioni](docs/milestone-5.md)
+- [Consegna Milestone 6 e navigazione](docs/milestone-6.md)
 - [Modello dati](docs/data-model.md)
 - [Matrice permessi e contratto RLS](docs/permissions.md)
 - [Infrastruttura, verifiche e DNS pendenti](docs/infrastructure.md)

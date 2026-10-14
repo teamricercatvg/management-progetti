@@ -2,7 +2,10 @@ import { redirect } from "next/navigation";
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ token_hash?: string | string[]; type?: string | string[] }>;
+  searchParams: Promise<{
+    token_hash?: string | string[];
+    type?: string | string[];
+  }>;
 }) {
   // Older Studio emails point to Site URL; preserve the token without using it.
   const { token_hash, type } = await searchParams;
@@ -15,5 +18,5 @@ export default async function Home({
     const params = new URLSearchParams({ token_hash, type });
     redirect(`/auth/accept?${params.toString()}`);
   }
-  redirect("/account");
+  redirect("/overview");
 }

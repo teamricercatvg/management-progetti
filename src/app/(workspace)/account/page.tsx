@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { requireProfile } from "@/lib/auth";
-import { logout } from "@/app/actions";
-import { Submit } from "@/components/submit";
+export const metadata = { title: "Account" };
 export const dynamic = "force-dynamic";
 export default async function Account({
   searchParams,
@@ -30,9 +29,6 @@ export default async function Account({
         fasi.
       </p>
       <Link href="/password">Imposta o modifica la password</Link>
-      <form action={logout}>
-        <Submit>Esci</Submit>
-      </form>
     </section>
   );
 }

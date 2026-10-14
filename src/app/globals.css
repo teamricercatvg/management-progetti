@@ -8,12 +8,12 @@ body {
   color: #183d36;
   font-family: Arial, Helvetica, sans-serif;
 }
-main {
+.auth-layout {
   max-width: 520px;
   margin: 7vh auto;
   padding: 24px;
 }
-header {
+.brand {
   display: flex;
   align-items: center;
   gap: 14px;
@@ -131,11 +131,218 @@ dd {
   overflow-wrap: anywhere;
 }
 @media (max-width: 560px) {
-  main {
+  .auth-layout {
     margin: 16px auto;
     padding: 18px;
   }
   section {
+    padding: 24px;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+.brand {
+  text-decoration: none;
+  color: #183d36;
+}
+.workspace {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  min-height: 100dvh;
+}
+.sidebar {
+  background: #fff;
+  border-right: 1px solid #dce5df;
+  padding: 32px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+.sidebar .brand {
+  font-size: 20px;
+  margin: 0;
+  gap: 10px;
+}
+.sidebar .mark {
+  font-size: 26px;
+  padding: 10px 16px;
+}
+.sidebar nav {
+  display: grid;
+  gap: 8px;
+}
+.sidebar nav a {
+  padding: 13px 16px;
+  text-decoration: none;
+  border-radius: 9px;
+  font-size: 15px;
+}
+.sidebar nav a:hover {
+  background: #f3f5f1;
+}
+.sidebar nav a[aria-current="page"] {
+  background: #205b4c;
+  color: white;
+  font-weight: 700;
+}
+.sidebar-account {
+  margin-top: auto;
+  padding-top: 24px;
+  border-top: 1px solid #dce5df;
+}
+.identity {
+  display: block;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.sidebar-account form {
+  margin-bottom: 0;
+}
+.sidebar-account button {
+  background: #eef4ed;
+  color: #205b4c;
+}
+.workspace-body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.workspace-header {
+  min-height: 84px;
+  padding: 20px 40px;
+  border-bottom: 1px solid #dce5df;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 14px;
+}
+.workspace-content {
+  padding: 44px 40px;
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  flex: 1;
+}
+.workspace-content h1 {
+  font-size: clamp(30px, 3vw, 42px);
+  overflow-wrap: anywhere;
+}
+.workspace-content h2 {
+  margin-top: 16px;
+}
+.workspace-body > footer {
+  margin: 0;
+  padding: 20px 40px;
+}
+.page-heading {
+  margin-bottom: 32px;
+}
+.eyebrow {
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+.badge {
+  display: inline-block;
+  font-size: 12px;
+  line-height: 1.4;
+  background: #eef4ed;
+  color: #45635b;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+.card-grid section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.card-grid a {
+  margin-top: auto;
+  padding-top: 16px;
+}
+.admin-card {
+  margin-top: 24px;
+}
+.empty-state {
+  max-width: 760px;
+  padding: 40px;
+}
+.actions {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 24px;
+}
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  transform: translateY(-150%);
+  padding: 12px;
+  background: white;
+  z-index: 10;
+}
+.skip-link:focus {
+  transform: translateY(0);
+}
+@media (max-width: 800px) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    border-right: 0;
+    border-bottom: 1px solid #dce5df;
+    padding: 20px;
+    gap: 20px;
+  }
+  .sidebar nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .sidebar nav a {
+    padding: 12px;
+  }
+  .sidebar-account {
+    margin: 0;
+    padding-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .sidebar-account small {
+    letter-spacing: 0;
+    margin: 0;
+  }
+  .sidebar-account form {
+    margin: 0 0 0 auto;
+  }
+  .workspace-header {
+    min-height: 64px;
+    padding: 16px 20px;
+  }
+  .workspace-content {
+    padding: 28px 20px;
+  }
+  .workspace-body > footer {
+    padding: 20px;
+  }
+  .card-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .workspace section {
     padding: 24px;
   }
 }

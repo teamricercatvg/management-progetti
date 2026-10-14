@@ -26,3 +26,7 @@ backups/
 
 # Template Auth pubblici generati dalla build
 public/auth-templates/
+
+# Collaudo browser locale
+test-results/
+playwright-report/

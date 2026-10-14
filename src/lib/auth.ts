@@ -1,7 +1,8 @@
 import "server-only";
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-export async function requireProfile() {
+export const requireProfile = cache(async function requireProfile() {
   const client = await createClient();
   const {
     data: { user },
@@ -16,4 +17,4 @@ export async function requireProfile() {
     user,
     profile: data[0] as { id: string; display_name: string; is_admin: boolean },
   };
-}
+});

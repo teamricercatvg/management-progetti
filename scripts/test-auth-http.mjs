@@ -25,7 +25,7 @@ for (const query of [
 ]) {
   const response = await fetch(`${origin}/?${query}`, { redirect: "manual" });
   assert.equal(response.status, 307);
-  assert.equal(response.headers.get("location"), "/account");
+  assert.equal(response.headers.get("location"), "/overview");
 }
 
 for (const suppliedOrigin of [null, "null", "https://foreign.example"]) {

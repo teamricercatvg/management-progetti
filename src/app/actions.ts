@@ -11,7 +11,7 @@ export async function login(form: FormData) {
   const client = await createClient();
   const { error } = await client.auth.signInWithPassword({ email, password });
   if (error) redirect("/login?status=invalid");
-  redirect("/account");
+  redirect("/overview");
 }
 export async function logout() {
   const client = await createClient();
