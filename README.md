@@ -36,6 +36,11 @@ navigazione responsive, panoramica e pagine iniziali Progetti/Amministrazione,
 con accesso Admin controllato sul server. Rilascio verificato il 14 ottobre 2026; vedere la
 [consegna Milestone 6](docs/milestone-6.md).
 
+La **Milestone 7 è implementata localmente**: elenco filtrato, dettaglio,
+creazione e modifica dei progetti, archiviazione/riapertura e associazione agli
+enti esistenti, secondo i permessi Admin/Manager. Vedere la
+[consegna Milestone 7](docs/milestone-7.md). Rilascio autorizzato; stato nella consegna.
+
 ## Documentazione
 
 - [Roadmap e requisiti](docs/roadmap-gestione-progetti.md)
@@ -47,6 +52,7 @@ con accesso Admin controllato sul server. Rilascio verificato il 14 ottobre 2026
 - [Consegna Milestone 4 e collaudo](docs/milestone-4.md)
 - [Consegna Milestone 5 e autorizzazioni](docs/milestone-5.md)
 - [Consegna Milestone 6 e navigazione](docs/milestone-6.md)
+- [Consegna Milestone 7 e gestione progetti](docs/milestone-7.md)
 - [Modello dati](docs/data-model.md)
 - [Matrice permessi e contratto RLS](docs/permissions.md)
 - [Infrastruttura, verifiche e DNS pendenti](docs/infrastructure.md)

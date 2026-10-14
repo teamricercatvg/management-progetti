@@ -65,7 +65,7 @@ test("Admin navigation, mobile layout, account and logout", async ({
     .getByRole("link", { name: "Progetti", exact: true })
     .click();
   await expect(
-    page.getByText("Questa pagina non mostra ancora i dati dei progetti."),
+    page.getByRole("link", { name: "Nuovo progetto", exact: true }),
   ).toBeVisible();
   await page
     .getByRole("navigation")

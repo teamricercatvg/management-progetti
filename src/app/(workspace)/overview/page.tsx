@@ -15,11 +15,11 @@ export default async function Overview() {
       </div>
       <div className="card-grid">
         <section>
-          <span className="badge">In preparazione</span>
+          <span className="badge">Progetti</span>
           <h2>I progetti</h2>
           <p>
-            La gestione dei progetti sarà disponibile prossimamente. Qui
-            troverai il punto di accesso ai tuoi progetti.
+            Consulta i progetti disponibili, aggiorna le anagrafiche e segui
+            lo stato del lavoro.
           </p>
           <Link href="/projects">Vai all’area progetti →</Link>
         </section>

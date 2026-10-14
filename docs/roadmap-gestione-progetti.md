@@ -1048,3 +1048,12 @@ restano rinviati secondo il modello MVP approvato. Test SQL, concorrenza tra
 Admin, regressioni Auth reali e controlli applicativi superati. Rilascio richiesto
 dall’utente il 14 ottobre 2026; migration applicata e verificata nel backend dedicato.
 Vedere la [consegna Milestone 5](milestone-5.md).
+
+
+### Aggiornamento Milestone 7 — 14 ottobre 2026
+
+Implementazione locale di elenco filtrato/paginato, dettaglio, creazione in
+bozza, modifica, archiviazione/riapertura e associazioni a enti esistenti.
+Applicati i soli ruoli MVP Admin/Manager, con RLS esistente e controllo delle
+versioni durante il salvataggio. Nessuna nuova migration o scrittura operativa;
+commit, push e deploy richiesti dall’utente. Stato nella [consegna](milestone-7.md).
