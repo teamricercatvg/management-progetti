@@ -78,3 +78,19 @@ Non è stato eseguito un collaudo autenticato del nuovo flusso sul backend
 operativo. Dopo un rilascio autorizzato, verificare con Admin e Manager reali
 creazione in bozza, associazione ente, attivazione, modifica, archivio,
 riapertura e isolamento tra progetti.
+
+
+## Rilascio produzione — 14 ottobre 2026
+
+- Commit applicativo `e98c9a3` pubblicato su `origin/main` con account dedicato.
+- Deploy Git automatico `dpl_8vzuBnxHvB2bfWMvmAW8pcV9GuJ5` completato READY
+  e verificato come deployment di `www.ariadne-hub.it`; alias apex e
+  `management-progetti.vercel.app` associati allo stesso rilascio.
+- Verifica browser pubblica: accesso anonimo a `/projects` reindirizzato a
+  `/login`, con pagina di accesso visualizzata correttamente. Nessuna sessione
+  autenticata operativa o scrittura di progetti eseguita per il collaudo.
+- Nuova build locale di rilascio superata con `npm run build -- --webpack`
+  dopo arresto della compilazione Turbopack locale rimasta bloccata.
+  La build standard remota Vercel è terminata correttamente.
+- Nessuna migration o modifica alle variabili Vercel. Modifiche preesistenti
+  a infrastruttura, accessi e `.env.example` escluse dal commit e dal deploy Git.

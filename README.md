@@ -36,10 +36,10 @@ navigazione responsive, panoramica e pagine iniziali Progetti/Amministrazione,
 con accesso Admin controllato sul server. Rilascio verificato il 14 ottobre 2026; vedere la
 [consegna Milestone 6](docs/milestone-6.md).
 
-La **Milestone 7 è implementata localmente**: elenco filtrato, dettaglio,
+La **Milestone 7 è pubblicata in produzione**: elenco filtrato, dettaglio,
 creazione e modifica dei progetti, archiviazione/riapertura e associazione agli
 enti esistenti, secondo i permessi Admin/Manager. Vedere la
-[consegna Milestone 7](docs/milestone-7.md). Rilascio autorizzato; stato nella consegna.
+[consegna Milestone 7](docs/milestone-7.md). Rilascio verificato il 14 ottobre 2026.
 
 ## Documentazione
 

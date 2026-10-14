@@ -1056,4 +1056,5 @@ Implementazione locale di elenco filtrato/paginato, dettaglio, creazione in
 bozza, modifica, archiviazione/riapertura e associazioni a enti esistenti.
 Applicati i soli ruoli MVP Admin/Manager, con RLS esistente e controllo delle
 versioni durante il salvataggio. Nessuna nuova migration o scrittura operativa;
-commit, push e deploy richiesti dall’utente. Stato nella [consegna](milestone-7.md).
+commit pubblicato e deploy di produzione verificato dopo richiesta dell’utente.
+Stato nella [consegna](milestone-7.md).
