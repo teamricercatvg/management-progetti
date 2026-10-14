@@ -31,9 +31,9 @@ Admin/Manager sulle tabelle fondative, membership, RPC controllate e audit con
 owner dedicati. Rilascio autorizzato il 14 ottobre 2026; vedere la
 [consegna Milestone 5](docs/milestone-5.md).
 
-La **Milestone 6 è implementata e verificata localmente**: layout autenticato,
+La **Milestone 6 è implementata e pubblicata**: layout autenticato,
 navigazione responsive, panoramica e pagine iniziali Progetti/Amministrazione,
-con accesso Admin controllato sul server. Rilascio autorizzato; vedere la
+con accesso Admin controllato sul server. Rilascio verificato il 14 ottobre 2026; vedere la
 [consegna Milestone 6](docs/milestone-6.md).
 
 ## Documentazione

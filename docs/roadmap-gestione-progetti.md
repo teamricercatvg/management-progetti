@@ -689,7 +689,7 @@ spese estere. Nessuna migration creata o applicata; Milestone 3 non iniziata.
 
 ### Milestone 6 - Layout base e navigazione
 
-Implementata e verificata localmente il 14 ottobre 2026; rilascio autorizzato.
+Implementata, pubblicata e verificata il 14 ottobre 2026.
 Interfaccia italiana, navigazione Panoramica/Progetti/Account e Amministrazione
 riservata agli Admin. Dettagli e confini nella [consegna](milestone-6.md).
 

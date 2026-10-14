@@ -76,3 +76,18 @@ Accedere con Admin e con un account non Admin; verificare il menu, aprire
 direttamente `/admin` come non Admin, navigare su telefono, cambiare password
 solo se desiderato e disconnettersi. Le pagine Progetti e Amministrazione
 devono continuare a indicare che le funzionalità sono in preparazione.
+
+
+## Rilascio produzione — 14 ottobre 2026
+
+- Commit applicativo `2f3b1c1` pubblicato su `origin/main` con account dedicato.
+- Deploy Git automatico `dpl_6v2nZBcqFeHTuKYUJSexwWqNYEBT` completato READY;
+  verificato come deployment corrente di produzione su Vercel, scope
+  `tor-vergata-igiene`, progetto `management-progetti`.
+- Alias `www.ariadne-hub.it`, `ariadne-hub.it` e `management-progetti.vercel.app`
+  associati al deployment. Verifica browser sul dominio pubblico: nuova pagina
+  login servita e accesso anonimo a `/overview` reindirizzato a `/login`.
+- Il collaudo completo Admin/Manager resta quello locale con fixture della
+  sezione Verifiche; nessuna sessione autenticata operativa creata per il rilascio.
+- Nessuna migration, modifica delle variabili Vercel o scrittura di dati.
+  Modifiche locali preesistenti di infrastruttura/accessi escluse dal commit.
