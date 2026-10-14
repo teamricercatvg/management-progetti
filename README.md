@@ -26,6 +26,11 @@ e primo Admin predisposto. Avvio locale: `npm ci` e `npm run dev`, quindi
 http://127.0.0.1:3000. Il `.env.local` esistente usa il backend operativo;
 per un ambiente isolato configurare Supabase locale con credenziali proprie.
 
+La **Milestone 5 è implementata e applicata al backend dedicato**: policy RLS
+Admin/Manager sulle tabelle fondative, membership, RPC controllate e audit con
+owner dedicati. Rilascio autorizzato il 14 ottobre 2026; vedere la
+[consegna Milestone 5](docs/milestone-5.md).
+
 ## Documentazione
 
 - [Roadmap e requisiti](docs/roadmap-gestione-progetti.md)
@@ -35,6 +40,7 @@ per un ambiente isolato configurare Supabase locale con credenziali proprie.
 - [Consegna Milestone 2](docs/milestone-2.md)
 - [Consegna Milestone 3](docs/milestone-3.md)
 - [Consegna Milestone 4 e collaudo](docs/milestone-4.md)
+- [Consegna Milestone 5 e autorizzazioni](docs/milestone-5.md)
 - [Modello dati](docs/data-model.md)
 - [Matrice permessi e contratto RLS](docs/permissions.md)
 - [Infrastruttura, verifiche e DNS pendenti](docs/infrastructure.md)

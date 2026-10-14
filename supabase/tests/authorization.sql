@@ -1,0 +1,95 @@
+\set ON_ERROR_STOP on
+begin;
+set local app.system_reason='Milestone 5 synthetic authorization tests';
+create function pg_temp.check_true(ok boolean,label text) returns void language plpgsql as $$ begin
+ if ok is distinct from true then raise exception 'FAIL: %',label; end if; raise notice 'PASS: %',label;
+end $$;
+create function pg_temp.denied(statement text) returns void language plpgsql as $$ begin
+ begin execute statement; exception when insufficient_privilege or check_violation then raise notice 'PASS denied: %',statement; return; end;
+ raise exception 'FAIL unexpectedly allowed: %',statement;
+end $$;
+insert into auth.users(id,email_confirmed_at) values
+('50000000-0000-0000-0000-000000000001',now()),
+('50000000-0000-0000-0000-000000000002',now()),
+('50000000-0000-0000-0000-000000000003',now()),
+('50000000-0000-0000-0000-000000000004',now());
+select app_private.bootstrap_admin('50000000-0000-0000-0000-000000000001');
+select set_config('request.jwt.claim.sub','50000000-0000-0000-0000-000000000001',true);
+set local role authenticated;
+insert into public.projects(code,title,start_date,end_date,currency_code) values ('A','Project A','2026-01-01','2026-12-31','EUR'),('B','Project B','2026-01-01','2026-12-31','EUR');
+insert into public.organizations(code,name) values ('ORG-A','Organization A'),('ORG-B','Organization B');
+insert into public.project_memberships(project_id,user_id) select id,'50000000-0000-0000-0000-000000000002' from public.projects where code='A';
+insert into public.project_memberships(project_id,user_id) select id,'50000000-0000-0000-0000-000000000003' from public.projects where code='B';
+insert into public.project_organizations(project_id,organization_id,role) select p.id,o.id,'sole' from public.projects p join public.organizations o on o.code='ORG-'||p.code;
+-- Admin-controlled global roles can be granted and revoked with audit.
+select public.set_admin_role('50000000-0000-0000-0000-000000000004',true);
+select pg_temp.check_true((select count(*)=2 from public.global_user_roles),'Admin grants second Admin');
+select public.set_admin_role('50000000-0000-0000-0000-000000000004',false);
+select public.remove_draft_project_organization(project_id,id) from public.project_organizations where project_id=(select id from public.projects where code='A');
+select pg_temp.check_true((select count(*)=1 from public.project_organizations),'Controlled draft association removal');
+insert into public.project_organizations(project_id,organization_id,role) select p.id,o.id,'sole' from public.projects p join public.organizations o on o.code='ORG-A' where p.code='A';
+update public.projects set status='active';
+set constraints all immediate;
+select pg_temp.check_true((select count(*)=2 from public.projects),'Admin creates and reads both projects');
+select pg_temp.denied($q$select public.set_admin_role('50000000-0000-0000-0000-000000000001',false)$q$);
+select pg_temp.denied($q$select public.set_profile_active('50000000-0000-0000-0000-000000000001',false)$q$);
+reset role;
+select set_config('request.jwt.claim.sub','50000000-0000-0000-0000-000000000002',true);
+set local role authenticated;
+select pg_temp.check_true((select count(*)=1 and bool_and(code='A') from public.projects),'Manager A sees only A');
+select pg_temp.check_true((select count(*)=1 from public.profiles),'Manager cannot read other full profiles');
+select pg_temp.check_true((select count(*)=1 from public.organizations),'Manager reads only linked organizations');
+select pg_temp.check_true((select count(*)=2 from public.search_organizations('ORG')),'Minimal organization lookup allows association');
+select pg_temp.check_true((select count(*)=1 from public.project_manager_names((select id from public.projects))),'Colleague names scoped to assigned project');
+select pg_temp.denied($q$select public.remove_draft_project_organization(project_id,id) from public.project_organizations$q$);
+update public.project_organizations set notes='Manager edit';
+select pg_temp.check_true((select bool_and(notes='Manager edit') from public.project_organizations),'Manager can edit assigned partnership');
+update public.projects set title='Changed by Manager' where code='A';
+with changed as (update public.projects set title='Forbidden' where code='B' returning *) select pg_temp.check_true(not exists(select 1 from changed),'Cross-project update affects zero rows');
+select pg_temp.denied($q$insert into public.projects(code,title,start_date,end_date,currency_code) values('X','X','2026-01-01','2026-12-31','EUR')$q$);
+select pg_temp.denied($q$update public.projects set created_by=auth.uid()$q$);
+select pg_temp.denied($q$update public.project_memberships set project_id=gen_random_uuid()$q$);
+select pg_temp.denied($q$insert into public.project_memberships(project_id,user_id) select id,'50000000-0000-0000-0000-000000000004' from public.projects$q$);
+with changed as (update public.project_memberships set status='inactive' returning *) select pg_temp.check_true(not exists(select 1 from changed),'Manager cannot revoke membership');
+with changed as (update public.organizations set name='Forbidden' returning *) select pg_temp.check_true(not exists(select 1 from changed),'Manager cannot edit shared organization');
+select pg_temp.denied($q$select public.set_admin_role(auth.uid(),true)$q$);
+select pg_temp.denied($q$select public.set_profile_active(auth.uid(),false)$q$);
+select pg_temp.denied($q$update public.profiles set is_active=false$q$);
+update public.profiles set display_name='Manager A';
+select pg_temp.check_true(not exists(select 1 from public.audit_log where project_id is null),'Global audit hidden');
+select pg_temp.check_true(exists(select 1 from public.audit_log where actor_id=auth.uid() and entity_table='projects'),'Project changes audited by database');
+select pg_temp.denied($q$insert into public.audit_log(action,entity_table,entity_id,actor_kind,reason) values('INSERT','x','x','system','spoof')$q$);
+select pg_temp.denied('delete from public.projects');
+update public.projects set status='archived';
+select pg_temp.denied($q$update public.projects set title='Archived write'$q$);
+select pg_temp.denied($q$update public.project_organizations set notes='Archived write'$q$);
+update public.projects set status='active';
+reset role;
+select set_config('request.jwt.claim.sub','50000000-0000-0000-0000-000000000001',true);
+set local role authenticated;
+update public.project_memberships set status='inactive' where user_id='50000000-0000-0000-0000-000000000002';
+reset role;
+select set_config('request.jwt.claim.sub','50000000-0000-0000-0000-000000000002',true);
+set local role authenticated;
+select pg_temp.check_true(not exists(select 1 from public.projects),'Revocation takes effect with same identity');
+select pg_temp.check_true(not exists(select 1 from public.audit_log),'Revoked Manager loses project audit');
+select pg_temp.check_true(not exists(select 1 from public.search_organizations('ORG')),'Unassigned user cannot search organizations');
+reset role;
+select set_config('request.jwt.claim.sub','50000000-0000-0000-0000-000000000001',true);
+set local role authenticated;
+select public.set_profile_active('50000000-0000-0000-0000-000000000003',false);
+reset role;
+select set_config('request.jwt.claim.sub','50000000-0000-0000-0000-000000000003',true);
+set local role authenticated;
+select pg_temp.check_true(not exists(select 1 from public.projects),'Disabled assigned Manager denied');
+select pg_temp.check_true(not exists(select 1 from public.current_profile()),'Disabled identity denied');
+reset role;
+set local role anon;
+select pg_temp.denied('select * from public.projects');
+select pg_temp.denied('select * from public.search_organizations(''ORG'')');
+reset role;
+select pg_temp.check_true(not exists(select 1 from pg_roles where rolname like 'ariadne_%' and (rolcanlogin or rolbypassrls or rolsuper)),'Dedicated owners have no login, superuser or RLS bypass');
+select pg_temp.check_true(not has_table_privilege('service_role','public.projects','SELECT'),'Service role receives no ordinary application grants');
+select pg_temp.check_true(not has_table_privilege('ariadne_auditor','public.profiles','UPDATE'),'Audit owner cannot modify profiles');
+select pg_temp.check_true(not has_function_privilege('authenticated','app_private.record_audit()','EXECUTE'),'Client cannot invoke audit writer');
+rollback;

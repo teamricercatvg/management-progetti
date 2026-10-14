@@ -1033,3 +1033,14 @@ migration applicata, primo Admin predisposto e frontend pubblicato.
 Sessione Admin e recupero verificati sul dominio pubblico; collaudo manuale
 email/browser dell’utente direttamente in produzione.
 Vedere [consegna e checklist localhost](milestone-4.md).
+
+
+### Aggiornamento Milestone 5 — 14 ottobre 2026
+
+Implementate autorizzazioni Admin/Manager, policy RLS sulle sette
+tabelle fondative, RPC controllate e owner dedicati con privilegi minimi.
+Riutilizzata `project_memberships`; assegnazioni per attività e ruoli futuri
+restano rinviati secondo il modello MVP approvato. Test SQL, concorrenza tra
+Admin, regressioni Auth reali e controlli applicativi superati. Rilascio richiesto
+dall’utente il 14 ottobre 2026; migration applicata e verificata nel backend dedicato.
+Vedere la [consegna Milestone 5](milestone-5.md).

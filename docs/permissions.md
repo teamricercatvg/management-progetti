@@ -2,7 +2,10 @@
 
 Versione 2 del 7 ottobre 2026: recepisce le indicazioni dell’utente nella
 [consegna](milestone-2.md). Parte integrante del [modello dati](data-model.md).
-Specifica approvata con la chiusura della Milestone 2; nessuna policy SQL ancora implementata.
+Specifica approvata con la chiusura della Milestone 2. La [Milestone 5](milestone-5.md)
+implementa le policy sulle sette tabelle fondative; le tabelle
+operative future restano alle rispettive milestone. Migration applicata
+al backend operativo il 14 ottobre 2026.
 
 ## Ruoli MVP
 
