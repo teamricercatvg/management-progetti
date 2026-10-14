@@ -111,8 +111,8 @@ revoca non eliminano l'ultimo Admin attivo.
 
 La suite GoTrue reale applica anche la nuova migration e verifica provisioning,
 invito senza invio email, conferma, login, recupero e logout. I container temporanei
-non montano dati operativi e vengono rimossi al termine. Non è stato eseguito un
-collaudo HTTP PostgREST della nuova API né un collaudo UI dei progetti, ancora assente.
+non montano dati operativi e vengono rimossi al termine. Il rilascio include inoltre i controlli HTTP PostgREST descritti sotto.
+Il collaudo UI dei progetti resta alle milestone successive: l’interfaccia è ancora assente.
 
 ## Rilascio produzione — 14 ottobre 2026
 
@@ -124,7 +124,19 @@ collaudo HTTP PostgREST della nuova API né un collaudo UI dei progetti, ancora 
 - Migration applicata via SSH con `supabase_admin`, insieme alla registrazione
   della versione/nome/testo in `supabase_migrations.schema_migrations`, nella
   stessa transazione. Dry-run del wrapper ordinario: database aggiornato.
-- Pubblicazione GitHub e verifica deployment Vercel in corso.
+- Commit applicativo `3619807` pubblicato su `main`.
+- Deployment Vercel `dpl_DyBFcr8oWuVjvw44zVzBuqFRuwXi` READY e corrente in
+  produzione; alias `www.ariadne-hub.it` e apex verificati sul deployment.
+- PostgREST HTTPS pubblico: identità Admin e utente attivo senza membership,
+  SELECT sulle tabelle e ricerca minima enti verificati con JWT tecnici di
+  breve durata (180 secondi), derivati dalle identità esistenti; nessuna sessione
+  Auth, invito o scrittura di dati di collaudo creata. Anonimo negato sui progetti.
+- Gateway/Auth healthy, signup pubblico disabilitato. Login verificato nel browser;
+  apertura anonima di `/account` rimandata a `/login`.
+- Il test completo Manager tra due progetti rimane coperto dalla suite isolata;
+  non sono stati creati progetti fittizi in produzione per ripeterlo.
+- Le modifiche locali preesistenti a infrastruttura/accessi sono state preservate
+  e non incluse nel commit della milestone.
 
 ## Collaudo manuale consigliato
 
