@@ -1,11 +1,14 @@
 # Collaudo milestone 5–7 — 15 ottobre 2026
 
+Sintesi delle correzioni e dell’esito: [verbale semplificato](verbale-semplificato-milestone-5-7.md).
+
 **Stato aggiornato: collaudo funzionale Admin/Manager e SQL/RLS eseguito,
 con il difetto applicativo M6-01 corretto e pubblicato.**
 Il collaudo non è più bloccato da account, enti o accesso al backend.
 La correzione di “Riprova” è in produzione dal commit `4a92317`.
-Recupero/cambio password effettivi e telefono fisico
-restano verifiche manuali non eseguite. Vedere la prosecuzione finale sotto.
+Recupero/cambio password, nuovo accesso e navigazione su telefono fisico
+confermati riusciti dall’utente. Riapertura del link di recupero verificata
+in Chrome: collegamento rifiutato. Vedere la conferma finale sotto.
 
 Le sezioni iniziali conservano gli esiti della prima sessione; per lo stato
 corrente prevalgono le sezioni “Identificazione diretta Vercel” e
@@ -292,16 +295,28 @@ con nomi chiaramente prefissati COLLAUDO. Il secondo rimane disponibile per
 future prove. Nessuna cancellazione fisica; le assegnazioni sono revocabili
 riaprendo il progetto archiviato secondo il contratto esistente.
 
-### Verifiche che richiedono ancora intervento o rilascio
+### Esito finale delle verifiche manuali
 
 - Pubblicazione M6-01: completata, dettagli nella sezione seguente.
-- Recupero via email, impostazione personale della nuova password, login e
-  riuso del link: richiesta al titolare la scelta di effettuare questa prova;
-  nessuna email inviata e nessuna password cambiata senza il suo intervento.
-- Telefono fisico: le verifiche responsive eseguite coprono viewport simulate.
+- Recupero via email, impostazione personale della nuova password, logout e
+  nuovo login: l’utente ha confermato «fatto 1 con successo» dopo la richiesta
+  di recupero dal sito pubblico. Credenziali inserite personalmente dall’utente.
+- Telefono fisico: l’utente ha confermato «fatto 2 con successo» e poi chiarito
+  che il menu è presente in alto anziché lateralmente. Comportamento previsto:
+  sotto 800 px la navigazione si dispone in alto su due colonne, senza pulsante
+  hamburger. Nessun difetto mobile confermato; modello/browser non comunicati.
+- Riapertura del link di recupero dopo il cambio password confermato dal
+  titolare: verificata direttamente in Chrome sul sito pubblico, aprendo
+  nuovamente il collegamento dell’email Ariadne del 15 ottobre, ore 11:00.
+  Risultato: `/login?status=expired` e messaggio «Il collegamento non è valido
+  o è scaduto. Richiedine uno nuovo.» Nessun modulo per impostare la password
+  raggiunto, nessuna nuova password inserita. Esito atteso di rifiuto superato;
+  il messaggio pubblico non distingue token consumato da token scaduto.
 
-Il collaudo ha ora evidenze reali Admin/Manager/database; questi ultimi limiti
-non vengono trasformati in prove superate.
+Il collaudo ha evidenze reali Admin/Manager/database e conferme manuali
+dell’utente. Cambio password e telefono sono dichiarati dal titolare; il
+rifiuto del link riaperto è osservato direttamente dall’automazione.
+Questo aggiornamento finale raccoglie anche le verifiche successive al rilascio.
 
 ### Rilascio della correzione
 
