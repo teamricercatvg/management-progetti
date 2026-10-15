@@ -28,7 +28,7 @@ test("Admin creates, edits, archives and reopens a project", async ({
   ).toBeVisible();
   await page.getByRole("link", { name: "Nuovo progetto" }).click();
   await expect(page).toHaveURL(/projects\/new$/);
-  await page.getByLabel("Codice").fill("NEW");
+  await page.getByLabel(/^Codice \*/).fill("NEW");
   await page.getByLabel("Titolo").fill("Nuovo progetto di prova");
   await page.getByLabel("Data di inizio").fill("2026-01-01");
   await page.getByLabel("Data di fine").fill("2026-12-31");
@@ -40,8 +40,17 @@ test("Admin creates, edits, archives and reopens a project", async ({
   await expect(page.getByLabel("Titolo")).toHaveValue(
     "Nuovo progetto di prova",
   );
+  await expect(page.getByLabel("Data di inizio")).toHaveValue("2026-01-01");
+  await expect(page.getByLabel("Data di fine")).toHaveValue("2025-12-31");
   await page.getByLabel("Data di fine").fill("2026-12-31");
-  await page.getByLabel("Codice").fill("DEMO");
+  await page.getByLabel("Valuta principale").fill("12!");
+  await page.getByRole("button", { name: "Salva progetto" }).click();
+  await expect(page.getByText("Inserisci il codice valuta di tre lettere, ad esempio EUR.")).toBeVisible();
+  await expect(page.getByLabel("Data di inizio")).toHaveValue("2026-01-01");
+  await expect(page.getByLabel("Data di fine")).toHaveValue("2026-12-31");
+  await expect(page.getByLabel("Valuta principale")).toHaveValue("12!");
+  await page.getByLabel("Valuta principale").fill("EUR");
+  await page.getByLabel(/^Codice \*/).fill("DEMO");
   await page.getByRole("button", { name: "Salva progetto" }).click();
   await expect(
     page.getByText("Codice o associazione già presente.", { exact: false }),
@@ -49,7 +58,7 @@ test("Admin creates, edits, archives and reopens a project", async ({
   await expect(page.getByLabel("Titolo")).toHaveValue(
     "Nuovo progetto di prova",
   );
-  await page.getByLabel("Codice").fill("NEW");
+  await page.getByLabel(/^Codice \*/).fill("NEW");
   await page.getByRole("button", { name: "Salva progetto" }).click();
   await expect(page.getByText("Progetto salvato.")).toBeVisible();
   await page.getByRole("link", { name: "Modifica progetto" }).click();
@@ -161,4 +170,30 @@ test("existing organization can be associated and removed from a draft", async (
   await expect(page.getByRole("strong")).toContainText("Ente di prova");
   await page.getByRole("button", { name: "Rimuovi associazione" }).click();
   await expect(page.getByText("Nessun ente associato.")).toBeVisible();
+});
+
+
+test("pagination preserves filters and navigates beyond twenty projects", async ({ page, request }) => {
+  await request.get("http://127.0.0.1:54329/fixture/reset?scenario=pagination");
+  await login(page, "admin");
+  await page.goto("/projects?q=PAGE&status=draft");
+  await expect(page.getByText("25 progetti trovati", { exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: /^Collaudo pagina/ })).toHaveCount(20);
+  await page.getByRole("link", { name: "Successivi →", exact: true }).click();
+  await expect(page).toHaveURL(/q=PAGE&status=draft&page=2$/);
+  await expect(page.getByRole("link", { name: /^Collaudo pagina/ })).toHaveCount(5);
+  await expect(page.getByRole("link", { name: "Collaudo pagina 021", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Successivi →", exact: true })).toHaveCount(0);
+  await page.getByRole("link", { name: "← Precedenti", exact: true }).click();
+  await expect(page.getByRole("link", { name: "Collaudo pagina 001", exact: true })).toBeVisible();
+});
+
+test("backend failure can be retried after service recovery", async ({ page, request }) => {
+  await login(page, "admin");
+  await request.get("http://127.0.0.1:54329/fixture/reset?scenario=error");
+  await page.goto("/projects");
+  await expect(page.getByRole("heading", { name: "Non siamo riusciti a caricare la pagina", exact: true })).toBeVisible();
+  await request.get("http://127.0.0.1:54329/fixture/reset");
+  await page.getByRole("button", { name: "Riprova", exact: true }).click();
+  await expect(page.getByRole("link", { name: "Progetto dimostrativo", exact: true })).toBeVisible();
 });

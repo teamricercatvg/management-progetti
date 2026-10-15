@@ -33,6 +33,7 @@ function session(role) {
 }
 const projects = new Map();
 const associations = [];
+let failProjectReads = false;
 const entity = {
   id: "00000000-0000-4000-8000-000000000010",
   code: "ORG",
@@ -41,6 +42,7 @@ const entity = {
 const seedId = "00000000-0000-4000-8000-000000000007";
 const otherId = "00000000-0000-4000-8000-000000000008";
 function resetProjects() {
+  failProjectReads = false;
   projects.clear();
   associations.length = 0;
   for (const [projectId, code, title] of [
@@ -105,9 +107,23 @@ createServer(async (req, res) => {
   const url = new URL(req.url, "http://localhost");
   if (url.pathname === "/fixture/reset") {
     resetProjects();
+    if (url.searchParams.get("scenario") === "pagination") {
+      const template = projects.get(seedId);
+      projects.clear();
+      for (let index = 1; index <= 25; index++) {
+        const suffix = String(index).padStart(3, "0");
+        const projectId = `00000000-0000-4000-8001-${String(index).padStart(12, "0")}`;
+        projects.set(projectId, { ...template, id: projectId, code: `PAGE-${suffix}`, title: `Collaudo pagina ${suffix}` });
+      }
+    }
+    failProjectReads = url.searchParams.get("scenario") === "error";
     return res.end("{}");
   }
   if (url.pathname === "/rest/v1/projects") {
+    if (req.method === "GET" && failProjectReads) {
+      res.statusCode = 503;
+      return res.end(JSON.stringify({ code: "fixture_unavailable", message: "Synthetic backend failure" }));
+    }
     const visible = (p) =>
       role === "admin" || (role === "manager" && p.id === seedId);
     let rows = [...projects.values()].filter(visible);
@@ -161,6 +177,12 @@ createServer(async (req, res) => {
     );
     if (req.headers.accept?.includes("vnd.pgrst.object"))
       return res.end(JSON.stringify(rows[0] ?? null));
+    if (req.method === "GET") {
+      rows.sort((a, b) => a.code.localeCompare(b.code) || a.id.localeCompare(b.id));
+      const offset = Number(url.searchParams.get("offset") ?? 0);
+      const limit = Number(url.searchParams.get("limit") ?? rows.length);
+      rows = rows.slice(offset, offset + limit);
+    }
     return res.end(JSON.stringify(rows));
   }
   if (url.pathname === "/rest/v1/rpc/search_organizations")

@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-export default function WorkspaceError({ reset }: { reset: () => void }) {
+export default function WorkspaceError({ retry }: { retry: () => void }) {
   return (
     <section role="alert">
       <h1>Non siamo riusciti a caricare la pagina</h1>
@@ -8,7 +8,7 @@ export default function WorkspaceError({ reset }: { reset: () => void }) {
         Riprova tra poco. Se il problema continua, contatta l’amministratore.
       </p>
       <div className="actions">
-        <button onClick={reset}>Riprova</button>
+        <button onClick={retry}>Riprova</button>
         <Link href="/overview">Torna alla panoramica</Link>
       </div>
     </section>
