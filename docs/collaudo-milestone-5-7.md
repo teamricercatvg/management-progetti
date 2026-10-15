@@ -1,10 +1,10 @@
 # Collaudo milestone 5–7 — 15 ottobre 2026
 
 **Stato aggiornato: collaudo funzionale Admin/Manager e SQL/RLS eseguito,
-con un difetto applicativo corretto e rilascio autorizzato dall’utente.**
+con il difetto applicativo M6-01 corretto e pubblicato.**
 Il collaudo non è più bloccato da account, enti o accesso al backend.
-La chiusura senza rilievi della versione pubblicata richiede il rilascio della
-correzione di “Riprova”. Recupero/cambio password effettivi e telefono fisico
+La correzione di “Riprova” è in produzione dal commit `4a92317`.
+Recupero/cambio password effettivi e telefono fisico
 restano verifiche manuali non eseguite. Vedere la prosecuzione finale sotto.
 
 Le sezioni iniziali conservano gli esiti della prima sessione; per lo stato
@@ -15,8 +15,9 @@ indicata dalla consegna di rilascio: `e98c9a3`. Deployment corrente identificato
 direttamente nel pannello Vercel: vedere la verifica sotto. Prove pubbliche eseguite su
 https://www.ariadne-hub.it con il browser integrato Codex e sessione Admin.
 Nessuna modifica allo schema, alle configurazioni o alle credenziali.
-Commit, push e deploy richiesti dall’utente dopo il collaudo; verifica del
-rilascio in corso. Gli esiti seguenti descrivono anche le fasi precedenti.
+Commit, push e deploy richiesti dall’utente dopo il collaudo e completati.
+Gli esiti seguenti descrivono anche le fasi precedenti; per il rilascio fa fede
+la sezione finale “Rilascio della correzione”.
 
 ## Controlli locali ripetuti
 
@@ -293,13 +294,27 @@ riaprendo il progetto archiviato secondo il contratto esistente.
 
 ### Verifiche che richiedono ancora intervento o rilascio
 
-- Pubblicazione autorizzata della correzione M6-01 e identificazione del nuovo
-  deployment; fino ad allora il rilievo è aperto sulla versione pubblicata.
+- Pubblicazione M6-01: completata, dettagli nella sezione seguente.
 - Recupero via email, impostazione personale della nuova password, login e
   riuso del link: richiesta al titolare la scelta di effettuare questa prova;
   nessuna email inviata e nessuna password cambiata senza il suo intervento.
 - Telefono fisico: le verifiche responsive eseguite coprono viewport simulate.
 
 Il collaudo ha ora evidenze reali Admin/Manager/database; questi ultimi limiti
-non vengono trasformati in prove superate. Commit, push e deploy autorizzati
-successivamente dall’utente; esito del rilascio da registrare dopo verifica.
+non vengono trasformati in prove superate.
+
+### Rilascio della correzione
+
+- Commit applicativo: `4a92317a0547af700b3b8492f190dbb835e151c0`, push su `main`.
+- Vercel: scope `tor-vergata-igiene`, progetto `management-progetti`.
+- [Deployment verificato](https://vercel.com/tor-vergata-igiene/management-progetti/4bJkbzM5XsJ4Y9PctRepfFzaLzJd):
+  **Ready**, **Production / Current**, sorgente `4a92317`, build 17 secondi,
+  15 ottobre 2026 alle 10:56 CEST; dominio `www.ariadne-hub.it` associato.
+- Anche lo stato GitHub del commit conferma “Vercel — Deployment has completed”.
+- Verifica dopo il deploy sul dominio pubblico: ricaricamento autenticato come
+  Manager del progetto B riuscito; campi salvati, ente unico e stato archiviato
+  conservati, navigazione senza comandi Admin e riapertura separata presenti.
+- Il caso guasto/ripristino è verificato dalla regressione browser locale;
+  non è stato provocato un guasto sul backend di produzione.
+- Questa registrazione è un aggiornamento documentale successivo al commit
+  applicativo; non modifica il comportamento già verificato.
