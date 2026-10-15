@@ -1064,5 +1064,5 @@ Stato nella [consegna](milestone-7.md).
 Implementazione locale del quadro logico a tre livelli secondo il modello
 approvato: creazione/modifica, collegamenti gerarchici, ordine, archiviazione e
 riattivazione. Nuova migration con RLS e audit, test SQL e browser isolati.
-Rilascio autorizzato il 15 ottobre 2026 e migration applicata al backend
-dedicato; stato frontend nella [consegna](milestone-8.md).
+Rilascio verificato il 15 ottobre 2026: migration applicata al backend
+dedicato e frontend pubblicato. Dettagli nella [consegna](milestone-8.md).

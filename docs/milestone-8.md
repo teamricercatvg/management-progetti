@@ -1,7 +1,7 @@
 # Milestone 8 — Quadro logico
 
 Data: 15 ottobre 2026. Rilascio richiesto dall’utente su `main`.
-Migration applicata al backend dedicato; pubblicazione frontend in corso.
+Migration applicata al backend dedicato e frontend pubblicato in produzione.
 
 ## Consegna
 
@@ -82,5 +82,15 @@ collaudo autenticato del nuovo flusso sul backend operativo.
   ricaricata la cache schema PostgREST. Nessun dato di collaudo inserito.
 - Account GitHub `teamricercatvg`, Vercel `teamricercatvg-8749`, scope
   `tor-vergata-igiene`, progetto `management-progetti` verificati.
-- Frontend pubblicato tramite push Git dei soli file della milestone;
-  risultato del deployment da verificare al termine della build remota.
+- Commit applicativo `6f58521` pubblicato su `origin/main`; stato GitHub Vercel
+  `success`, deployment `dpl_oE6BNLdmL97EyKwHs8B2rFYwBUgS` READY in produzione.
+  Alias `www.ariadne-hub.it`, apex e `management-progetti.vercel.app` verificati.
+- Dry-run Supabase: database aggiornato. RLS attiva con quattro policy;
+  nessun accesso anonimo, DELETE client o modifica dell'autore consentiti.
+- Healthcheck Auth/REST e protezione gateway superati; signup pubblico e
+  utenti anonimi disabilitati. Browser sul dominio pubblico: la nuova route
+  senza sessione reindirizza a `/login`, visualizzato correttamente.
+- Nessuna scrittura di dati applicativi di collaudo in produzione. I flussi
+  autenticati completi sono coperti dalle suite locali/isolate descritte sopra.
+- Modifiche preesistenti a `.env.example`, infrastruttura e accessi escluse
+  dai commit e dal deploy Git. Nessuna modifica alle variabili Vercel.
