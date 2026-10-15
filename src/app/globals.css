@@ -429,3 +429,10 @@ textarea:focus-visible {
     flex-direction: column;
   }
 }
+
+.framework-tree { list-style: none; padding-left: 0; display: grid; gap: 1rem; }
+.framework-tree .framework-tree { margin: 1rem 0 0 1rem; border-left: 2px solid #cbd5e1; padding-left: 1rem; }
+.framework-item { background: white; border: 1px solid #dbe3e9; border-radius: 12px; padding: 1.25rem; overflow-wrap: anywhere; }
+.framework-item h2 { font-size: 1.15rem; }
+.framework-item .actions form { margin: 0; }
+@media (max-width: 600px) { .framework-tree .framework-tree { margin-left: .35rem; padding-left: .4rem; } .framework-item { padding: .75rem; } }

@@ -51,6 +51,14 @@ export default async function ProjectDetail({
           </div>
         ) : null}
       </div>
+      <div className="actions">
+        <Link
+          className="button-link"
+          href={`/projects/${project.id}/quadro-logico`}
+        >
+          Quadro logico
+        </Link>
+      </div>
       {search.saved === "1" ? (
         <p className="notice" role="status">
           Progetto salvato.

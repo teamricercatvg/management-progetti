@@ -41,6 +41,11 @@ creazione e modifica dei progetti, archiviazione/riapertura e associazione agli
 enti esistenti, secondo i permessi Admin/Manager. Vedere la
 [consegna Milestone 7](docs/milestone-7.md). Rilascio verificato il 14 ottobre 2026.
 
+La **Milestone 8 è implementata**: quadro logico gerarchico,
+ordinamento, modifica, archiviazione e riattivazione con RLS e audit.
+Migration applicata al backend dedicato il 15 ottobre 2026; stato del rilascio nella
+[consegna Milestone 8](docs/milestone-8.md).
+
 ## Documentazione
 
 - [Roadmap e requisiti](docs/roadmap-gestione-progetti.md)
@@ -53,6 +58,7 @@ enti esistenti, secondo i permessi Admin/Manager. Vedere la
 - [Consegna Milestone 5 e autorizzazioni](docs/milestone-5.md)
 - [Consegna Milestone 6 e navigazione](docs/milestone-6.md)
 - [Consegna Milestone 7 e gestione progetti](docs/milestone-7.md)
+- [Consegna Milestone 8 e quadro logico](docs/milestone-8.md)
 - [Modello dati](docs/data-model.md)
 - [Matrice permessi e contratto RLS](docs/permissions.md)
 - [Infrastruttura, verifiche e DNS pendenti](docs/infrastructure.md)

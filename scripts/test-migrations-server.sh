@@ -50,6 +50,16 @@ done
 diff -u "$work/foundation_test-m5.sql" "$work/foundation_replay-m5.sql"
 echo 'PASS: complete milestone 5 schemas match'
 bash "$work/supabase/tests/authorization-concurrency.sh" "$container"
+for db in foundation_test foundation_replay; do
+  run_sql "$db" < "$work/supabase/migrations/20261015120000_logical_framework.sql"
+done
+run_sql foundation_test < "$work/supabase/tests/framework.sql"
+for db in foundation_test foundation_replay; do
+  docker exec "$container" pg_dump -h /tmp -U postgres -d "$db" --schema-only --schema public --schema app_private | sed '/^\\restrict /d; /^\\unrestrict /d' > "$work/$db-m8.sql"
+done
+diff -u "$work/foundation_test-m8.sql" "$work/foundation_replay-m8.sql"
+echo 'PASS: complete milestone 8 schemas match'
+bash "$work/supabase/tests/framework-concurrency.sh" "$container"
 # Test transaction rollback of the entire migration chain, omitting their wrappers.
 docker exec "$container" createdb -h /tmp -U postgres foundation_rollback
 sed '/^create role /d' "$work/supabase/tests/bootstrap.sql" | run_sql foundation_rollback

@@ -33,6 +33,7 @@ function session(role) {
 }
 const projects = new Map();
 const associations = [];
+const framework = new Map();
 let failProjectReads = false;
 const entity = {
   id: "00000000-0000-4000-8000-000000000010",
@@ -43,6 +44,7 @@ const seedId = "00000000-0000-4000-8000-000000000007";
 const otherId = "00000000-0000-4000-8000-000000000008";
 function resetProjects() {
   failProjectReads = false;
+  framework.clear();
   projects.clear();
   associations.length = 0;
   for (const [projectId, code, title] of [
@@ -118,6 +120,34 @@ createServer(async (req, res) => {
     }
     failProjectReads = url.searchParams.get("scenario") === "error";
     return res.end("{}");
+  }
+  if (url.pathname === "/rest/v1/logical_framework_items") {
+    const visible = p => role === 'admin' || (role === 'manager' && p.project_id === seedId);
+    let rows = [...framework.values()].filter(visible);
+    for (const key of ['id','project_id','row_version','status']) {
+      const filter = url.searchParams.get(key);
+      if (filter?.startsWith('eq.')) rows = rows.filter(p => String(p[key]) === filter.slice(3));
+      if (filter?.startsWith('neq.')) rows = rows.filter(p => String(p[key]) !== filter.slice(4));
+    }
+    const fail = code => { res.statusCode=409; res.end(JSON.stringify({code})); };
+    if (req.method === 'POST' || req.method === 'PATCH') {
+      let raw=''; for await (const chunk of req) raw+=chunk;
+      const body=JSON.parse(raw);
+      const current=rows[0];
+      const next={...(req.method==='PATCH' ? current : {id:crypto.randomUUID(),status:'active',row_version:0}),...body};
+      if(req.method==='PATCH' && !current) return res.end('null');
+      if(!visible(next)) return fail('42501');
+      if(projects.get(next.project_id)?.status==='archived') return fail('23514');
+      if([...framework.values()].some(p=>p.id!==next.id && p.project_id===next.project_id && p.code===next.code)) return fail('23505');
+      const parent=framework.get(next.parent_id);
+      if(next.parent_id && (!parent || parent.type!==({specific_objective:'general_objective',expected_result:'specific_objective'})[next.type] || (next.status==='active' && parent.status!=='active'))) return fail('23514');
+      if(next.status==='archived' && [...framework.values()].some(p=>p.parent_id===next.id && p.status==='active')) return fail('23514');
+      next.row_version++; framework.set(next.id,next); rows=[next];
+    }
+    rows.sort((a,b)=>a.sort_order-b.sort_order || a.id.localeCompare(b.id));
+    if (req.headers.accept?.includes('vnd.pgrst.object')) return res.end(JSON.stringify(rows[0]??null));
+    const offset=Number(url.searchParams.get('offset')??0), limit=Number(url.searchParams.get('limit')??rows.length);
+    return res.end(JSON.stringify(rows.slice(offset,offset+limit)));
   }
   if (url.pathname === "/rest/v1/projects") {
     if (req.method === "GET" && failProjectReads) {

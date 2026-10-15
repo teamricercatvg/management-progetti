@@ -1058,3 +1058,11 @@ Applicati i soli ruoli MVP Admin/Manager, con RLS esistente e controllo delle
 versioni durante il salvataggio. Nessuna nuova migration o scrittura operativa;
 commit pubblicato e deploy di produzione verificato dopo richiesta dell’utente.
 Stato nella [consegna](milestone-7.md).
+
+### Aggiornamento Milestone 8 — 15 ottobre 2026
+
+Implementazione locale del quadro logico a tre livelli secondo il modello
+approvato: creazione/modifica, collegamenti gerarchici, ordine, archiviazione e
+riattivazione. Nuova migration con RLS e audit, test SQL e browser isolati.
+Rilascio autorizzato il 15 ottobre 2026 e migration applicata al backend
+dedicato; stato frontend nella [consegna](milestone-8.md).
