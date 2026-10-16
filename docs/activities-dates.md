@@ -30,6 +30,20 @@ comprese quelle concluse. Per riattivare un’attività, prima riattivare il ris
 Un risultato referenziato da attività non può cambiare tipo, neppure se le
 attività sono archiviate. Non sono previste cancellazioni definitive.
 
+## Correzione menu Livello — 16 ottobre 2026
+
+Il menu **Livello** di **Aggiungi elemento** include ora **Attività** e apre
+il modulo esistente con scelta del risultato attivo e date. In assenza di
+risultati attivi, un messaggio spiega di crearne uno prima. La modifica di
+obiettivi/risultati esistenti mantiene i tre livelli originali: la conversione
+di un elemento già salvato in attività non è prevista.
+Pubblicazione richiesta il 16 ottobre 2026 tramite push su main e integrazione
+GitHub–Vercel del progetto dedicato; nessuna modifica al database.
+Esito del deployment da verificare dopo il push.
+Verifiche superate: typecheck, lint, 10 test unitari, build di produzione
+Webpack e 9 test browser su quadro logico/attività con dati sintetici, incluso
+inserimento dal menu, salvataggio e persistenza dopo ricaricamento.
+
 ## Confini e cronogramma futuro
 
 La richiesta anticipa il collegamento attività–risultato e quattro date,

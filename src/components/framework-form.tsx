@@ -7,6 +7,7 @@ import {
 } from "@/app/(workspace)/projects/[id]/quadro-logico/actions";
 import { frameworkTypes, parentTypes } from "@/lib/framework.mjs";
 import type { FrameworkItem } from "@/lib/framework-data";
+import { ActivityForm } from "@/components/activity-form";
 import { Submit } from "@/components/submit";
 export function FrameworkForm({
   projectId,
@@ -33,6 +34,45 @@ export function FrameworkForm({
   const update = (name: string, value: string) =>
     setValues((old) => ({ ...old, [name]: value }));
   const parentType = parentTypes[values.type as keyof typeof parentTypes];
+  const levelSelector = (
+    <label>
+      Livello *
+      <select
+        name="type"
+        value={values.type}
+        onChange={(e) =>
+          setValues((old) => ({
+            ...old,
+            type: e.target.value,
+            parent_id: "",
+          }))
+        }
+      >
+        {Object.entries(frameworkTypes).map(([value, label]) => (
+          <option key={value} value={value}>
+            {label}
+          </option>
+        ))}
+        {!item ? <option value="activity">Attività</option> : null}
+      </select>
+    </label>
+  );
+  if (!item && values.type === "activity") {
+    const results = parents.filter(
+      (parent) => parent.type === "expected_result" && parent.status === "active",
+    );
+    return (
+      <>
+        {levelSelector}
+        {results.length === 0 ? (
+          <p className="notice" role="status">
+            Per aggiungere un’attività, crea prima un risultato atteso attivo.
+          </p>
+        ) : null}
+        <ActivityForm projectId={projectId} results={results} />
+      </>
+    );
+  }
   return (
     <form action={action}>
       <h2>{item ? "Modifica elemento" : "Nuovo elemento"}</h2>
@@ -43,26 +83,7 @@ export function FrameworkForm({
       {item ? (
         <input type="hidden" name="row_version" value={item.row_version} />
       ) : null}
-      <label>
-        Livello *
-        <select
-          name="type"
-          value={values.type}
-          onChange={(e) =>
-            setValues((old) => ({
-              ...old,
-              type: e.target.value,
-              parent_id: "",
-            }))
-          }
-        >
-          {Object.entries(frameworkTypes).map(([value, label]) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
-          ))}
-        </select>
-      </label>
+      {levelSelector}
       {parentType ? (
         <label>
           Genitore *

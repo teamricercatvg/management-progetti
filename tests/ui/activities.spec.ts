@@ -33,6 +33,28 @@ const row = (page: Page) =>
 test.beforeEach(async ({ request }) => {
   await request.get("http://127.0.0.1:54329/fixture/reset?scenario=activities");
 });
+test("Activity can be created from the framework level dropdown", async ({ page }) => {
+  await login(page);
+  await page.goto(base);
+  await page.getByRole("link", { name: "Aggiungi elemento", exact: true }).click();
+  await page.getByLabel("Livello").selectOption("activity");
+  await expect(page.getByRole("heading", { name: "Nuova attività" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Salva elemento" })).toHaveCount(0);
+  await page.getByLabel("Livello").selectOption("expected_result");
+  await expect(page.getByLabel("Genitore")).toBeVisible();
+  await page.getByLabel("Livello").selectOption("activity");
+  await page.getByLabel("Risultato collegato").selectOption({ label: "R1 — Titolo R1" });
+  await page.getByLabel("Codice attività").fill("A1");
+  await page.getByLabel("Titolo attività").fill("Formazione équipe");
+  await page.getByLabel("Inizio previsto").fill("2026-10-01");
+  await page.getByLabel("Fine prevista").fill("2026-10-31");
+  await page.getByRole("button", { name: "Salva attività", exact: true }).click();
+  await expect(page).toHaveURL(/activity_saved=1/);
+  await page.reload();
+  await expect(row(page)).toBeVisible();
+  await page.getByRole("link", { name: "Modifica R1", exact: true }).click();
+  await expect(page.getByLabel("Livello").locator('option[value="activity"]')).toHaveCount(0);
+});
 test("Activity under result saves planned and actual dates independently", async ({
   page,
 }) => {
