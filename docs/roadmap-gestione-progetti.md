@@ -1070,8 +1070,8 @@ dedicato e frontend pubblicato. Dettagli nella [consegna](milestone-8.md).
 ### Anticipo attività e date — 16 ottobre 2026
 
 Su richiesta esplicita dell’utente, anticipate attività sotto ciascun risultato
-e date di inizio/fine previste ed effettive. Rilascio autorizzato e migration applicata;
-pubblicazione frontend in corso. Stati ricavati dalle date, archivio, RLS, audit e controllo
+e date di inizio/fine previste ed effettive. Migration applicata e frontend
+pubblicato in produzione il 16 ottobre 2026. Stati ricavati dalle date, archivio, RLS, audit e controllo
 dei conflitti. La milestone 10 resta da completare per gli ulteriori requisiti
 MVP; la 11 conserva cronogramma versionato, periodi multipli e confronto dei
 piani. Il modello dati documenta la successiva migrazione delle date previste

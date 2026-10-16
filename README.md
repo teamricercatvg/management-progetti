@@ -47,8 +47,8 @@ Migration applicata al backend dedicato il 15 ottobre 2026; stato del rilascio n
 [consegna Milestone 8](docs/milestone-8.md).
 
 Il **16 ottobre 2026** è stata anticipata la gestione delle attività
-sotto i risultati, con inizio/fine previsti ed effettivi. Migration applicata;
-stato della pubblicazione frontend nella [consegna attività e date](docs/activities-dates.md).
+sotto i risultati, con inizio/fine previsti ed effettivi. Migration e frontend pubblicati in produzione;
+dettagli nella [consegna attività e date](docs/activities-dates.md).
 
 ## Documentazione
 

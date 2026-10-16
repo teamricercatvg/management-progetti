@@ -2,7 +2,7 @@
 
 Richiesta del 16 ottobre 2026: anticipare attività e date previste/effettive
 prima delle milestone 10–11. Rilascio autorizzato il 16 ottobre 2026.
-Migration applicata al backend operativo; pubblicazione frontend in corso.
+Migration applicata al backend operativo e frontend pubblicato in produzione.
 
 ## Utilizzo
 
@@ -90,4 +90,11 @@ frontend senza la tabella.
 - Backup verificato: `/var/backups/management-progetti/20261016T083421Z`.
 - Migration applicata come `supabase_admin`, registrata nella stessa transazione;
   cache PostgREST ricaricata. Nessun dato di collaudo inserito in produzione.
-- Commit, push e pubblicazione frontend in corso.
+- Commit applicativo `11052d0` pubblicato su `origin/main`. Deployment
+  `dpl_7YsGNkXDU4vMHBCyXFAySxtYKkXC` READY in produzione; alias
+  `www.ariadne-hub.it`, `ariadne-hub.it` e `management-progetti.vercel.app` verificati.
+- RLS attiva con quattro policy: nessun SELECT anonimo, DELETE client o modifica
+  di `created_by` consentiti. Healthcheck Auth/REST e protezione gateway superati.
+- Pagina di accesso verificata nel browser sul dominio pubblico. Nessun collaudo
+  autenticato con scritture di attività sul backend operativo.
+- Modifiche preesistenti a infrastruttura, configurazione e accessi escluse.
