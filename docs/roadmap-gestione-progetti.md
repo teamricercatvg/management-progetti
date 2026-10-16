@@ -106,6 +106,26 @@ le funzioni operative dei ruoli futuri richiederanno una successiva specifica.
 Le milestone 12–13 comprendono il modello dei cambi mensili; l’importazione
 automatica da fonte ufficiale e la frequenza giornaliera restano evoluzioni.
 
+### Aggiornamento di sequenza — 16 ottobre 2026
+
+L’anticipo richiesto dall’utente è **pubblicato in produzione**, non soltanto
+pianificato: attività sotto i risultati e date previste/effettive. La numerazione
+delle milestone resta invariata per conservare i riferimenti esistenti.
+Le sezioni 4.4–4.5 e le milestone 10–11 sotto recepiscono questo aggiornamento.
+
+| Ambito | Stato | Lavoro successivo |
+| --- | --- | --- |
+| Milestone 8: obiettivi e risultati | Pubblicata; estesa con attività collegate | Conservare gerarchia e regole di archivio nelle evoluzioni |
+| Milestone 9: indicatori | Non coperta dall’anticipo | Resta il prossimo passo nella sequenza, salvo nuova richiesta |
+| Milestone 10: attività MVP | Nucleo pubblicato in anticipo; chiusura da verificare | Verifica residui, decisione su annullamento e collaudo utente; non ricreare il CRUD |
+| Milestone 11: cronogramma | Solo intervallo previsto semplice e date effettive anticipati | Migrazione dei dati, revisioni ufficiali, periodi multipli e confronto/Gantt |
+| Milestone 14: rapporti; 15: dashboard | Non coperte dall’anticipo | Riutilizzare le attività esistenti e i dati ufficiali del cronogramma |
+| Assegnazioni, Operator/Viewer, sotto-attività | Evoluzioni fuori MVP | Specifica e autorizzazione separate; non sono prerequisiti per chiudere l’MVP |
+
+Riferimenti: [consegna e verifiche del rilascio](activities-dates.md),
+[modello dati approvato](data-model.md), [permessi MVP](permissions.md).
+Il rilascio non chiude automaticamente le milestone 10 e 11.
+
 ## 2. Obiettivo dell'applicazione
 
 L'applicazione dovra' supportare la gestione integrata di progetti non profit, con attenzione a pianificazione, monitoraggio, rendicontazione e controllo economico.
@@ -280,44 +300,46 @@ Il sistema dovra' distinguere tra:
 
 ### 4.4 Attivita'
 
-Le attivita' sono collegate ai risultati attesi e alimentano cronogramma, rapporti e monitoraggio.
+Le attività sono collegate a un risultato dello stesso progetto e alimenteranno
+cronogramma, rapporti e monitoraggio. Dal 16 ottobre 2026 sono disponibili nel
+quadro logico per Admin e Manager assegnati:
 
-Campi minimi:
+- codice univoco nel progetto, titolo, descrizione, note, priorità e ordine;
+- risultato collegato, modificabile fra quelli attivi dello stesso progetto;
+- inizio e fine previsti obbligatori;
+- inizio e fine effettivi facoltativi, inseribili e correggibili successivamente;
+- stato automatico: prevista senza inizio effettivo, in corso con inizio,
+  conclusa con entrambe le date effettive;
+- archiviazione e riattivazione, audit e controllo delle modifiche concorrenti.
 
-- progetto;
-- risultato collegato;
-- titolo;
-- descrizione;
-- stato;
-- priorita' o ordine;
-- utenti/operatori coinvolti;
-- note;
-- audit fields.
+Ogni fine deve essere uguale o successiva al rispettivo inizio; una fine effettiva
+richiede l’inizio effettivo. Un ritardo effettivo è ammesso e non riscrive il piano.
+Prima di archiviare un risultato vanno archiviate tutte le sue attività, anche
+concluse; per riattivarle deve essere attivo il risultato. I progetti archiviati
+sono in sola lettura; non sono previste cancellazioni definitive.
 
-Le attivita' ufficiali del quadro logico dovrebbero restare distinguibili da eventuali sotto-attivita' operative usate per pianificare o rendicontare il lavoro quotidiano.
+Lo stato `cancelled` è previsto nel modello ma non ha un comando UI: il suo
+workflow resta da definire nella verifica residua della milestone 10.
+Assegnazioni utenti/operatori e sotto-attività sono evoluzioni fuori MVP, da
+mantenere distinte dalle attività ufficiali; non sono state anticipate.
 
 ### 4.5 Cronogramma
 
-Il cronogramma si basa sulle attivita'. Per ogni attivita' dovra' essere possibile definire uno o piu' periodi pianificati.
+**Disponibile oggi:** un solo intervallo previsto modificabile per attività,
+con audit, e un intervallo effettivo separato. Questi dati non costituiscono un
+piano iniziale ufficiale né una revisione pubblicata.
 
-Ogni periodo dovra' includere:
+**Da realizzare nella milestone 11:** uno o più periodi pianificati per attività,
+revisioni con motivazione, piano iniziale e corrente, confronto di ritardi e
+anticipi e vista calendario/Gantt semplificata. Periodi, stati, metadati e
+pubblicazione seguono il [modello dati](data-model.md), sezione 6.
 
-- attivita' collegata;
-- data di inizio;
-- data di fine;
-- descrizione;
-- stato;
-- nota;
-- versione o revisione di riferimento.
-
-Il sistema dovra' permettere di confrontare:
-
-- piano iniziale;
-- piano corrente;
-- revisioni;
-- ritardi;
-- anticipi;
-- motivazioni delle modifiche.
+Il passaggio deve migrare le date previste già inserite senza perdere attività,
+collegamenti o audit. I periodi versionati diventeranno l’unica fonte modificabile
+del piano: il form nel quadro logico dovrà leggere quel piano o indirizzarne la
+modifica, evitando due fonti divergenti. Le date effettive resteranno separate
+sull’attività e non saranno sovrascritte da copie o pubblicazioni del piano.
+La checklist della milestone 11 definisce i controlli per questo passaggio.
 
 ### 4.6 Budget
 
@@ -385,7 +407,7 @@ Questa sezione non e' una migration definitiva. Descrive il modello logico consi
 | Anagrafica progetto | `projects` | Contenitore principale |
 | Utenti e permessi | `profiles`, `project_memberships`, `roles` | Collegamento con Supabase Auth |
 | Quadro logico | `logical_framework_items` o tabelle dedicate | Da decidere |
-| Attivita' | `activities`, `activity_assignments` | Attivita' ufficiali e operatori coinvolti |
+| Attivita' | `activities` già pubblicata; `activity_assignments` futura | Attività ufficiali con date; assegnazioni fuori MVP |
 | Indicatori | `indicators`, `indicator_measurements`, `indicator_contributions` | Definizione e rilevazioni separate |
 | Cronogramma | `activity_schedule_periods`, `schedule_revisions` | Versionamento da progettare |
 | Budget | `budget_lines`, `budget_categories`, `budget_revisions`, `commitments`, `expenses` | Separare piano, impegni e consuntivo |
@@ -719,6 +741,10 @@ riservata agli Admin. Dettagli e confini nella [consegna](milestone-6.md).
 
 ### Milestone 8 - Quadro logico
 
+Pubblicata il 15 ottobre 2026; il 16 ottobre è stata estesa con attività e
+date anticipate dalle milestone 10–11. Le tabelle seguenti descrivono il
+perimetro originario; lo stato delle attività è nelle relative schede.
+
 | Aspetto | Dettaglio |
 | --- | --- |
 | Obiettivo | Gestire obiettivi, risultati e struttura logica del progetto |
@@ -743,31 +769,84 @@ riservata agli Admin. Dettagli e confini nella [consegna](milestone-6.md).
 | Rischi o attenzioni | Salvare percentuali senza dati grezzi, ambiguita' su aggregazione |
 | Criteri di completamento | Indicatori definibili e collegati correttamente |
 
-### Milestone 10 - Attivita' e assegnazioni operative
+### Milestone 10 - Completamento attivita' MVP; assegnazioni future
+
+**Stato:** nucleo anticipato e pubblicato il 16 ottobre 2026. Non rifare la tabella
+`activities`, il form o le azioni già presenti; partire dalla
+[consegna attività e date](activities-dates.md).
 
 | Aspetto | Dettaglio |
 | --- | --- |
-| Obiettivo | Gestire attivita' collegate ai risultati e operatori assegnati |
-| Output atteso | CRUD attivita', assegnazioni utenti, visibilita' operatori |
-| Attivita' principali | Creare attivita', collegare risultati, assegnare operatori, definire stati |
-| File o aree coinvolte | `activities`, `activity_assignments`, UI attivita' |
-| Decisioni da prendere | Differenza tra attivita' ufficiale e sotto-attivita', stati ammessi |
-| Verifiche | Operatore vede solo attivita' assegnate, manager vede progetto assegnato |
-| Rischi o attenzioni | Mischiare attivita' logiche e task operativi senza distinzione |
-| Criteri di completamento | Attivita' gestibili e assegnabili con permessi corretti |
+| Obiettivo | Completare e verificare il perimetro attività per Admin/Manager |
+| Già consegnato | Creazione/modifica sotto un risultato, codice, contenuti, priorità/ordine, quattro date, stati automatici, archivio/riattivazione, RLS, audit e controllo versione |
+| Output residuo | Riscontro dei requisiti MVP, eventuali correzioni e chiusura esplicita del perimetro |
+| File o aree coinvolte | `activities`, route progetto/quadro-logico, form/lista e test esistenti |
+| Decisioni residue | Workflow di annullamento `cancelled`, rapporto con date e riattivazione; confermare implementazione o rinvio esplicito prima della chiusura |
+| Verifiche | Admin, Manager assegnato/non assegnato, revoca accesso, date, archivio, conflitti e conservazione dei campi dopo errore; collaudo utente autenticato |
+| Rischi o attenzioni | Ricreare funzionalità già online, introdurre stati manuali in conflitto con le date o confondere archivio e annullamento |
+| Criteri di completamento | Requisiti MVP verificati, decisioni residue registrate e collaudo documentato; assegnazioni/operatori non bloccano la chiusura |
 
-### Milestone 11 - Cronogramma
+Checklist di ripresa:
+
+- [x] CRUD senza cancellazione definitiva, collegamento al risultato e quattro date.
+- [x] Protezioni database, audit, concorrenza e test SQL/browser isolati.
+- [x] Migration e frontend pubblicati in produzione.
+- [ ] Verificare gli eventuali residui rispetto al modello approvato, senza
+  ampliare automaticamente il perimetro; decidere il workflow `cancelled`.
+- [ ] Raccogliere il collaudo autenticato dell’utente e correggere eventuali difetti:
+  le verifiche di rilascio non hanno inserito attività di prova in produzione.
+- [ ] Registrare la chiusura MVP con rinvii espliciti e collegamenti alle consegne.
+
+**Backlog conservato fuori MVP:** `activity_assignments`, ruoli Operator/Viewer,
+visibilità delle sole attività assegnate, partecipanti e sotto-attività operative.
+Richiedono specifica, regole di revoca e test RLS dedicati prima dell’attivazione;
+non vanno introdotti implicitamente eseguendo questa milestone.
+
+### Milestone 11 - Cronogramma versionato e migrazione delle date
+
+**Stato:** da realizzare; l’intervallo semplice disponibile non equivale alla
+consegna del cronogramma. Dipende dalle attività già online e dai permessi MVP,
+non dall’introduzione degli operatori. Riutilizzare gli ID attività esistenti.
 
 | Aspetto | Dettaglio |
 | --- | --- |
-| Obiettivo | Pianificare periodi attivita' e gestire revisioni |
-| Output atteso | Cronogramma iniziale, revisione corrente, confronto base |
-| Attivita' principali | Periodi attivita', revisioni, motivazioni modifica, vista calendario/Gantt semplificata |
-| File o aree coinvolte | `schedule_revisions`, `activity_schedule_periods`, UI cronogramma |
-| Decisioni da prendere | UX per revisioni, cosa richiede motivazione, approvazione revisioni |
-| Verifiche | Confronto piano iniziale/corrente, audit, permessi modifica |
-| Rischi o attenzioni | Perdere lo storico del piano originale |
-| Criteri di completamento | Cronogramma modificabile senza perdere tracciabilita' |
+| Obiettivo | Evolvere il piano semplice in periodi e revisioni senza perdere dati |
+| Output atteso | Piano iniziale ufficiale, revisione corrente, periodi multipli, confronto e calendario/Gantt semplificato |
+| Attivita' principali | Migrazione delle date previste, bozze e pubblicazione di snapshot, motivazioni, vista e confronto piano/effettivo |
+| File o aree coinvolte | `schedule_revisions`, `activity_schedule_periods`, `project_schedule_state`, `activities`, UI cronogramma e quadro logico |
+| Decisioni residue | UX per periodi multipli e conflitti; rappresentazione delle date riepilogative; trattamento delle attività archiviate/annullate nel piano migrato |
+| Regole già approvate | Admin o Manager assegnato pubblica anche la propria bozza; nessun secondo approvatore; prima pubblicazione fissa il piano iniziale |
+| Verifiche | Integrità migrazione, storico, unicità della fonte prevista, date effettive invariate, confronto, audit, concorrenza e RLS |
+| Rischi o attenzioni | Perdere il piano preesistente, inventare una baseline retroattiva o lasciare due piani modificabili |
+| Criteri di completamento | Checklist seguente verificata, migrazione controllata e cronogramma tracciabile con regressioni attività superate |
+
+Checklist obbligatoria per implementazione e rilascio:
+
+- [ ] Censire gli intervalli esistenti, incluse attività archiviate/annullate e
+  date fuori dal periodo progetto; definire e documentare il loro trattamento
+  senza scarti o correzioni silenziose.
+- [ ] Preparare backup e prova di migrazione/ripristino in ambiente isolato;
+  migrare il piano corrente in periodi di una bozza con provenienza documentata.
+  Non presentare le date importate come un piano storico già approvato.
+- [ ] Preservare ID, collegamenti ai risultati, date effettive, archivio e audit
+  precedente; confrontare conteggi e valori prima/dopo, verificando anche la
+  catena migration da zero e l’aggiornamento di un database popolato.
+- [ ] Rendere i periodi l’unica fonte modificabile del previsto e aggiornare
+  form/lista attività; definire quando dismettere o rendere non modificabili i
+  vecchi campi, preservando i dati. Esplicitare la lettura prima della prima
+  pubblicazione e il riepilogo di attività con più periodi.
+- [ ] Implementare snapshot completi, `period_key` stabile, una bozza per
+  progetto, progressivi sotto lock, motivazione e cancellazione logica dei periodi.
+- [ ] Pubblicare atomicamente con audit e puntatori iniziale/corrente; rendere
+  immutabili gli snapshot pubblicati e bloccare bozze basate su un piano superato.
+- [ ] Applicare alla pubblicazione i limiti temporali del progetto; impedire
+  modifiche del progetto incompatibili con il piano corrente. Le date effettive
+  possono registrare ritardi; le sovrapposizioni pianificate sono ammesse e segnalate.
+- [ ] Realizzare confronto iniziale/corrente/effettivo e calendario/Gantt,
+  distinguendo intervalli previsti, revisioni e consuntivo.
+- [ ] Verificare RLS e regressioni su archivio, annullamento, spostamento di
+  attività fra risultati, conflitti e dati già inseriti; coordinare migration
+  e frontend nel rilascio e documentare il collaudo.
 
 ### Milestone 12 - Budget
 
@@ -797,6 +876,11 @@ riservata agli Admin. Dettagli e confini nella [consegna](milestone-6.md).
 
 ### Milestone 14 - Rapporti operativi
 
+L’anticipo delle attività non implementa i rapporti: riutilizzare le attività
+esistenti tramite `report_activities` e le definizioni indicatori della milestone 9.
+Nell’MVP inseriscono Admin/Manager con validazione automatica; operatori e relativo
+workflow di validazione restano evoluzioni come previsto dal modello approvato.
+
 | Aspetto | Dettaglio |
 | --- | --- |
 | Obiettivo | Permettere agli operatori di inserire report narrativi e quantitativi |
@@ -809,6 +893,10 @@ riservata agli Admin. Dettagli e confini nella [consegna](milestone-6.md).
 | Criteri di completamento | Report inseribili e validabili con impatto controllato sugli indicatori |
 
 ### Milestone 15 - Dashboard di monitoraggio
+
+Riutilizzare attività/date effettive esistenti e piani ufficiali della milestone 11;
+distinguere piano semplice, bozza e piano pubblicato. Indicatori, budget e rapporti
+richiedono le rispettive milestone: l’anticipo non li rende già disponibili.
 
 | Aspetto | Dettaglio |
 | --- | --- |
@@ -913,11 +1001,20 @@ Prima di deploy futuri sara' necessario:
 
 ### 9.4 Attivita' e cronogramma
 
-- Le sotto-attivita' sono elementi ufficiali o strumenti operativi liberi?
-- Chi puo' modificare il cronogramma ufficiale?
-- Ogni modifica del cronogramma richiede approvazione?
-- Quale livello di dettaglio serve per la visualizzazione: lista, calendario, Gantt?
-- Come gestire attivita' ricorrenti o periodi multipli?
+Già deciso: attività sotto un risultato, quattro date distinte, stati automatici,
+Admin/Manager nell’MVP; pubblicazione del piano anche da parte del Manager assegnato,
+senza secondo approvatore. Periodi multipli e snapshot sono previsti dal modello.
+
+Restano da definire nelle milestone 10–11:
+
+- workflow di annullamento e relazione con date/riattivazione;
+- UX dei periodi multipli, confronto e calendario/Gantt semplificato;
+- riepilogo delle date nel quadro logico e passaggio alla fonte versionata;
+- trattamento delle attività archiviate/annullate e degli intervalli esistenti
+  fuori dalle date del progetto durante la migrazione.
+
+Sotto-attività, assegnazioni e automazioni per ricorrenze restano proposte future
+con specifica separata, non requisiti implicitamente aggiunti all’MVP.
 
 ### 9.5 Budget
 
@@ -1075,4 +1172,8 @@ pubblicato in produzione il 16 ottobre 2026. Stati ricavati dalle date, archivio
 dei conflitti. La milestone 10 resta da completare per gli ulteriori requisiti
 MVP; la 11 conserva cronogramma versionato, periodi multipli e confronto dei
 piani. Il modello dati documenta la successiva migrazione delle date previste
-verso il cronogramma. Vedere [consegna attività e date](activities-dates.md).
+verso il cronogramma. Le sezioni 4.4–4.5, le schede delle milestone 10–11 e
+le questioni aperte 9.4 sono state riallineate: includono checklist dei residui,
+dipendenze e backlog fuori MVP. Rapporti e dashboard restano nelle milestone
+14–15 e dovranno riutilizzare queste attività, senza duplicarle.
+Vedere [consegna attività e date](activities-dates.md).
