@@ -436,3 +436,8 @@ textarea:focus-visible {
 .framework-item h2 { font-size: 1.15rem; }
 .framework-item .actions form { margin: 0; }
 @media (max-width: 600px) { .framework-tree .framework-tree { margin-left: .35rem; padding-left: .4rem; } .framework-item { padding: .75rem; } }
+
+.activity-dates { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem 1rem; }
+.activity-list h3 { font-size: 1.15rem; margin: .75rem 0; }
+.activity-empty { margin-left: 1rem; }
+@media (max-width: 400px) { .activity-dates { grid-template-columns: 1fr; } }

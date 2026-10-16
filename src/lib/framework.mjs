@@ -53,6 +53,6 @@ export function parseFramework(form) {
 export function frameworkError(code) {
   if (code === "23505") return "Il codice è già utilizzato nel progetto.";
   if (code === "23514" || code === "23503")
-    return "Gerarchia non valida: verifica livello e genitore attivo. Archivia prima i figli attivi; riattiva prima il genitore. Un elemento con figli non può cambiare livello.";
+    return "Gerarchia non valida: verifica livello e genitore attivo. Archivia prima i figli attivi e tutte le attività collegate; riattiva prima il genitore. Un elemento con figli o attività non può cambiare livello.";
   return "Salvataggio non riuscito. Verifica l’accesso al progetto e riprova.";
 }

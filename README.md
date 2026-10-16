@@ -46,6 +46,10 @@ ordinamento, modifica, archiviazione e riattivazione con RLS e audit.
 Migration applicata al backend dedicato il 15 ottobre 2026; stato del rilascio nella
 [consegna Milestone 8](docs/milestone-8.md).
 
+Il **16 ottobre 2026** è stata anticipata la gestione delle attività
+sotto i risultati, con inizio/fine previsti ed effettivi. Migration applicata;
+stato della pubblicazione frontend nella [consegna attività e date](docs/activities-dates.md).
+
 ## Documentazione
 
 - [Roadmap e requisiti](docs/roadmap-gestione-progetti.md)
@@ -59,6 +63,7 @@ Migration applicata al backend dedicato il 15 ottobre 2026; stato del rilascio n
 - [Consegna Milestone 6 e navigazione](docs/milestone-6.md)
 - [Consegna Milestone 7 e gestione progetti](docs/milestone-7.md)
 - [Consegna Milestone 8 e quadro logico](docs/milestone-8.md)
+- [Attività e date nel quadro logico](docs/activities-dates.md)
 - [Modello dati](docs/data-model.md)
 - [Matrice permessi e contratto RLS](docs/permissions.md)
 - [Infrastruttura, verifiche e DNS pendenti](docs/infrastructure.md)

@@ -4,6 +4,9 @@ import { getProject } from "@/lib/project-data";
 import { getFramework, type FrameworkItem } from "@/lib/framework-data";
 import { frameworkTypes } from "@/lib/framework.mjs";
 import { FrameworkForm, FrameworkStatus } from "@/components/framework-form";
+import { getActivities } from "@/lib/activity-data";
+import { ActivityForm } from "@/components/activity-form";
+import { ActivityList } from "@/components/activity-list";
 export const metadata = { title: "Quadro logico" };
 export default async function FrameworkPage({
   params,
@@ -13,8 +16,9 @@ export default async function FrameworkPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { project, client } = await getProject((await params).id);
-  const [items, search] = await Promise.all([
+  const [items, activities, search] = await Promise.all([
     getFramework(client, project.id),
+    getActivities(client, project.id),
     searchParams,
   ]);
   const base = `/projects/${project.id}/quadro-logico`;
@@ -27,6 +31,30 @@ export default async function FrameworkPage({
   const showForm =
     !readOnly &&
     (search.new === "1" || (editing && editing.status === "active"));
+  const editingActivity =
+    typeof search.activity === "string"
+      ? activities.find((a) => a.id === search.activity)
+      : undefined;
+  if (search.activity && !editingActivity) notFound();
+  const newResult =
+    typeof search.new_activity === "string"
+      ? items.find(
+          (i) =>
+            i.id === search.new_activity &&
+            i.type === "expected_result" &&
+            i.status === "active",
+        )
+      : undefined;
+  if (search.new_activity && !newResult) notFound();
+  const showActivityForm =
+    !readOnly &&
+    (newResult || (editingActivity && editingActivity.status !== "archived"));
+  const activityGroups = new Map<string, typeof activities>();
+  for (const activity of activities) {
+    const group = activityGroups.get(activity.result_id) ?? [];
+    group.push(activity);
+    activityGroups.set(activity.result_id, group);
+  }
   const children = new Map<string | null, FrameworkItem[]>();
   for (const item of items)
     children.set(item.parent_id, [
@@ -66,6 +94,15 @@ export default async function FrameworkPage({
                       Modifica {item.code}
                     </Link>
                   ) : null}
+                  {item.type === "expected_result" &&
+                  item.status === "active" ? (
+                    <Link
+                      className="button-link"
+                      href={`${base}?new_activity=${item.id}`}
+                    >
+                      Aggiungi attività a {item.code}
+                    </Link>
+                  ) : null}
                   <FrameworkStatus
                     projectId={project.id}
                     item={{
@@ -77,6 +114,13 @@ export default async function FrameworkPage({
                 </div>
               ) : null}
             </article>
+            {item.type === "expected_result" ? (
+              <ActivityList
+                activities={activityGroups.get(item.id) ?? []}
+                projectId={project.id}
+                readOnly={readOnly}
+              />
+            ) : null}
             {tree(item.id, depth + 1)}
           </li>
         ))}
@@ -91,7 +135,10 @@ export default async function FrameworkPage({
         </Link>
         <h1>Quadro logico</h1>
         <p>{project.title}</p>
-        <p>Obiettivi generali → obiettivi specifici → risultati attesi.</p>
+        <p>
+          Obiettivi generali → obiettivi specifici → risultati attesi →
+          attività.
+        </p>
       </div>
       {readOnly ? (
         <p className="notice">
@@ -99,15 +146,35 @@ export default async function FrameworkPage({
         </p>
       ) : (
         <p>
-          Per archiviare un elemento, archivia prima i figli attivi. Per
-          riattivarlo, riattiva prima il genitore. Gli elementi archiviati
-          restano visibili.
+          Per archiviare un elemento, archivia prima i figli attivi e le
+          attività collegate, anche se concluse. Per riattivarlo, riattiva prima
+          il genitore. Gli elementi archiviati restano visibili.
         </p>
       )}
       {search.saved === "1" ? (
         <p role="status" className="notice">
           Elemento salvato.
         </p>
+      ) : null}
+      {search.activity_saved === "1" ? (
+        <p className="notice" role="status">
+          Attività salvata.
+        </p>
+      ) : null}
+      {showActivityForm ? (
+        <section className="admin-card">
+          <ActivityForm
+            key={editingActivity?.id ?? newResult?.id}
+            projectId={project.id}
+            activity={editingActivity}
+            resultId={newResult?.id}
+            results={items
+              .filter(
+                (i) => i.type === "expected_result" && i.status === "active",
+              )
+              .map(({ id, code, title }) => ({ id, code, title }))}
+          />
+        </section>
       ) : null}
       {showForm ? (
         <section className="admin-card">

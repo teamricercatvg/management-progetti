@@ -34,6 +34,7 @@ function session(role) {
 const projects = new Map();
 const associations = [];
 const framework = new Map();
+const activities = new Map();
 let failProjectReads = false;
 const entity = {
   id: "00000000-0000-4000-8000-000000000010",
@@ -45,6 +46,7 @@ const otherId = "00000000-0000-4000-8000-000000000008";
 function resetProjects() {
   failProjectReads = false;
   framework.clear();
+  activities.clear();
   projects.clear();
   associations.length = 0;
   for (const [projectId, code, title] of [
@@ -118,6 +120,15 @@ createServer(async (req, res) => {
         projects.set(projectId, { ...template, id: projectId, code: `PAGE-${suffix}`, title: `Collaudo pagina ${suffix}` });
       }
     }
+    if (url.searchParams.get('scenario') === 'activities') {
+      for (const [suffix,type,code,parent] of [
+        ['101','general_objective','OG1',null],['102','specific_objective','OS1','101'],
+        ['103','expected_result','R1','102'],['104','expected_result','R2','102']
+      ]) {
+        const itemId='00000000-0000-4000-8000-000000000'+suffix;
+        framework.set(itemId,{id:itemId,project_id:seedId,type,code,title:'Titolo '+code,parent_id:parent?'00000000-0000-4000-8000-000000000'+parent:null,status:'active',sort_order:0,row_version:1,description:null,assumptions:null});
+      }
+    }
     failProjectReads = url.searchParams.get("scenario") === "error";
     return res.end("{}");
   }
@@ -142,11 +153,40 @@ createServer(async (req, res) => {
       const parent=framework.get(next.parent_id);
       if(next.parent_id && (!parent || parent.type!==({specific_objective:'general_objective',expected_result:'specific_objective'})[next.type] || (next.status==='active' && parent.status!=='active'))) return fail('23514');
       if(next.status==='archived' && [...framework.values()].some(p=>p.parent_id===next.id && p.status==='active')) return fail('23514');
+      if(next.status==='archived' && [...activities.values()].some(a=>a.result_id===next.id && a.status!=='archived')) return fail('23514');
       next.row_version++; framework.set(next.id,next); rows=[next];
     }
     rows.sort((a,b)=>a.sort_order-b.sort_order || a.id.localeCompare(b.id));
     if (req.headers.accept?.includes('vnd.pgrst.object')) return res.end(JSON.stringify(rows[0]??null));
     const offset=Number(url.searchParams.get('offset')??0), limit=Number(url.searchParams.get('limit')??rows.length);
+    return res.end(JSON.stringify(rows.slice(offset,offset+limit)));
+  }
+  if (url.pathname === '/rest/v1/activities') {
+    const visible=a=>role==='admin'||(role==='manager'&&a.project_id===seedId);
+    let rows=[...activities.values()].filter(visible);
+    for(const key of ['id','project_id','row_version','status']) {
+      const f=url.searchParams.get(key);
+      if(f?.startsWith('eq.')) rows=rows.filter(a=>String(a[key])===f.slice(3));
+      if(f?.startsWith('neq.')) rows=rows.filter(a=>String(a[key])!==f.slice(4));
+    }
+    const fail=code=>{res.statusCode=409;res.end(JSON.stringify({code}));};
+    if(req.method==='POST'||req.method==='PATCH') {
+      let raw='';for await(const chunk of req)raw+=chunk;
+      const body=JSON.parse(raw);
+      const current=rows[0];
+      if(req.method==='PATCH'&&!current)return res.end('null');
+      const next={...(req.method==='PATCH'?current:{id:crypto.randomUUID(),status:'planned',row_version:0}),...body};
+      if(!visible(next))return fail('42501');
+      if(projects.get(next.project_id)?.status==='archived')return fail('23514');
+      const result=framework.get(next.result_id);
+      if(!result||result.type!=='expected_result'||result.project_id!==next.project_id||(next.status!=='archived'&&result.status!=='active'))return fail('23514');
+      if([...activities.values()].some(a=>a.id!==next.id&&a.project_id===next.project_id&&a.code===next.code))return fail('23505');
+      if(next.status!=='archived'&&next.status!=='cancelled')next.status=next.actual_end_date?'completed':next.actual_start_date?'in_progress':'planned';
+      next.row_version++;activities.set(next.id,next);rows=[next];
+    }
+    rows.sort((a,b)=>a.sort_order-b.sort_order||a.id.localeCompare(b.id));
+    if(req.headers.accept?.includes('vnd.pgrst.object'))return res.end(JSON.stringify(rows[0]??null));
+    const offset=Number(url.searchParams.get('offset')??0),limit=Number(url.searchParams.get('limit')??rows.length);
     return res.end(JSON.stringify(rows.slice(offset,offset+limit)));
   }
   if (url.pathname === "/rest/v1/projects") {

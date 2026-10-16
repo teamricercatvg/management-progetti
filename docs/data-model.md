@@ -197,6 +197,31 @@ rettifica validata. Per le manuali escludere il predecessore solo quando la sua 
 Un indicatore archiviato conserva i suoi valori storici;
 archiviare l'indicatore ne vieta nuove rilevazioni, non cancella i risultati.
 
+### Anticipo attività e date — richiesta del 16 ottobre 2026
+
+L’utente autorizza l’inserimento delle attività nel quadro logico prima delle
+milestone 10–11. A `activities` si aggiungono `planned_start_date date!`,
+`planned_end_date date!`, `actual_start_date date?`, `actual_end_date date?`.
+Ogni attività appartiene a un risultato dello stesso progetto. Le date previste
+sono obbligatorie; quelle effettive possono restare vuote. Ogni fine è uguale o
+successiva al rispettivo inizio; la fine effettiva richiede l’inizio effettivo.
+Le date effettive possono differire dal piano, anche oltre il periodo previsto.
+
+Lo stato operativo è calcolato nel DB: senza date effettive `planned`, con solo
+inizio `in_progress`, con entrambe `completed`. Archiviazione separata, senza
+cancellazione; per riattivare deve essere attivo il risultato. Anche le attività
+concluse vanno archiviate prima del risultato. Il tipo del risultato referenziato
+non può cambiare, neppure se le sue attività sono archiviate. `cancelled` rimane
+nel modello per evoluzioni successive, non esposto in questa interfaccia.
+
+Questa prima implementazione usa un singolo intervallo previsto modificabile,
+con date precedenti e successive conservate nell’audit. Non è una revisione
+ufficiale di cronogramma. La milestone 11 dovrà migrare il piano corrente nei
+periodi versionati descritti sotto, conservando i dati inseriti ed evitando due
+fonti modificabili per le date previste. Periodi multipli, pubblicazione e Gantt
+restano rinviati. I vincoli rispetto alle date del progetto saranno applicati
+alla pubblicazione del cronogramma; qui si controlla la coerenza dei due intervalli.
+
 ## 6. Cronogramma e revisioni
 
 | Tabella | Campi | Vincoli e significato |
