@@ -116,7 +116,7 @@ Le sezioni 4.4–4.5 e le milestone 10–11 sotto recepiscono questo aggiornamen
 | Ambito | Stato | Lavoro successivo |
 | --- | --- | --- |
 | Milestone 8: obiettivi e risultati | Conclusa il 20 ottobre 2026; estesa con attività collegate | Conservare gerarchia e regole di archivio nelle evoluzioni |
-| Milestone 9: indicatori | Non coperta dall’anticipo | Resta il prossimo passo nella sequenza, salvo nuova richiesta |
+| Milestone 9: indicatori | Pubblicata il 20 ottobre 2026 | Definizioni, baseline/target, fonti e archivio; rilevazioni successive |
 | Milestone 10: attività MVP | Nucleo pubblicato in anticipo; chiusura da verificare | Verifica residui, decisione su annullamento e collaudo utente; non ricreare il CRUD |
 | Milestone 11: cronogramma | Solo intervallo previsto semplice e date effettive anticipati | Migrazione dei dati, revisioni ufficiali, periodi multipli e confronto/Gantt |
 | Milestone 14: rapporti; 15: dashboard | Non coperte dall’anticipo | Riutilizzare le attività esistenti e i dati ufficiali del cronogramma |
@@ -758,7 +758,7 @@ perimetro originario; lo stato delle attività è nelle relative schede.
 
 ### Milestone 9 - Indicatori
 
-Implementata il 20 ottobre 2026; stato del rilascio e verifiche nella
+Implementata e pubblicata il 20 ottobre 2026; stato del rilascio e verifiche nella
 [consegna](milestone-9.md). Rilevazioni e rapporti restano successivi.
 
 | Aspetto | Dettaglio |

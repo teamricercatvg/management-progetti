@@ -100,6 +100,11 @@ parallela di valori osservati né modifica il cronogramma.
 - Migration applicata come `supabase_admin`, con registrazione transazionale
   nello storico Supabase e reload PostgREST; RLS, quattro policy, assenza di
   accesso anonimo e impossibilità di modificare l’autore verificati sul backend.
-- Frontend: pubblicazione autorizzata, in corso. Identificativo e verifica finale
-  saranno registrati dopo la pubblicazione; collaudo autenticato con dati reali
-  affidato a Chiara. Modifiche infrastrutturali preesistenti escluse dal commit.
+- Commit applicativo `cb5ac79` su `main` e `origin/main`; deployment
+  `dpl_Be6ELMmymdLjGt3zxpnzKJfT19Do` READY in produzione, con alias
+  `www.ariadne-hub.it` e `ariadne-hub.it` verificati. Pagina login e protezione
+  della nuova rotta indicatori verificate nel browser; healthcheck Auth/REST superati.
+- Email di consegna e collaudo inviata a Chiara Piga nella conversazione
+  “Sviluppo App”, firmata Codex — assistente AI; presenza in Posta inviata verificata.
+- Collaudo autenticato sul sito con dati reali affidato a Chiara. Modifiche
+  infrastrutturali preesistenti escluse dal commit.

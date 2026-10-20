@@ -50,7 +50,7 @@ Il **16 ottobre 2026** è stata anticipata la gestione delle attività
 sotto i risultati, con inizio/fine previsti ed effettivi. Migration e frontend pubblicati in produzione;
 dettagli nella [consegna attività e date](docs/activities-dates.md).
 
-La **Milestone 9 è implementata**: definizioni di indicatori numerici e rapporti,
+La **Milestone 9 è pubblicata in produzione**: definizioni di indicatori numerici e rapporti,
 baseline/target, metodologia e fonti, archivio e permessi. Stato del rilascio e
 collaudo nella [consegna Milestone 9](docs/milestone-9.md).
 
