@@ -38,3 +38,14 @@ test("framework validates hierarchy input and integer ordering", () => {
   assert.ok(parseFramework(form({ type: "invalid" })).errors.type);
   assert.ok(parseFramework(form({ title: "  " })).errors.title);
 });
+test("optional risks support multiple mitigations and reject malformed input", () => {
+  assert.equal(parseFramework(form()).data.assumptions, null);
+  const entries = [{risk: " Ritardo ", mitigation: "Scorta"}, {risk: "Costi", mitigation: "Riserva"}];
+  const result = parseFramework(form({ risks: JSON.stringify(entries) }));
+  assert.deepEqual(result.errors, {});
+  assert.deepEqual(JSON.parse(result.data.assumptions).entries, entries.map(r => ({...r, risk: r.risk.trim()})));
+  for (const risks of ['null', '{}', '[null]', 'invalid', '[{"risk":"","mitigation":"Azione"}]']) {
+    assert.ok(parseFramework(form({ risks })).errors.risks);
+  }
+  assert.equal(parseFramework(form({ risks: '[{"risk":" ","mitigation":""}]' })).data.assumptions, null);
+});

@@ -473,3 +473,9 @@ Le altre tabelle qui descritte sono contratti progettuali da implementare nelle
 milestone 8–14 insieme ai relativi vincoli, transizioni e test. Auth e bootstrap
 admin in Milestone 4; policy e helper in Milestone 5. La separazione temporale
 non autorizza migration remote o l'uso di dati reali senza le verifiche previste.
+
+### Output delle attività — 20 ottobre 2026
+
+`activities.output`: testo facoltativo, massimo 10000 caratteri, per descrivere
+l’output della singola attività. Colonna distinta da descrizione e note;
+segue i permessi, RLS e versionamento già previsti per le attività.

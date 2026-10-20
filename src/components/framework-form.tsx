@@ -1,11 +1,12 @@
 "use client";
 import { useActionState, useState } from "react";
+import { UiIcon } from "@/components/ui-icon";
 import Link from "next/link";
 import {
   saveFramework,
   setFrameworkStatus,
 } from "@/app/(workspace)/projects/[id]/quadro-logico/actions";
-import { frameworkTypes, parentTypes } from "@/lib/framework.mjs";
+import { frameworkTypes, parentTypes, readFrameworkRisks } from "@/lib/framework.mjs";
 import type { FrameworkItem } from "@/lib/framework-data";
 import { ActivityForm } from "@/components/activity-form";
 import { Submit } from "@/components/submit";
@@ -13,20 +14,24 @@ export function FrameworkForm({
   projectId,
   item,
   parents,
+  resultParentId,
 }: {
   projectId: string;
   item?: FrameworkItem;
+  resultParentId?: string;
   parents: Pick<FrameworkItem, "id" | "type" | "code" | "title" | "status">[];
 }) {
   const [values, setValues] = useState<Record<string, string>>({
-    type: item?.type ?? "general_objective",
-    parent_id: item?.parent_id ?? "",
+    type: item?.type ?? (resultParentId ? "expected_result" : "general_objective"),
+    parent_id: item?.parent_id ?? resultParentId ?? "",
     code: item?.code ?? "",
     title: item?.title ?? "",
     description: item?.description ?? "",
-    assumptions: item?.assumptions ?? "",
     sort_order: String(item?.sort_order ?? 0),
   });
+  const [risks, setRisks] = useState(() => readFrameworkRisks(item?.assumptions).map((risk, index) => ({ ...risk, id: String(index) })));
+  const changeRisk = (id: string, field: "risk" | "mitigation", value: string) =>
+    setRisks((old) => old.map((entry) => entry.id === id ? { ...entry, [field]: value } : entry));
   const [state, action] = useActionState(
     saveFramework.bind(null, projectId, item?.id ?? null),
     { message: "" },
@@ -117,7 +122,6 @@ export function FrameworkForm({
             ["code", "Codice", 80],
             ["title", "Titolo", 240],
             ["description", "Descrizione", 10000],
-            ["assumptions", "Ipotesi e condizioni", 10000],
             ["sort_order", "Ordine", undefined],
           ] as const
         ).map(([name, label, max]) => (
@@ -148,6 +152,24 @@ export function FrameworkForm({
           </label>
         ))}
       </div>
+      <fieldset>
+        <legend>Rischi e azioni di mitigazione (facoltativi)</legend>
+        <p>Aggiungi, se necessario, i rischi e le azioni previste per mitigarli.</p>
+        <input type="hidden" name="risks" value={JSON.stringify(risks.map(({ risk, mitigation }) => ({ risk, mitigation })))} />
+        {risks.map((entry, index) => (
+          <fieldset key={entry.id}>
+            <legend>Rischio {index + 1}</legend>
+            <label>Descrizione del rischio {index + 1}
+              <textarea rows={3} maxLength={10000} value={entry.risk} onChange={(e) => changeRisk(entry.id, "risk", e.target.value)} />
+            </label>
+            <label>Azioni previste di mitigazione {index + 1}
+              <textarea rows={3} maxLength={10000} value={entry.mitigation} onChange={(e) => changeRisk(entry.id, "mitigation", e.target.value)} />
+            </label>
+            <button type="button" onClick={() => setRisks((old) => old.filter((r) => r.id !== entry.id))}>Rimuovi rischio {index + 1}</button>
+          </fieldset>
+        ))}
+        <button type="button" onClick={() => setRisks((old) => [...old, { id: crypto.randomUUID(), risk: "", mitigation: "" }])}>Aggiungi rischio</button>
+      </fieldset>
       {state.message ? (
         <div className="notice" role="alert">
           <p>{state.message}</p>
@@ -179,15 +201,17 @@ export function FrameworkStatus({
     { message: "" },
   );
   return (
-    <form action={action}>
+    <form action={action} onSubmit={(event) => {
+      if (item.status !== "archived" && !window.confirm("Archiviare questa voce e tutti gli elementi e le attività sottostanti? I dati saranno conservati e potranno essere riattivati.")) event.preventDefault();
+    }}>
       <input type="hidden" name="row_version" value={item.row_version} />
       <input
         type="hidden"
         name="status"
         value={item.status === "active" ? "archived" : "active"}
       />
-      <Submit>
-        {item.status === "active" ? "Archivia elemento" : "Riattiva elemento"}
+      <Submit label={item.status === "archived" ? "Riattiva elemento" : "Archivia elemento"}>
+        <UiIcon name={item.status === "archived" ? "restore" : "trash"} />
       </Submit>
       {state.message ? (
         <p role="status" className="notice">

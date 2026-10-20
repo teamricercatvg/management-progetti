@@ -41,7 +41,7 @@ creazione e modifica dei progetti, archiviazione/riapertura e associazione agli
 enti esistenti, secondo i permessi Admin/Manager. Vedere la
 [consegna Milestone 7](docs/milestone-7.md). Rilascio verificato il 14 ottobre 2026.
 
-La **Milestone 8 è pubblicata in produzione**: quadro logico gerarchico,
+La **Milestone 8 è conclusa (20 ottobre 2026)**: quadro logico gerarchico,
 ordinamento, modifica, archiviazione e riattivazione con RLS e audit.
 Migration applicata al backend dedicato il 15 ottobre 2026; stato del rilascio nella
 [consegna Milestone 8](docs/milestone-8.md).

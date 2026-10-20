@@ -68,6 +68,15 @@ export async function setFrameworkStatus(
     !["active", "archived"].includes(status)
   )
     return { message: "Operazione non valida." };
+  if (status === "archived") {
+    const { data, error } = await client.rpc("archive_framework_branch", {
+      target_project: projectId, target_item: itemId, expected_version: Number(version),
+    });
+    if (error) return { message: frameworkError(error.code) };
+    if (!data) return { message: "Elemento modificato o non più accessibile. Ricarica la pagina." };
+    revalidatePath(`/projects/${projectId}/quadro-logico`);
+    return { message: "Elemento e discendenti archiviati." };
+  }
   const { data, error } = await client
     .from("logical_framework_items")
     .update({ status })

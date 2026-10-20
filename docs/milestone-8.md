@@ -94,3 +94,17 @@ collaudo autenticato del nuovo flusso sul backend operativo.
   autenticati completi sono coperti dalle suite locali/isolate descritte sopra.
 - Modifiche preesistenti a `.env.example`, infrastruttura e accessi escluse
   dai commit e dal deploy Git. Nessuna modifica alle variabili Vercel.
+
+
+## Chiusura definitiva — 20 ottobre 2026
+
+Confermata dall’utente la conclusione della Milestone 8. Integrate le migliorie
+approvate in localhost: rischi e mitigazioni facoltativi; output attività;
+sidebar chiusa di default; testi su una riga con Altro; rischi richiusi;
+albero espandibile per ramo o globalmente; azioni a icona e aggiunta contestuale
+di risultati e attività. Archiviazione ramo atomica con conferma, RLS,
+versione del nodo radice e lock del progetto; nessuna eliminazione definitiva.
+Le migration `20261020120000` e `20261020130000` sono applicate e registrate
+sul backend con backup preventivi (dettagli in activities-dates.md).
+Test browser su fixture e SQL su PostgreSQL isolato verificano i flussi;
+nessuna scrittura di collaudo sui progetti reali.

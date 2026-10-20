@@ -112,3 +112,49 @@ frontend senza la tabella.
 - Pagina di accesso verificata nel browser sul dominio pubblico. Nessun collaudo
   autenticato con scritture di attività sul backend operativo.
 - Modifiche preesistenti a infrastruttura, configurazione e accessi escluse.
+
+### Rischi del quadro logico — modifica locale del 20 ottobre 2026
+
+Il campo «Ipotesi e condizioni» è sostituito nell'interfaccia da un elenco
+facoltativo di rischi, ciascuno con azioni previste di mitigazione. È possibile
+aggiungere e rimuovere voci; la mitigazione può essere completata in seguito.
+Per compatibilità con il backend operativo, la colonna `assumptions` conserva
+un documento JSON `{format: "risks-v1", entries: [{risk, mitigation}]}` o NULL
+per l'elenco vuoto, entro il limite esistente di 10000 caratteri. I testi
+precedenti vengono conservati come prima voce modificabile. Restano invariati
+RLS, audit e controllo della versione della riga. Nessuna migration o deploy.
+
+La vista locale del quadro logico ora usa schede compatte e descrizioni di due
+righe espandibili con «Altro...», incluse attività, note e rischi. Ogni ramo
+con figli può essere chiuso singolarmente; «Espandi tutto» e «Chiudi tutto»
+agiscono su tutti i livelli, incluse le attività. I nodi radice restano
+visibili. I comandi espongono lo stato tramite aria-expanded; i contenuti
+chiusi non sono raggiungibili con Tab. Nessuna modifica ai dati o ai permessi.
+
+### Output attività — 20 ottobre 2026
+
+Aggiunto il campo facoltativo «Output attività» (massimo 10000 caratteri),
+modificabile e azzerabile, mostrato nella scheda compatta su due righe espandibili.
+Migration `20261020120000_activity_output.sql` applicata al backend condiviso
+con autorizzazione esplicita dell’utente; storico registrato nella stessa
+transazione e cache PostgREST ricaricata. Backup PostgreSQL verificato con
+pg_restore --list: `/var/backups/management-progetti/output-20261020T160343Z`.
+Nessuna modifica dei valori delle attività esistenti. RLS rimane abilitata;
+INSERT/UPDATE della nuova colonna concessi ad authenticated, nessun SELECT anonimo.
+Frontend solo locale: nessun commit, push o deploy eseguito.
+
+### Revisione interfaccia e archiviazione ramo — 20 ottobre 2026
+
+Sidebar comprimibile, chiusa di default, con icone e nomi accessibili. Schede
+con modifica, aggiunta attività e archivio tramite icone; tooltip con l’azione.
+Descrizioni ora su **una riga**, rischi chiusi di default. Numero di ordinamento
+rimosso dalla vista (resta modificabile nel form).
+Il cestino richiede conferma e archivia tutti i discendenti e le attività in
+una transazione, senza eliminare dati. La riattivazione resta individuale,
+procedendo dal genitore. RPC security invoker, RLS e lock del progetto,
+controllo della versione del nodo radice e trigger/audit esistenti.
+Migration `20261020130000_archive_framework_branch.sql` applicata dopo consenso
+esplicito e backup verificato `/var/backups/management-progetti/archive-branch-20261020T161230Z`.
+Permessi live verificati: authenticated autorizzato, anon escluso. Suite SQL
+isolata superata, inclusi cascata, versione obsoleta, permessi e altri progetti.
+Nessun dato operativo archiviato durante il collaudo; frontend solo localhost.

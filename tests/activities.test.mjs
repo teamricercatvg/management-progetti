@@ -61,3 +61,10 @@ test("activities validate required link and order", () => {
   ])
     assert.ok(Object.keys(parseActivity(form(extra)).errors).length);
 });
+
+test("activity output is optional, trimmed and length limited", () => {
+  assert.equal(parseActivity(form()).data.output, null);
+  assert.equal(parseActivity(form({output: "  Manuale operativo  "})).data.output, "Manuale operativo");
+  assert.equal(parseActivity(form({output: "  "})).data.output, null);
+  assert.ok(parseActivity(form({output: "a".repeat(10001)})).errors.output);
+});

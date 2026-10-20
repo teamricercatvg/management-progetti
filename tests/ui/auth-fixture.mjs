@@ -132,6 +132,18 @@ createServer(async (req, res) => {
     failProjectReads = url.searchParams.get("scenario") === "error";
     return res.end("{}");
   }
+  if (url.pathname === "/rest/v1/rpc/archive_framework_branch") {
+    let raw = ''; for await (const chunk of req) raw += chunk;
+    const args = JSON.parse(raw);
+    const root = framework.get(args.target_item);
+    if (!root || root.project_id !== args.target_project || !(role === 'admin' || (role === 'manager' && root.project_id === seedId))) { res.statusCode=403; return res.end(JSON.stringify({code:'42501'})); }
+    if (root.row_version !== args.expected_version || root.status !== 'active') return res.end('false');
+    const ids = new Set([root.id]);
+    for (let n=0;n<3;n++) for (const item of framework.values()) if (ids.has(item.parent_id)) ids.add(item.id);
+    for (const item of framework.values()) if (ids.has(item.id) && item.status !== 'archived') { item.status='archived'; item.row_version++; }
+    for (const item of activities.values()) if (ids.has(item.result_id) && item.status !== 'archived') { item.status='archived'; item.row_version++; }
+    return res.end('true');
+  }
   if (url.pathname === "/rest/v1/logical_framework_items") {
     const visible = p => role === 'admin' || (role === 'manager' && p.project_id === seedId);
     let rows = [...framework.values()].filter(visible);

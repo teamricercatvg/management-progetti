@@ -7,6 +7,7 @@ export type Activity = {
   title: string;
   description: string | null;
   notes: string | null;
+  output: string | null;
   status: string;
   priority: string;
   sort_order: number;
@@ -22,7 +23,7 @@ export async function getActivities(client: SupabaseClient, projectId: string) {
     const { data, error } = await client
       .from("activities")
       .select(
-        "id,result_id,code,title,description,notes,status,priority,sort_order,planned_start_date,planned_end_date,actual_start_date,actual_end_date,row_version",
+        "id,result_id,code,title,description,notes,output,status,priority,sort_order,planned_start_date,planned_end_date,actual_start_date,actual_end_date,row_version",
       )
       .eq("project_id", projectId)
       .order("sort_order")

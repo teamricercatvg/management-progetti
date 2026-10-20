@@ -1,3 +1,5 @@
+import { UiIcon } from "@/components/ui-icon";
+import { CompactText } from "@/components/compact-text";
 import Link from "next/link";
 import type { Activity } from "@/lib/activity-data";
 import { activityStatuses, activityPriorities } from "@/lib/activities.mjs";
@@ -24,7 +26,7 @@ export function ActivityList({
       {activities.map((activity) => (
         <li key={activity.id}>
           <article className="framework-item">
-            <p className="eyebrow">Attività · Ordine {activity.sort_order}</p>
+            <p className="eyebrow">Attività</p>
             <h3>
               {activity.code} — {activity.title}
             </h3>
@@ -62,18 +64,21 @@ export function ActivityList({
               }
             </p>
             {activity.description ? (
-              <p className="prose-text">{activity.description}</p>
+              <CompactText text={activity.description} />
+            ) : null}
+            {activity.output ? (
+              <CompactText text={`Output: ${activity.output}`} />
             ) : null}
             {activity.notes ? (
-              <p className="prose-text">Note: {activity.notes}</p>
+              <CompactText text={`Note: ${activity.notes}`} />
             ) : null}
             {!readOnly ? (
-              <div className="actions">
+              <div className="actions card-tools">
                 {activity.status !== "archived" ? (
-                  <Link
+                  <Link className="icon-action" title={`Modifica attività ${activity.code}`} aria-label={`Modifica attività ${activity.code}`}
                     href={`/projects/${projectId}/quadro-logico?activity=${activity.id}`}
                   >
-                    Modifica attività {activity.code}
+                    <UiIcon name="edit" />
                   </Link>
                 ) : null}
                 <ActivityArchive

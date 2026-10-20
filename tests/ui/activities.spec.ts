@@ -30,7 +30,8 @@ const row = (page: Page) =>
       exact: true,
     }),
   });
-test.beforeEach(async ({ request }) => {
+test.beforeEach(async ({ request, page }) => {
+  page.on("dialog", (dialog) => dialog.accept());
   await request.get("http://127.0.0.1:54329/fixture/reset?scenario=activities");
 });
 test("Activity can be created from the framework level dropdown", async ({ page }) => {
@@ -170,7 +171,7 @@ test("Activity validation retains inputs; duplicate codes are rejected", async (
     });
   }
 });
-test("Archive activity before result, restore result before activity", async ({
+test("Archive result includes activities, restore result before activity", async ({
   page,
 }) => {
   await login(page);
@@ -181,16 +182,7 @@ test("Archive activity before result, restore result before activity", async ({
   await result
     .getByRole("button", { name: "Archivia elemento", exact: true })
     .click();
-  await expect(result.getByText(/Gerarchia non valida/)).toBeVisible();
-  await row(page)
-    .getByRole("button", { name: "Archivia attività", exact: true })
-    .click();
-  await expect(
-    row(page).getByText("Archiviata", { exact: true }),
-  ).toBeVisible();
-  await result
-    .getByRole("button", { name: "Archivia elemento", exact: true })
-    .click();
+  await expect(row(page).getByText("Archiviata", { exact: true })).toBeVisible();
   await expect(result.getByText("Archiviato", { exact: true })).toBeVisible();
   await row(page)
     .getByRole("button", { name: "Riattiva attività", exact: true })
@@ -253,4 +245,20 @@ test("Concurrent activity edit preserves first save; archived project is read-on
   await expect(
     page.getByRole("button", { name: "Archivia attività", exact: true }),
   ).toHaveCount(0);
+});
+
+test("activity output can be saved, reopened, changed and cleared", async ({ page }) => {
+  await login(page);
+  await create(page);
+  await page.getByRole("link", { name: "Modifica attività A1", exact: true }).click();
+  await page.getByRole("textbox", { name: "Output attività", exact: true }).fill("Manuale operativo e 3 incontri formativi");
+  await page.getByRole("button", { name: "Salva attività", exact: true }).click();
+  await page.reload();
+  await expect(row(page).getByText("Output: Manuale operativo e 3 incontri formativi", { exact: true })).toBeVisible();
+  await page.getByRole("link", { name: "Modifica attività A1", exact: true }).click();
+  await expect(page.getByRole("textbox", { name: "Output attività", exact: true })).toHaveValue("Manuale operativo e 3 incontri formativi");
+  await page.getByRole("textbox", { name: "Output attività", exact: true }).fill("");
+  await page.getByRole("button", { name: "Salva attività", exact: true }).click();
+  await page.reload();
+  await expect(row(page).getByText(/^Output:/)).toHaveCount(0);
 });

@@ -16,11 +16,21 @@ export function parseFramework(form) {
     code: text("code").toUpperCase(),
     title: text("title"),
     description: text("description") || null,
-    assumptions: text("assumptions") || null,
+    assumptions: null,
     sort_order: Number(text("sort_order")),
   };
   /** @type {Record<string, string>} */
   const errors = {};
+  try {
+    const risks = JSON.parse(text("risks") || "[]");
+    if (!Array.isArray(risks) || risks.some((r) => !r || typeof r.risk !== "string" || typeof r.mitigation !== "string")) throw new Error();
+    const entries = risks.map(({ risk, mitigation }) => ({ risk: risk.trim(), mitigation: mitigation.trim() })).filter((r) => r.risk || r.mitigation);
+    if (entries.some((r) => !r.risk)) errors.risks = "Descrivi il rischio associato a ogni azione di mitigazione.";
+    data.assumptions = entries.length ? JSON.stringify({ format: "risks-v1", entries }) : null;
+    if (data.assumptions?.length > 10000) errors.risks = "L’elenco dei rischi è troppo lungo: riduci il testo.";
+  } catch {
+    errors.risks = "Elenco rischi non valido.";
+  }
   if (!Object.hasOwn(frameworkTypes, data.type))
     errors.type = "Seleziona un livello valido.";
   if (
@@ -55,4 +65,17 @@ export function frameworkError(code) {
   if (code === "23514" || code === "23503")
     return "Gerarchia non valida: verifica livello e genitore attivo. Archivia prima i figli attivi e tutte le attività collegate; riattiva prima il genitore. Un elemento con figli o attività non può cambiare livello.";
   return "Salvataggio non riuscito. Verifica l’accesso al progetto e riprova.";
+}
+
+/** @param {string | null | undefined} value
+ * @returns {{risk: string, mitigation: string}[]}
+ */
+export function readFrameworkRisks(value) {
+  if (!value) return [];
+  try {
+    const parsed = JSON.parse(value);
+    if (parsed?.format === "risks-v1" && Array.isArray(parsed.entries) &&
+        parsed.entries.every((r) => r && typeof r.risk === "string" && typeof r.mitigation === "string")) return parsed.entries;
+  } catch { /* Historical plain text is preserved as a first editable entry. */ }
+  return [{ risk: value, mitigation: "" }];
 }

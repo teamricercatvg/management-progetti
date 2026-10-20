@@ -20,6 +20,7 @@ export function parseActivity(form) {
     title: text("title"),
     description: text("description") || null,
     notes: text("notes") || null,
+    output: text("output") || null,
     priority: text("priority"),
     sort_order: Number(text("sort_order")),
     planned_start_date: text("planned_start_date"),
@@ -35,7 +36,7 @@ export function parseActivity(form) {
     errors.code = "Inserisci un codice di massimo 80 caratteri.";
   if (!data.title || data.title.length > 240)
     errors.title = "Inserisci un titolo di massimo 240 caratteri.";
-  for (const field of ["description", "notes"])
+  for (const field of ["description", "notes", "output"])
     if ((data[field]?.length ?? 0) > 10000)
       errors[field] = "Usa al massimo 10000 caratteri.";
   if (!Object.hasOwn(activityPriorities, data.priority))

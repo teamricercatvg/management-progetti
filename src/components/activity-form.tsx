@@ -1,4 +1,5 @@
 "use client";
+import { UiIcon } from "@/components/ui-icon";
 import Link from "next/link";
 import { useActionState, useState } from "react";
 import {
@@ -17,6 +18,7 @@ const fields = [
   ["actual_end_date", "Fine effettiva", "date", undefined, false],
   ["sort_order", "Ordine attività", "number", undefined, true],
   ["description", "Descrizione attività", "textarea", 10000, false],
+  ["output", "Output attività", "textarea", 10000, false],
   ["notes", "Note attività", "textarea", 10000, false],
 ] as const;
 export function ActivityForm({
@@ -162,17 +164,17 @@ export function ActivityArchive({
     { message: "" },
   );
   return (
-    <form action={action}>
+    <form action={action} onSubmit={(event) => {
+      if (activity.status !== "archived" && !window.confirm("Archiviare questa attività? I dati saranno conservati e potranno essere riattivati.")) event.preventDefault();
+    }}>
       <input type="hidden" name="row_version" value={activity.row_version} />
       <input
         type="hidden"
         name="mode"
         value={activity.status === "archived" ? "restore" : "archive"}
       />
-      <Submit>
-        {activity.status === "archived"
-          ? "Riattiva attività"
-          : "Archivia attività"}
+      <Submit label={activity.status === "archived" ? "Riattiva attività" : "Archivia attività"}>
+        <UiIcon name={activity.status === "archived" ? "restore" : "trash"} />
       </Submit>
       {state.message ? (
         <p role="status" className="notice">

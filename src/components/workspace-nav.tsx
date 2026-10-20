@@ -1,4 +1,5 @@
 "use client";
+import { UiIcon } from "@/components/ui-icon";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -21,9 +22,11 @@ export function WorkspaceNav({ isAdmin }: { isAdmin: boolean }) {
           <Link
             key={href}
             href={href}
+            title={label}
+            aria-label={label}
             aria-current={active ? "page" : undefined}
           >
-            {label}
+            <UiIcon name={href.slice(1)} /><span className="sidebar-label">{label}</span>
           </Link>
         );
       })}

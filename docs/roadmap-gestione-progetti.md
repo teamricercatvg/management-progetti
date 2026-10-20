@@ -115,7 +115,7 @@ Le sezioni 4.4–4.5 e le milestone 10–11 sotto recepiscono questo aggiornamen
 
 | Ambito | Stato | Lavoro successivo |
 | --- | --- | --- |
-| Milestone 8: obiettivi e risultati | Pubblicata; estesa con attività collegate | Conservare gerarchia e regole di archivio nelle evoluzioni |
+| Milestone 8: obiettivi e risultati | Conclusa il 20 ottobre 2026; estesa con attività collegate | Conservare gerarchia e regole di archivio nelle evoluzioni |
 | Milestone 9: indicatori | Non coperta dall’anticipo | Resta il prossimo passo nella sequenza, salvo nuova richiesta |
 | Milestone 10: attività MVP | Nucleo pubblicato in anticipo; chiusura da verificare | Verifica residui, decisione su annullamento e collaudo utente; non ricreare il CRUD |
 | Milestone 11: cronogramma | Solo intervallo previsto semplice e date effettive anticipati | Migrazione dei dati, revisioni ufficiali, periodi multipli e confronto/Gantt |
@@ -739,7 +739,7 @@ riservata agli Admin. Dettagli e confini nella [consegna](milestone-6.md).
 | Rischi o attenzioni | Esporre progetti non assegnati a utenti non autorizzati |
 | Criteri di completamento | Progetti gestibili in sicurezza dai ruoli autorizzati |
 
-### Milestone 8 - Quadro logico
+### Milestone 8 - Quadro logico — CONCLUSA (20 ottobre 2026)
 
 Pubblicata il 15 ottobre 2026; il 16 ottobre è stata estesa con attività e
 date anticipate dalle milestone 10–11. Le tabelle seguenti descrivono il
@@ -1177,3 +1177,18 @@ le questioni aperte 9.4 sono state riallineate: includono checklist dei residui,
 dipendenze e backlog fuori MVP. Rapporti e dashboard restano nelle milestone
 14–15 e dovranno riutilizzare queste attività, senza duplicarle.
 Vedere [consegna attività e date](activities-dates.md).
+
+
+### Chiusura Milestone 8 — 20 ottobre 2026
+
+Milestone 8 conclusa su conferma dell’utente. Il quadro logico comprende
+rischi facoltativi con mitigazioni, output delle attività, vista compatta con
+anteprima di una riga, espansione dei testi e dei rami, comandi globali,
+sidebar comprimibile e azioni a icona. Il + sugli obiettivi specifici crea un
+risultato con genitore preselezionato; il + sui risultati crea un’attività.
+L’archiviazione confermata comprende atomicamente discendenti e attività;
+la riattivazione resta individuale dal genitore verso i figli.
+Le due migration del 20 ottobre sono applicate al backend. Rilascio frontend
+in produzione autorizzato; evidenza finale nella consegna Milestone 8.
+Milestone 9 (indicatori), residui 10 e cronogramma versionato 11 restano aperti:
+la chiusura della 8 non ne anticipa il completamento.

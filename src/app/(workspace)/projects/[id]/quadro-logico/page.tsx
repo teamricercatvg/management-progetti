@@ -1,8 +1,11 @@
+import { UiIcon } from "@/components/ui-icon";
+import { CompactText } from "@/components/compact-text";
+import { FrameworkBranch, FrameworkTreeControls } from "@/components/framework-tree-controls";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProject } from "@/lib/project-data";
 import { getFramework, type FrameworkItem } from "@/lib/framework-data";
-import { frameworkTypes } from "@/lib/framework.mjs";
+import { frameworkTypes, readFrameworkRisks } from "@/lib/framework.mjs";
 import { FrameworkForm, FrameworkStatus } from "@/components/framework-form";
 import { getActivities } from "@/lib/activity-data";
 import { ActivityForm } from "@/components/activity-form";
@@ -28,9 +31,13 @@ export default async function FrameworkPage({
       ? items.find((i) => i.id === search.edit)
       : undefined;
   if (search.edit && !editing) notFound();
+  const resultParent = typeof search.new_result === "string"
+    ? items.find((item) => item.id === search.new_result && item.type === "specific_objective" && item.status === "active")
+    : undefined;
+  if (search.new_result && !resultParent) notFound();
   const showForm =
     !readOnly &&
-    (search.new === "1" || (editing && editing.status === "active"));
+    (search.new === "1" || resultParent || (editing && editing.status === "active"));
   const editingActivity =
     typeof search.activity === "string"
       ? activities.find((a) => a.id === search.activity)
@@ -67,10 +74,11 @@ export default async function FrameworkPage({
       <ol className="framework-tree">
         {children.get(parent)!.map((item) => (
           <li key={item.id}>
-            <article className="framework-item">
+            <FrameworkBranch id={item.id} code={item.code}
+              count={(children.get(item.id)?.length ?? 0) + (activityGroups.get(item.id)?.length ?? 0)}
+              summary={<article className="framework-item">
               <p className="eyebrow">
-                {frameworkTypes[item.type as keyof typeof frameworkTypes]} ·
-                Ordine {item.sort_order}
+                {frameworkTypes[item.type as keyof typeof frameworkTypes]}
               </p>
               <h2>
                 {item.code} — {item.title}
@@ -79,28 +87,24 @@ export default async function FrameworkPage({
                 <span className="badge">Archiviato</span>
               ) : null}
               {item.description ? (
-                <p className="prose-text">{item.description}</p>
+                <CompactText text={item.description} />
               ) : null}
               {item.assumptions ? (
-                <div>
-                  <strong>Ipotesi e condizioni</strong>
-                  <p className="prose-text">{item.assumptions}</p>
-                </div>
+                <details className="framework-risks">
+                  <summary>Rischi e azioni di mitigazione</summary>
+                  <ol>{readFrameworkRisks(item.assumptions).map((entry, index) => (
+                    <li key={index}>
+                      <CompactText text={`Rischio: ${entry.risk}`} />
+                      <CompactText text={`Mitigazione: ${entry.mitigation || "Non ancora indicata"}`} />
+                    </li>
+                  ))}</ol>
+                </details>
               ) : null}
               {!readOnly ? (
-                <div className="actions">
+                <div className="actions card-tools">
                   {item.status === "active" ? (
-                    <Link href={`${base}?edit=${item.id}`}>
-                      Modifica {item.code}
-                    </Link>
-                  ) : null}
-                  {item.type === "expected_result" &&
-                  item.status === "active" ? (
-                    <Link
-                      className="button-link"
-                      href={`${base}?new_activity=${item.id}`}
-                    >
-                      Aggiungi attività a {item.code}
+                    <Link className="icon-action" title={`Modifica ${item.code}`} aria-label={`Modifica ${item.code}`} href={`${base}?edit=${item.id}`}>
+                      <UiIcon name="edit" />
                     </Link>
                   ) : null}
                   <FrameworkStatus
@@ -113,7 +117,24 @@ export default async function FrameworkPage({
                   />
                 </div>
               ) : null}
-            </article>
+                  {!readOnly && item.type === "expected_result" &&
+                  item.status === "active" ? (
+                    <Link
+                      className="icon-action add-activity-action"
+                      title={`Aggiungi attività a ${item.code}`} aria-label={`Aggiungi attività a ${item.code}`}
+                      href={`${base}?new_activity=${item.id}`}
+                    >
+                      <UiIcon name="plus" />
+                    </Link>
+                  ) : null}
+              {!readOnly && item.type === "specific_objective" && item.status === "active" ? (
+                <Link className="icon-action add-activity-action"
+                  title={`Aggiungi risultato a ${item.code}`} aria-label={`Aggiungi risultato a ${item.code}`}
+                  href={`${base}?new_result=${item.id}`}>
+                  <UiIcon name="plus" />
+                </Link>
+              ) : null}
+            </article>}>
             {item.type === "expected_result" ? (
               <ActivityList
                 activities={activityGroups.get(item.id) ?? []}
@@ -122,13 +143,14 @@ export default async function FrameworkPage({
               />
             ) : null}
             {tree(item.id, depth + 1)}
+            </FrameworkBranch>
           </li>
         ))}
       </ol>
     );
   }
   return (
-    <>
+    <div className="framework-page">
       <div className="page-heading">
         <Link href={`/projects/${project.id}`}>
           ← {project.code} · Dettaglio progetto
@@ -145,11 +167,10 @@ export default async function FrameworkPage({
           Progetto archiviato: quadro logico in sola lettura.
         </p>
       ) : (
-        <p>
-          Per archiviare un elemento, archivia prima i figli attivi e le
-          attività collegate, anche se concluse. Per riattivarlo, riattiva prima
-          il genitore. Gli elementi archiviati restano visibili.
-        </p>
+        <details className="framework-help"><summary>Come archiviare e riattivare gli elementi</summary><p>
+          L’archiviazione di un elemento comprende tutti i figli e le attività
+          collegate, previa conferma. Per riattivarlo, riattiva prima il genitore. Gli elementi archiviati restano visibili.
+        </p></details>
       )}
       {search.saved === "1" ? (
         <p role="status" className="notice">
@@ -179,9 +200,10 @@ export default async function FrameworkPage({
       {showForm ? (
         <section className="admin-card">
           <FrameworkForm
-            key={editing?.id ?? "new"}
+            key={editing?.id ?? resultParent?.id ?? "new"}
             projectId={project.id}
             item={editing}
+            resultParentId={resultParent?.id}
             parents={items.map(({ id, type, code, title, status }) => ({
               id,
               type,
@@ -199,7 +221,9 @@ export default async function FrameworkPage({
         </div>
       ) : null}
       {items.length ? (
-        tree(null)
+        <FrameworkTreeControls branchIds={items.filter((item) => children.has(item.id) || activityGroups.has(item.id)).map((item) => item.id)}>
+          {tree(null)}
+        </FrameworkTreeControls>
       ) : (
         <section className="empty-state">
           <h2>Il quadro logico è ancora vuoto</h2>
@@ -209,6 +233,6 @@ export default async function FrameworkPage({
           </p>
         </section>
       )}
-    </>
+    </div>
   );
 }

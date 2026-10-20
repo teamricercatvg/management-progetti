@@ -70,6 +70,11 @@ done
 diff -u "$work/foundation_test-activities.sql" "$work/foundation_replay-activities.sql"
 echo 'PASS: complete activities schemas match'
 bash "$work/supabase/tests/activities-concurrency.sh" "$container"
+for db in foundation_test foundation_replay; do
+  run_sql "$db" < "$work/supabase/migrations/20261020120000_activity_output.sql"
+  run_sql "$db" < "$work/supabase/migrations/20261020130000_archive_framework_branch.sql"
+done
+run_sql foundation_test < "$work/supabase/tests/archive-framework.sql"
 # Test transaction rollback of the entire migration chain, omitting their wrappers.
 docker exec "$container" createdb -h /tmp -U postgres foundation_rollback
 sed '/^create role /d' "$work/supabase/tests/bootstrap.sql" | run_sql foundation_rollback

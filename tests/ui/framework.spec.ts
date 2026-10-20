@@ -39,11 +39,15 @@ test("Manager builds hierarchy, edits order, handles duplicate and archives bott
   await add(page, "R1", "expected_result", "OS1 — Titolo OS1");
   await page.getByRole("link", { name: "Modifica R1", exact: true }).click();
   await page.getByLabel("Ordine").fill("7");
-  await page.getByLabel("Ipotesi e condizioni").fill("Condizione di prova");
+  await page.getByRole("button", { name: "Aggiungi rischio" }).click();
+  await page.getByLabel("Descrizione del rischio 1").fill("Condizione di prova");
+  await page.getByLabel("Azioni previste di mitigazione 1").fill("Azione di prova");
   await page.getByRole("button", { name: "Salva elemento" }).click();
-  await expect(page.getByText("Condizione di prova")).toBeVisible();
+  await expect(page.getByText("Rischio: Condizione di prova", { exact: true })).toBeHidden();
+  await page.getByText("Rischi e azioni di mitigazione", { exact: true }).click();
+  await expect(page.getByText("Rischio: Condizione di prova", { exact: true })).toBeVisible();
   await page.reload();
-  await expect(page.getByText(/Risultato atteso · Ordine 7/)).toBeVisible();
+  await expect(page.getByText("Risultato atteso", { exact: true })).toBeVisible();
   await page.goto(base + "?new=1");
   await page.getByLabel("Codice").fill("OG1");
   await page
@@ -62,22 +66,12 @@ test("Manager builds hierarchy, edits order, handles duplicate and archives bott
     .filter({
       has: page.getByRole("heading", { name: "OG1 — Titolo OG1", exact: true }),
     });
+  page.once("dialog", (dialog) => dialog.dismiss());
   await og.getByRole("button", { name: "Archivia elemento" }).click();
-  await expect(og.getByText(/Gerarchia non valida/)).toBeVisible();
-  for (const code of ["R1", "OS1", "OG1"]) {
-    const row = page
-      .getByRole("article")
-      .filter({
-        has: page.getByRole("heading", {
-          name: `${code} — Titolo ${code}`,
-          exact: true,
-        }),
-      });
-    await row.getByRole("button", { name: "Archivia elemento" }).click();
-    await expect(
-      row.getByRole("button", { name: "Riattiva elemento" }),
-    ).toBeVisible();
-  }
+  await expect(og.getByRole("link", { name: "Modifica OG1" })).toBeVisible();
+  page.once("dialog", (dialog) => dialog.accept());
+  await og.getByRole("button", { name: "Archivia elemento" }).click();
+  await expect(page.getByRole("button", { name: "Riattiva elemento" })).toHaveCount(3);
   await page.reload();
   await expect(page.getByText("Archiviato", { exact: true })).toHaveCount(3);
   await og.getByRole("button", { name: "Riattiva elemento" }).click();
@@ -168,4 +162,51 @@ test('Order between siblings and reparenting survive reload', async ({ page }) =
   await expect(page).toHaveURL(/saved=1/);
   await page.reload();
   await expect(page.locator('ol.framework-tree').first().locator(':scope > li').first().getByRole('heading', { name: 'OS1 — Titolo OS1', exact: true })).toBeVisible();
+});
+
+test("compact tree collapses branches and expands long descriptions", async ({ page }) => {
+  await login(page);
+  await add(page, "OG1");
+  await add(page, "OS1", "specific_objective", "OG1 — Titolo OG1");
+  await add(page, "R1", "expected_result", "OS1 — Titolo OS1");
+  await page.getByRole("link", { name: "Modifica OG1", exact: true }).click();
+  await page.getByLabel("Descrizione", { exact: true }).fill("Prima riga\nSeconda riga\nTerza riga\nQuarta riga");
+  await page.getByRole("button", { name: "Salva elemento" }).click();
+  const more = page.getByRole("button", { name: "Altro...", exact: true });
+  await expect(more).toBeVisible();
+  await more.click();
+  await expect(page.getByRole("button", { name: "Meno", exact: true })).toHaveAttribute("aria-expanded", "true");
+  await page.getByRole("button", { name: "Meno", exact: true }).click();
+  await page.getByRole("button", { name: "Chiudi figli di OS1", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "R1 — Titolo R1", exact: true })).toBeHidden();
+  await page.getByRole("button", { name: "Chiudi tutto", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "OS1 — Titolo OS1", exact: true })).toBeHidden();
+  await page.getByRole("button", { name: "Espandi tutto", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "R1 — Titolo R1", exact: true })).toBeVisible();
+});
+
+test("sidebar starts collapsed and toggles labels", async ({ page }) => {
+  await login(page);
+  const sidebar = page.getByRole("complementary");
+  await expect(sidebar.getByRole("button", { name: "Espandi menu" })).toHaveAttribute("aria-expanded", "false");
+  await expect(sidebar.getByRole("link", { name: "Progetti", exact: true })).toBeVisible();
+  await expect(sidebar.locator(".sidebar-label").filter({ hasText: /^Progetti$/ })).toBeHidden();
+  await sidebar.getByRole("button", { name: "Espandi menu" }).click();
+  await expect(sidebar.locator(".sidebar-label").filter({ hasText: /^Progetti$/ })).toBeVisible();
+  await sidebar.getByRole("button", { name: "Comprimi menu" }).click();
+  await expect(sidebar.locator(".sidebar-label").filter({ hasText: /^Progetti$/ })).toBeHidden();
+});
+
+test("plus on specific objective prefills a new result", async ({ page }) => {
+  await login(page);
+  await add(page, "OG1");
+  await add(page, "OS1", "specific_objective", "OG1 — Titolo OG1");
+  await page.getByRole("link", { name: "Aggiungi risultato a OS1", exact: true }).click();
+  await expect(page.getByLabel("Livello")).toHaveValue("expected_result");
+  await expect(page.getByLabel("Genitore").locator("option:checked")).toHaveText("OS1 — Titolo OS1");
+  await page.getByLabel("Codice").fill("R1");
+  await page.getByRole("textbox", { name: "Titolo *", exact: true }).fill("Nuovo risultato");
+  await page.getByRole("button", { name: "Salva elemento", exact: true }).click();
+  await expect(page).toHaveURL(/saved=1/);
+  await expect(page.getByRole("heading", { name: "R1 — Nuovo risultato", exact: true })).toBeVisible();
 });

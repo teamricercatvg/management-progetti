@@ -1,3 +1,5 @@
+import { WorkspaceShell } from "@/components/workspace-shell";
+import { UiIcon } from "@/components/ui-icon";
 import Link from "next/link";
 import { requireProfile } from "@/lib/auth";
 import { logout } from "@/app/actions";
@@ -12,32 +14,28 @@ export default async function WorkspaceLayout({
 }) {
   const { profile } = await requireProfile();
   return (
-    <div className="workspace">
-      <a className="skip-link" href="#content">
-        Vai al contenuto
-      </a>
-      <aside className="sidebar">
+    <WorkspaceShell sidebar={<>
         <Link
           className="brand"
           href="/overview"
           aria-label="Ariadne Hub, panoramica"
         >
           <span className="mark">A</span>
-          <span>
+          <span className="sidebar-label">
             Ariadne Hub<small>Gestione progetti</small>
           </span>
         </Link>
         <WorkspaceNav isAdmin={profile.is_admin} />
         <div className="sidebar-account">
-          <span className="identity">{profile.display_name}</span>
-          <small>
+          <span className="identity sidebar-label">{profile.display_name}</span>
+          <small className="sidebar-label">
             {profile.is_admin ? "Amministratore" : "Utente abilitato"}
           </small>
           <form action={logout}>
-            <Submit>Esci</Submit>
+            <Submit label="Esci"><UiIcon name="logout" /><span className="sidebar-label">Esci</span></Submit>
           </form>
         </div>
-      </aside>
+      </>}>
       <div className="workspace-body">
         <header className="workspace-header">
           <span>Il tuo spazio di lavoro</span>
@@ -48,6 +46,6 @@ export default async function WorkspaceLayout({
         </main>
         <footer>Uno spazio condiviso per accompagnare i progetti.</footer>
       </div>
-    </div>
+    </WorkspaceShell>
   );
 }
