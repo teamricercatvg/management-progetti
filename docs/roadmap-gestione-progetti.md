@@ -1188,7 +1188,7 @@ sidebar comprimibile e azioni a icona. Il + sugli obiettivi specifici crea un
 risultato con genitore preselezionato; il + sui risultati crea un’attività.
 L’archiviazione confermata comprende atomicamente discendenti e attività;
 la riattivazione resta individuale dal genitore verso i figli.
-Le due migration del 20 ottobre sono applicate al backend. Rilascio frontend
-in produzione autorizzato; evidenza finale nella consegna Milestone 8.
+Le due migration del 20 ottobre sono applicate al backend. Frontend pubblicato e deployment READY
+verificato il 20 ottobre 2026; evidenza finale nella consegna Milestone 8.
 Milestone 9 (indicatori), residui 10 e cronogramma versionato 11 restano aperti:
 la chiusura della 8 non ne anticipa il completamento.

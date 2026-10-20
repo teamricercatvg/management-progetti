@@ -108,3 +108,13 @@ Le migration `20261020120000` e `20261020130000` sono applicate e registrate
 sul backend con backup preventivi (dettagli in activities-dates.md).
 Test browser su fixture e SQL su PostgreSQL isolato verificano i flussi;
 nessuna scrittura di collaudo sui progetti reali.
+
+### Verifica rilascio finale
+
+Commit applicativo `91317ab` pubblicato su main. Deployment Vercel
+`dpl_665zNPYp3XSBNzThinvAfvhfoFyA` verificato READY in produzione il
+20 ottobre 2026, con alias `www.ariadne-hub.it`, `ariadne-hub.it` e
+`management-progetti.vercel.app`. Superati type-check, lint, 12 test unitari,
+25 test browser e build di produzione; suite SQL isolata superata nella
+stessa sessione. Verifiche live limitate a stato deploy, alias e schema/permessi:
+nessuna scrittura autenticata di collaudo sui dati operativi.
