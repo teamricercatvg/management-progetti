@@ -75,6 +75,17 @@ for db in foundation_test foundation_replay; do
   run_sql "$db" < "$work/supabase/migrations/20261020130000_archive_framework_branch.sql"
 done
 run_sql foundation_test < "$work/supabase/tests/archive-framework.sql"
+for db in foundation_test foundation_replay; do
+  run_sql "$db" < "$work/supabase/migrations/20261020140000_indicators.sql"
+done
+run_sql foundation_test < "$work/supabase/tests/indicators.sql"
+run_sql foundation_test < "$work/supabase/tests/archive-framework.sql"
+bash "$work/supabase/tests/indicators-concurrency.sh" "$container"
+for db in foundation_test foundation_replay; do
+  docker exec "$container" pg_dump -h /tmp -U postgres -d "$db" --schema-only --schema public --schema app_private | sed '/^\\restrict /d; /^\\unrestrict /d' > "$work/$db-m9.sql"
+done
+diff -u "$work/foundation_test-m9.sql" "$work/foundation_replay-m9.sql"
+echo 'PASS: milestone 9 schema replay matches'
 # Test transaction rollback of the entire migration chain, omitting their wrappers.
 docker exec "$container" createdb -h /tmp -U postgres foundation_rollback
 sed '/^create role /d' "$work/supabase/tests/bootstrap.sql" | run_sql foundation_rollback

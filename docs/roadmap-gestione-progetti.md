@@ -758,6 +758,9 @@ perimetro originario; lo stato delle attività è nelle relative schede.
 
 ### Milestone 9 - Indicatori
 
+Implementata il 20 ottobre 2026; stato del rilascio e verifiche nella
+[consegna](milestone-9.md). Rilevazioni e rapporti restano successivi.
+
 | Aspetto | Dettaglio |
 | --- | --- |
 | Obiettivo | Definire indicatori collegati al quadro logico |

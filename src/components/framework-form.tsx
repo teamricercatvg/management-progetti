@@ -202,7 +202,7 @@ export function FrameworkStatus({
   );
   return (
     <form action={action} onSubmit={(event) => {
-      if (item.status !== "archived" && !window.confirm("Archiviare questa voce e tutti gli elementi e le attività sottostanti? I dati saranno conservati e potranno essere riattivati.")) event.preventDefault();
+      if (item.status !== "archived" && !window.confirm("Archiviare questa voce e tutti gli elementi, gli indicatori e le attività sottostanti? I dati saranno conservati e potranno essere riattivati.")) event.preventDefault();
     }}>
       <input type="hidden" name="row_version" value={item.row_version} />
       <input

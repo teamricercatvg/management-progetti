@@ -83,6 +83,7 @@ export default async function FrameworkPage({
               <h2>
                 {item.code} — {item.title}
               </h2>
+              <Link href={`/projects/${project.id}/indicatori?item=${item.id}&archived=1`} aria-label={`Indicatori di ${item.code}`}>Indicatori</Link>
               {item.status === "archived" ? (
                 <span className="badge">Archiviato</span>
               ) : null}
@@ -156,6 +157,7 @@ export default async function FrameworkPage({
           ← {project.code} · Dettaglio progetto
         </Link>
         <h1>Quadro logico</h1>
+        <Link href={`/projects/${project.id}/indicatori`}>Indicatori del progetto</Link>
         <p>{project.title}</p>
         <p>
           Obiettivi generali → obiettivi specifici → risultati attesi →
@@ -168,7 +170,7 @@ export default async function FrameworkPage({
         </p>
       ) : (
         <details className="framework-help"><summary>Come archiviare e riattivare gli elementi</summary><p>
-          L’archiviazione di un elemento comprende tutti i figli e le attività
+          L’archiviazione di un elemento comprende tutti i figli, gli indicatori e le attività
           collegate, previa conferma. Per riattivarlo, riattiva prima il genitore. Gli elementi archiviati restano visibili.
         </p></details>
       )}

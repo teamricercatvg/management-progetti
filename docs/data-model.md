@@ -134,6 +134,19 @@ Non introdurre `activity_assignments`, ruoli operator/viewer o flag budget nell�
 | `indicators` | `P`, `framework_item_id uuid! → logical_framework_items`, `code text!`, `title text!`, `description text?`, `verification_source text!`, `type text!`, `unit text!`, `aggregation_method text!`, `direction text!`, `ratio_scale numeric!`, `baseline_date date?`, `baseline_value numeric(20,6)?`, `baseline_numerator numeric(20,6)?`, `baseline_denominator numeric(20,6)?`, `target_date date?`, `target_value numeric(20,6)?`, `target_numerator numeric(20,6)?`, `target_denominator numeric(20,6)?`, `status text!` | `UNIQUE(project_id,code)`; tipi `absolute/ratio`; stati `draft/active/archived`; direzione `increase/decrease`; scala 1 o 100, scala 1 per absolute |
 | `indicator_measurements` | `P`, `indicator_id uuid! → indicators`, `activity_id uuid? → activities`, `source_report_id uuid? → reports`, `period_start date!`, `period_end date!`, `value numeric(20,6)?`, `numerator numeric(20,6)?`, `denominator numeric(20,6)?`, `source_note text?`, `supersedes_measurement_id uuid? → indicator_measurements`, `status text!`, `validated_by uuid? → profiles`, `validated_at timestamptz?` | Stati `draft/validated`; una rilevazione per `(project_id,source_report_id,indicator_id,activity_id)` quando proviene da rapporto; rilevazioni manuali con fonte obbligatoria |
 
+### Campi descrittivi della Milestone 9 — 20 ottobre 2026
+
+La definizione `indicators` include anche `reference_code`, `measurement_period`,
+`numerator_definition`, `denominator_definition`, `baseline_note`, `target_note`:
+testi facoltativi fino a 10000 caratteri. Precisano codifica, popolazione/frequenza,
+metodo e dati non disponibili senza sostituire i valori numerici o le date.
+L’esempio Tirana fornito dall’utente ha guidato questi campi; nessun dato è importato.
+Per anni o mesi relativi non ancora traducibili in date documentate usare le note
+e mantenere la bozza. I vincoli di attivazione approvati restano invariati.
+Una soglia ratio normalizzata (es. 80/100) va dichiarata come soglia nelle note,
+senza rappresentarla come numerosità osservata. Tassi ufficiali già calcolati
+possono usare `absolute` con unità esplicita e aggregazione `last`.
+
 ### Gerarchia e modifiche strutturali
 
 Un obiettivo generale non ha padre. Uno specifico ha esattamente un generale;

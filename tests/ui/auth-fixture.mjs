@@ -35,6 +35,7 @@ const projects = new Map();
 const associations = [];
 const framework = new Map();
 const activities = new Map();
+const indicators = new Map();
 let failProjectReads = false;
 const entity = {
   id: "00000000-0000-4000-8000-000000000010",
@@ -47,6 +48,7 @@ function resetProjects() {
   failProjectReads = false;
   framework.clear();
   activities.clear();
+  indicators.clear();
   projects.clear();
   associations.length = 0;
   for (const [projectId, code, title] of [
@@ -141,6 +143,7 @@ createServer(async (req, res) => {
     const ids = new Set([root.id]);
     for (let n=0;n<3;n++) for (const item of framework.values()) if (ids.has(item.parent_id)) ids.add(item.id);
     for (const item of framework.values()) if (ids.has(item.id) && item.status !== 'archived') { item.status='archived'; item.row_version++; }
+    for (const item of indicators.values()) if (ids.has(item.framework_item_id) && item.status !== 'archived') { item.status='archived'; item.row_version++; }
     for (const item of activities.values()) if (ids.has(item.result_id) && item.status !== 'archived') { item.status='archived'; item.row_version++; }
     return res.end('true');
   }
@@ -197,6 +200,34 @@ createServer(async (req, res) => {
       next.row_version++;activities.set(next.id,next);rows=[next];
     }
     rows.sort((a,b)=>a.sort_order-b.sort_order||a.id.localeCompare(b.id));
+    if(req.headers.accept?.includes('vnd.pgrst.object'))return res.end(JSON.stringify(rows[0]??null));
+    const offset=Number(url.searchParams.get('offset')??0),limit=Number(url.searchParams.get('limit')??rows.length);
+    return res.end(JSON.stringify(rows.slice(offset,offset+limit)));
+  }
+  if (url.pathname === '/rest/v1/indicators') {
+    const visible=a=>role==='admin'||(role==='manager'&&a.project_id===seedId);
+    let rows=[...indicators.values()].filter(visible);
+    for(const key of ['id','project_id','row_version','status']) {
+      const f=url.searchParams.get(key);
+      if(f?.startsWith('eq.')) rows=rows.filter(a=>String(a[key])===f.slice(3));
+      if(f?.startsWith('neq.')) rows=rows.filter(a=>String(a[key])!==f.slice(4));
+    }
+    const fail=code=>{res.statusCode=409;res.end(JSON.stringify({code}));};
+    if(req.method==='POST'||req.method==='PATCH') {
+      let raw='';for await(const chunk of req)raw+=chunk;
+      const body=JSON.parse(raw);
+      const current=rows[0];
+      if(req.method==='PATCH'&&!current)return res.end('null');
+      const next={...(req.method==='PATCH'?current:{id:crypto.randomUUID(),status:'draft',row_version:0}),...body};
+      if(!visible(next))return fail('42501');
+      if(projects.get(next.project_id)?.status==='archived')return fail('23514');
+      const result=framework.get(next.framework_item_id);
+      if(!result||result.project_id!==next.project_id||(next.status!=='archived'&&result.status!=='active'))return fail('23514');
+      if([...indicators.values()].some(a=>a.id!==next.id&&a.project_id===next.project_id&&a.code===next.code))return fail('23505');
+
+      next.row_version++;indicators.set(next.id,next);rows=[next];
+    }
+    rows.sort((a,b)=>a.code.localeCompare(b.code)||a.id.localeCompare(b.id));
     if(req.headers.accept?.includes('vnd.pgrst.object'))return res.end(JSON.stringify(rows[0]??null));
     const offset=Number(url.searchParams.get('offset')??0),limit=Number(url.searchParams.get('limit')??rows.length);
     return res.end(JSON.stringify(rows.slice(offset,offset+limit)));

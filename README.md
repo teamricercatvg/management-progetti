@@ -50,6 +50,10 @@ Il **16 ottobre 2026** è stata anticipata la gestione delle attività
 sotto i risultati, con inizio/fine previsti ed effettivi. Migration e frontend pubblicati in produzione;
 dettagli nella [consegna attività e date](docs/activities-dates.md).
 
+La **Milestone 9 è implementata**: definizioni di indicatori numerici e rapporti,
+baseline/target, metodologia e fonti, archivio e permessi. Stato del rilascio e
+collaudo nella [consegna Milestone 9](docs/milestone-9.md).
+
 ## Documentazione
 
 - [Roadmap e requisiti](docs/roadmap-gestione-progetti.md)
@@ -63,6 +67,7 @@ dettagli nella [consegna attività e date](docs/activities-dates.md).
 - [Consegna Milestone 6 e navigazione](docs/milestone-6.md)
 - [Consegna Milestone 7 e gestione progetti](docs/milestone-7.md)
 - [Consegna Milestone 8 e quadro logico](docs/milestone-8.md)
+- [Consegna Milestone 9 e indicatori](docs/milestone-9.md)
 - [Attività e date nel quadro logico](docs/activities-dates.md)
 - [Modello dati](docs/data-model.md)
 - [Matrice permessi e contratto RLS](docs/permissions.md)
