@@ -2,7 +2,8 @@
 
 ## Stato del 23 ottobre 2026
 
-Implementazione locale su main. Migration e frontend non ancora rilasciati.
+Implementazione pubblicata su main e in produzione dopo autorizzazione
+dell’utente del 23 ottobre 2026. Migration applicata e frontend READY verificato.
 Le verifiche elencate sotto distinguono database isolato, interfaccia fixture e
 produzione. Non dichiarare concluso il collaudo umano di Chiara prima del riscontro.
 
@@ -111,3 +112,22 @@ transitive negli strumenti di sviluppo ESLint, fuori dal bundle di produzione.
 7. Provare due finestre aperte sulla stessa bozza: il secondo salvataggio
    obsoleto deve richiedere ricaricamento senza perdere i campi compilati.
 8. Controllare la consultazione a schermo piccolo e lo scorrimento del calendario.
+
+
+## Rilascio verificato — 23 ottobre 2026
+
+- Backup aggiornato `/var/backups/management-progetti/20261023T124612Z`, verificato
+  e ripristinato in isolamento; stessa prova di migrazione e confronto integrale
+  delle colonne delle attività superata sulla copia aggiornata.
+- Migration applicata come `supabase_admin` e registrata nello storico nella
+  stessa transazione, con confronto dei valori prima/dopo e rollback automatico
+  in caso di differenze. 9 attività, 9 periodi, 0 piani approvati.
+- RLS attiva su tutte e tre le tabelle; healthcheck backend/Auth/REST superati.
+- Commit `9dd691b` (patch Next.js) e `6c205fb` (M10–11) pubblicati su main.
+- Deployment `dpl_DRtvz9oHv9uM8cUmEr2wJykbvLyk` READY e alias
+  `www.ariadne-hub.it`, `ariadne-hub.it`, `management-progetti.vercel.app`
+  verificati. Login HTTP 200; cronoprogramma anonimo reindirizzato al login.
+- Mail inviata a Chiara nel thread «Sviluppo App», firmata Codex, con funzionalità,
+  limiti e prove di collaudo. Gmail conferma SENT, ID `1a168cf11d1ae566`.
+- Nessuna attività di prova scritta in produzione; il collaudo umano è richiesto,
+  non attestato. Modifiche preesistenti a env, infrastruttura e accessi escluse.

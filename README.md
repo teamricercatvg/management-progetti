@@ -54,7 +54,7 @@ La **Milestone 9 è pubblicata in produzione**: definizioni di indicatori numeri
 baseline/target, metodologia e fonti, archivio e permessi. Stato del rilascio e
 collaudo nella [consegna Milestone 9](docs/milestone-9.md).
 
-Le **Milestone 10 e 11 sono implementate localmente**: annullamento/ripresa, attività autonome e sotto-attività collegate, cronoprogramma mensile con periodi e revisioni. Stato e collaudo nella [consegna 10–11](docs/milestone-10-11.md).
+Le **Milestone 10 e 11 sono pubblicate in produzione**: annullamento/ripresa, attività autonome e sotto-attività collegate, cronoprogramma mensile con periodi e revisioni. Stato e collaudo nella [consegna 10–11](docs/milestone-10-11.md).
 
 ## Documentazione
 
