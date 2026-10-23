@@ -16,8 +16,6 @@ async function create(page: Page, code = "A1") {
     .click();
   await page.getByLabel("Codice attività").fill(code);
   await page.getByLabel("Titolo attività").fill("Formazione équipe");
-  await page.getByLabel("Inizio previsto").fill("2026-10-01");
-  await page.getByLabel("Fine prevista").fill("2026-10-31");
   await page
     .getByRole("button", { name: "Salva attività", exact: true })
     .click();
@@ -47,8 +45,6 @@ test("Activity can be created from the framework level dropdown", async ({ page 
   await page.getByLabel("Risultato collegato").selectOption({ label: "R1 — Titolo R1" });
   await page.getByLabel("Codice attività").fill("A1");
   await page.getByLabel("Titolo attività").fill("Formazione équipe");
-  await page.getByLabel("Inizio previsto").fill("2026-10-01");
-  await page.getByLabel("Fine prevista").fill("2026-10-31");
   await page.getByRole("button", { name: "Salva attività", exact: true }).click();
   await expect(page).toHaveURL(/activity_saved=1/);
   await page.reload();
@@ -87,9 +83,7 @@ test("Activity under result saves planned and actual dates independently", async
   await expect(page).toHaveURL(/activity_saved=1/);
   await page.reload();
   await expect(row(page).getByText("Conclusa", { exact: true })).toBeVisible();
-  await expect(
-    row(page).getByText("31/10/2026", { exact: true }),
-  ).toBeVisible();
+  await expect(row(page).getByRole("link", {name: "Periodi previsti nel cronoprogramma"})).toBeVisible();
   await expect(
     row(page).getByText("04/11/2026", { exact: true }),
   ).toBeVisible();
@@ -123,15 +117,6 @@ test("Activity validation retains inputs; duplicate codes are rejected", async (
   await page
     .getByRole("link", { name: "Modifica attività A1", exact: true })
     .click();
-  await page.getByLabel("Fine prevista").fill("2026-09-01");
-  await page
-    .getByRole("button", { name: "Salva attività", exact: true })
-    .click();
-  await expect(page.getByText(/La fine prevista deve/)).toBeVisible();
-  await expect(page.getByLabel("Titolo attività")).toHaveValue(
-    "Formazione équipe",
-  );
-  await page.getByLabel("Fine prevista").fill("2026-10-31");
   await page.getByLabel("Fine effettiva").fill("2026-11-01");
   await page
     .getByRole("button", { name: "Salva attività", exact: true })
@@ -143,8 +128,6 @@ test("Activity validation retains inputs; duplicate codes are rejected", async (
     .click();
   await page.getByLabel("Codice attività").fill("A1");
   await page.getByLabel("Titolo attività").fill("Duplicata");
-  await page.getByLabel("Inizio previsto").fill("2026-10-01");
-  await page.getByLabel("Fine prevista").fill("2026-10-31");
   await page
     .getByRole("button", { name: "Salva attività", exact: true })
     .click();

@@ -502,3 +502,15 @@ textarea:focus-visible {
 .card-tools .notice { position: fixed; top: auto; bottom: 1rem; right: 1rem; width: min(340px, calc(100vw - 2rem)); box-shadow: 0 3px 14px #183d3620; }
 .framework-page .framework-item:has(> .add-activity-action) { padding-bottom: 2.8rem; }
 .framework-page .add-activity-action { position: absolute; right: .5rem; bottom: .5rem; }
+
+.schedule-scroll { overflow:auto; max-height:70vh; border:1px solid #cbd5e1; margin:1rem 0; }
+.schedule-table { border-collapse:separate; border-spacing:0; font-size:.8rem; width:max-content; min-width:100%; }
+.schedule-table th,.schedule-table td { border-right:1px solid #dbe3ec; border-bottom:1px solid #dbe3ec; padding:.4rem; min-width:4.8rem; }
+.schedule-table thead th { position:sticky; top:0; background:#edf3f8; z-index:3; }
+.schedule-table tbody th[scope=row] { position:sticky; left:0; background:white; z-index:1; width:24rem; max-width:24rem; text-align:left; }
+.schedule-table small { display:block; font-weight:normal; margin-top:.3rem; }
+.schedule-group th { background:#e2eced; text-align:left; }
+.schedule-cell { display:flex; gap:2px; min-height:1.5rem; }
+.schedule-cell b,.schedule-key { border-radius:3px; padding:2px 4px; font-size:.75rem; }
+.initial { background:#e2e8f0; color:#334155; }.current { background:#c7d2fe; color:#312e81; }.selected { background:#dbeafe; color:#1e40af; }.actual { background:#a7f3d0; color:#064e3b; }
+@media(max-width:600px) { .schedule-table tbody th[scope=row] { position:static; width:12rem; max-width:12rem; } }

@@ -58,6 +58,7 @@ export default async function FrameworkPage({
     (newResult || (editingActivity && editingActivity.status !== "archived"));
   const activityGroups = new Map<string, typeof activities>();
   for (const activity of activities) {
+    if (!activity.result_id) continue;
     const group = activityGroups.get(activity.result_id) ?? [];
     group.push(activity);
     activityGroups.set(activity.result_id, group);

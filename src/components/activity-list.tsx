@@ -3,7 +3,10 @@ import { CompactText } from "@/components/compact-text";
 import Link from "next/link";
 import type { Activity } from "@/lib/activity-data";
 import { activityStatuses, activityPriorities } from "@/lib/activities.mjs";
-import { ActivityArchive } from "@/components/activity-form";
+import {
+  ActivityArchive,
+  ActivityCancellation,
+} from "@/components/activity-form";
 const date = (value: string | null) =>
   value ? value.split("-").reverse().join("/") : "Non indicata";
 export function ActivityList({
@@ -37,15 +40,14 @@ export function ActivityList({
                 ]
               }
             </span>
+            <p>
+              {activity.plan_source}: {activity.planned_period_count ?? 0}{" "}
+              periodi.
+              {activity.planned_start_date
+                ? ` Dal ${date(activity.planned_start_date)} al ${date(activity.planned_end_date)}; intervallo complessivo incluse le pause.`
+                : " Nessun periodo previsto."}
+            </p>
             <dl className="activity-dates">
-              <div>
-                <dt>Inizio previsto</dt>
-                <dd>{date(activity.planned_start_date)}</dd>
-              </div>
-              <div>
-                <dt>Fine prevista</dt>
-                <dd>{date(activity.planned_end_date)}</dd>
-              </div>
               <div>
                 <dt>Inizio effettivo</dt>
                 <dd>{date(activity.actual_start_date)}</dd>
@@ -55,6 +57,12 @@ export function ActivityList({
                 <dd>{date(activity.actual_end_date)}</dd>
               </div>
             </dl>
+            <Link href={`/projects/${projectId}/cronoprogramma`}>
+              Periodi previsti nel cronoprogramma
+            </Link>
+            {!readOnly && (
+              <ActivityCancellation projectId={projectId} activity={activity} />
+            )}
             <p>
               Priorità:{" "}
               {
@@ -75,8 +83,11 @@ export function ActivityList({
             {!readOnly ? (
               <div className="actions card-tools">
                 {activity.status !== "archived" ? (
-                  <Link className="icon-action" title={`Modifica attività ${activity.code}`} aria-label={`Modifica attività ${activity.code}`}
-                    href={`/projects/${projectId}/quadro-logico?activity=${activity.id}`}
+                  <Link
+                    className="icon-action"
+                    title={`Modifica attività ${activity.code}`}
+                    aria-label={`Modifica attività ${activity.code}`}
+                    href={`/projects/${projectId}/${activity.result_id ? "quadro-logico" : "cronoprogramma"}?activity=${activity.id}`}
                   >
                     <UiIcon name="edit" />
                   </Link>

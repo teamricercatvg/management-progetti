@@ -86,6 +86,11 @@ for db in foundation_test foundation_replay; do
 done
 diff -u "$work/foundation_test-m9.sql" "$work/foundation_replay-m9.sql"
 echo 'PASS: milestone 9 schema replay matches'
+for db in foundation_test foundation_replay; do
+  run_sql "$db" < "$work/supabase/migrations/20261023100000_schedule.sql"
+done
+run_sql foundation_test < "$work/supabase/tests/schedule.sql"
+bash "$work/supabase/tests/schedule-concurrency.sh" "$container"
 # Test transaction rollback of the entire migration chain, omitting their wrappers.
 docker exec "$container" createdb -h /tmp -U postgres foundation_rollback
 sed '/^create role /d' "$work/supabase/tests/bootstrap.sql" | run_sql foundation_rollback

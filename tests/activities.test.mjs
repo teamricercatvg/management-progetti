@@ -31,13 +31,10 @@ test("activities keep plan separate from optional actual dates and discard forge
     form({ actual_start_date: "2026-10-03", actual_end_date: "2026-11-30" }),
   );
   assert.deepEqual(actual.errors, {});
-  assert.equal(actual.data.planned_end_date, "2026-10-31");
+  assert.equal(actual.data.planned_end_date, undefined);
 });
 test("activity dates enforce calendar validity and interval consistency", () => {
   for (const extra of [
-    { planned_start_date: "" },
-    { planned_start_date: "2026-02-30" },
-    { planned_end_date: "2026-09-30" },
     { actual_end_date: "2026-10-31" },
     { actual_start_date: "2026-10-30", actual_end_date: "2026-10-01" },
     { actual_start_date: "0000-01-01" },
@@ -52,7 +49,7 @@ test("activity dates enforce calendar validity and interval consistency", () => 
 });
 test("activities validate required link and order", () => {
   for (const extra of [
-    { result_id: "" },
+    { result_id: "invalid" },
     { priority: "forged" },
     { sort_order: "-1" },
     { sort_order: "1.5" },
@@ -67,4 +64,10 @@ test("activity output is optional, trimmed and length limited", () => {
   assert.equal(parseActivity(form({output: "  Manuale operativo  "})).data.output, "Manuale operativo");
   assert.equal(parseActivity(form({output: "  "})).data.output, null);
   assert.ok(parseActivity(form({output: "a".repeat(10001)})).errors.output);
+});
+
+test("independent activities and linked subactivities keep valid references", () => {
+ assert.deepEqual(parseActivity(form({result_id: ""})).errors, {});
+ assert.ok(parseActivity(form({parent_activity_id: "00000000-0000-4000-8000-000000000104"})).errors.parent_activity_id);
+ assert.deepEqual(parseActivity(form({result_id: "",parent_activity_id: "00000000-0000-4000-8000-000000000104"})).errors, {});
 });

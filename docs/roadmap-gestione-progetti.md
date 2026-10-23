@@ -1195,3 +1195,14 @@ Le due migration del 20 ottobre sono applicate al backend. Frontend pubblicato e
 verificato il 20 ottobre 2026; evidenza finale nella consegna Milestone 8.
 Milestone 9 (indicatori), residui 10 e cronogramma versionato 11 restano aperti:
 la chiusura della 8 non ne anticipa il completamento.
+
+
+### Implementazione locale Milestone 10–11 — 23 ottobre 2026
+
+Implementati annullamento/ripresa e cronoprogramma versionato, periodi multipli,
+confronto iniziale/corrente/effettivo e griglia mensile. La richiesta esplicita
+aggiunge attività autonome e fasi collegate alle attività QL: questo supera il
+precedente rinvio delle sotto-attività soltanto per il calendario, senza
+introdurre operatori e assegnazioni. La migration conserva le date precedenti
+in bozze da verificare, non piani ufficiali retroattivi. Stato locale, verifiche
+e passaggi di rilascio nella [consegna 10–11](milestone-10-11.md).

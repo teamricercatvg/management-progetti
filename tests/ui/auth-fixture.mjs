@@ -36,6 +36,7 @@ const associations = [];
 const framework = new Map();
 const activities = new Map();
 const indicators = new Map();
+const revisions = new Map(), periods = new Map(), scheduleStates = new Map();
 let failProjectReads = false;
 const entity = {
   id: "00000000-0000-4000-8000-000000000010",
@@ -48,7 +49,7 @@ function resetProjects() {
   failProjectReads = false;
   framework.clear();
   activities.clear();
-  indicators.clear();
+  indicators.clear(); revisions.clear(); periods.clear(); scheduleStates.clear();
   projects.clear();
   associations.length = 0;
   for (const [projectId, code, title] of [
@@ -176,6 +177,35 @@ createServer(async (req, res) => {
     const offset=Number(url.searchParams.get('offset')??0), limit=Number(url.searchParams.get('limit')??rows.length);
     return res.end(JSON.stringify(rows.slice(offset,offset+limit)));
   }
+  if (['/rest/v1/schedule_revisions','/rest/v1/activity_schedule_periods','/rest/v1/project_schedule_state'].includes(url.pathname)) {
+    const map=url.pathname.endsWith('schedule_revisions')?revisions:url.pathname.endsWith('activity_schedule_periods')?periods:scheduleStates;
+    const rows=[...map.values()].filter(r=>role==='admin'||(role==='manager'&&r.project_id===seedId));
+    if(req.headers.accept?.includes('vnd.pgrst.object'))return res.end(JSON.stringify(rows[0]??null));
+    return res.end(JSON.stringify(rows));
+  }
+  if(url.pathname==='/rest/v1/rpc/edit_schedule') {
+    let raw='';for await(const chunk of req)raw+=chunk;
+    const {target_project:pid,command,expected_version,payload}=JSON.parse(raw);
+    const fail=code=>{res.statusCode=409;res.end(JSON.stringify({code}));};
+    if(!(role==='admin'||role==='manager'&&pid===seedId))return fail('42501');
+    const draft=[...revisions.values()].find(r=>r.project_id===pid&&r.status==='draft');
+    const state=scheduleStates.get(pid);
+    if(command==='create') {
+      if(draft)return fail('40001');
+      const id=crypto.randomUUID();revisions.set(id,{id,project_id:pid,revision_number:revisions.size+1,status:'draft',row_version:1,...payload});
+      for(const p of [...periods.values()])if(p.revision_id===state?.current_revision_id){const key=crypto.randomUUID();periods.set(key,{...p,id:key,revision_id:id});}
+      return res.end(JSON.stringify(id));
+    }
+    if(!draft||draft.row_version!==expected_version)return fail('40001');
+    if(command==='period') {
+      const old=[...periods.values()].find(p=>p.revision_id===draft.id&&p.period_key===payload.period_key);
+      const id=old?.id??crypto.randomUUID();periods.set(id,{id,project_id:pid,revision_id:draft.id,period_key:crypto.randomUUID(),status:'planned',...payload});draft.row_version++;
+    } else if(command==='publish') {
+      draft.status='approved';draft.row_version++;draft.reason=payload.reason;draft.activity_snapshot=structuredClone([...activities.values()]);draft.project_snapshot=projects.get(pid);draft.approved_at=new Date().toISOString();
+      scheduleStates.set(pid,{project_id:pid,initial_revision_id:state?.initial_revision_id??draft.id,current_revision_id:draft.id});
+    }
+    return res.end(JSON.stringify(draft.id));
+  }
   if (url.pathname === '/rest/v1/activities') {
     const visible=a=>role==='admin'||(role==='manager'&&a.project_id===seedId);
     let rows=[...activities.values()].filter(visible);
@@ -194,9 +224,9 @@ createServer(async (req, res) => {
       if(!visible(next))return fail('42501');
       if(projects.get(next.project_id)?.status==='archived')return fail('23514');
       const result=framework.get(next.result_id);
-      if(!result||result.type!=='expected_result'||result.project_id!==next.project_id||(next.status!=='archived'&&result.status!=='active'))return fail('23514');
+      if(next.result_id && (!result||result.type!=='expected_result'||result.project_id!==next.project_id||(next.status!=='archived'&&result.status!=='active')))return fail('23514');
       if([...activities.values()].some(a=>a.id!==next.id&&a.project_id===next.project_id&&a.code===next.code))return fail('23505');
-      if(next.status!=='archived'&&next.status!=='cancelled')next.status=next.actual_end_date?'completed':next.actual_start_date?'in_progress':'planned';
+      if(next.status!=='archived')next.status=next.cancellation_reason?'cancelled':next.actual_end_date?'completed':next.actual_start_date?'in_progress':'planned';
       next.row_version++;activities.set(next.id,next);rows=[next];
     }
     rows.sort((a,b)=>a.sort_order-b.sort_order||a.id.localeCompare(b.id));

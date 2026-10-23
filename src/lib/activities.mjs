@@ -15,7 +15,10 @@ export function parseActivity(form) {
   const text = (key) =>
     typeof form.get(key) === "string" ? form.get(key).trim() : "";
   const data = {
-    result_id: text("result_id"),
+    result_id: text("result_id") || null,
+    parent_activity_id: text("parent_activity_id") || null,
+    category: text("category") || "general",
+    stakeholders: text("stakeholders") || null,
     code: text("code").toUpperCase(),
     title: text("title"),
     description: text("description") || null,
@@ -23,14 +26,12 @@ export function parseActivity(form) {
     output: text("output") || null,
     priority: text("priority"),
     sort_order: Number(text("sort_order")),
-    planned_start_date: text("planned_start_date"),
-    planned_end_date: text("planned_end_date"),
     actual_start_date: text("actual_start_date") || null,
     actual_end_date: text("actual_end_date") || null,
   };
   /** @type {Record<string,string>} */
   const errors = {};
-  if (!validId(data.result_id))
+  if (data.result_id && !validId(data.result_id))
     errors.result_id = "Seleziona un risultato valido.";
   if (!data.code || data.code.length > 80)
     errors.code = "Inserisci un codice di massimo 80 caratteri.";
@@ -47,14 +48,20 @@ export function parseActivity(form) {
     data.sort_order > 2147483647
   )
     errors.sort_order = "Inserisci un ordine intero tra 0 e 2147483647.";
-  if (!validDate(data.planned_start_date))
-    errors.planned_start_date = "Inserisci una data di inizio prevista valida.";
   if (
-    !validDate(data.planned_end_date) ||
-    data.planned_end_date < data.planned_start_date
+    data.parent_activity_id &&
+    (!validId(data.parent_activity_id) || data.result_id)
   )
-    errors.planned_end_date =
-      "La fine prevista deve essere una data valida non precedente all’inizio previsto.";
+    errors.parent_activity_id =
+      "Scegli un’attività QL oppure un risultato, non entrambi.";
+  if (
+    !["general", "preparatory", "administrative", "subactivity"].includes(
+      data.category,
+    )
+  )
+    errors.category = "Categoria non valida.";
+  if ((data.stakeholders?.length ?? 0) > 2000)
+    errors.stakeholders = "Massimo 2000 caratteri.";
   if (data.actual_start_date && !validDate(data.actual_start_date))
     errors.actual_start_date = "Inserisci una data di inizio effettiva valida.";
   if (

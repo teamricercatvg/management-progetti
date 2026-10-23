@@ -60,6 +60,7 @@ export default async function ProjectDetail({
         </Link>
         <Link className="button-link" href={`/projects/${project.id}/indicatori`}>Indicatori</Link>
       </div>
+      <Link className="button-link" href={`/projects/${project.id}/cronoprogramma`}>Cronoprogramma</Link>
       {search.saved === "1" ? (
         <p className="notice" role="status">
           Progetto salvato.

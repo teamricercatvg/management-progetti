@@ -492,3 +492,23 @@ non autorizza migration remote o l'uso di dati reali senza le verifiche previste
 `activities.output`: testo facoltativo, massimo 10000 caratteri, per descrivere
 l’output della singola attività. Colonna distinta da descrizione e note;
 segue i permessi, RLS e versionamento già previsti per le attività.
+
+
+## Aggiornamento M10–11 — richiesta del 23 ottobre 2026
+
+La richiesta esplicita amplia il calendario alle attività autonome e alle fasi
+collegate a un’attività QL. `activities.result_id` è ora facoltativo;
+`parent_activity_id` collega una fase a una attività QL nello stesso progetto,
+esclusivamente quando `result_id` è NULL. Nessuna gerarchia ricorsiva.
+`category` distingue generale, propedeutica, amministrativa e sotto-attività;
+`stakeholders` descrive i soggetti coinvolti senza creare autorizzazioni.
+`cancellation_reason` separa annullamento e archivio e mantiene l’annullamento
+anche dopo archiviazione/riattivazione. Ripresa esplicita azzera la motivazione
+e deriva lo stato dalle date effettive conservate.
+
+Le tabelle cronoprogramma approvate sono implementate: revisioni complete,
+periodi a chiave stabile e puntatori iniziale/corrente. Le revisioni conservano
+anche uno snapshot delle attività e delle date progetto. Date legacy conservate
+ma non modificabili; unica fonte prevista sono i periodi. Prima della prima
+pubblicazione si legge la bozza importata; poi il corrente. Dettagli e limiti
+nella [consegna 10–11](milestone-10-11.md).

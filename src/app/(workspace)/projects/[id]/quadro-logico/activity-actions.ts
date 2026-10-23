@@ -48,7 +48,10 @@ export async function saveActivity(
         "Attività modificata, archiviata o non più accessibile. Ricarica la pagina prima di riprovare.",
     };
   revalidatePath(`/projects/${projectId}/quadro-logico`);
-  redirect(`/projects/${projectId}/quadro-logico?activity_saved=1`);
+  revalidatePath(`/projects/${projectId}/cronoprogramma`);
+  redirect(
+    `/projects/${projectId}/${data.result_id ? "quadro-logico" : "cronoprogramma"}?activity_saved=1`,
+  );
 }
 export async function changeActivityArchive(
   projectId: string,
@@ -84,8 +87,53 @@ export async function changeActivityArchive(
       message: "Attività modificata o non più accessibile. Ricarica la pagina.",
     };
   revalidatePath(`/projects/${projectId}/quadro-logico`);
+  revalidatePath(`/projects/${projectId}/cronoprogramma`);
   return {
     message:
       mode === "archive" ? "Attività archiviata." : "Attività riattivata.",
+  };
+}
+
+export async function changeActivityCancellation(
+  projectId: string,
+  activityId: string,
+  previous: ActivityState,
+  form: FormData,
+): Promise<ActivityState> {
+  void previous;
+  const { client } = await requireProfile();
+  const version = form.get("row_version"),
+    mode = form.get("mode");
+  const reason = String(form.get("reason") ?? "").trim();
+  if (
+    !validId(projectId) ||
+    !validId(activityId) ||
+    !validVersion(version) ||
+    !["cancel", "resume"].includes(String(mode)) ||
+    (mode === "cancel" && (!reason || reason.length > 2000))
+  )
+    return {
+      message: "Verifica la motivazione e ricarica se la versione è cambiata.",
+    };
+  const { data, error } = await client
+    .from("activities")
+    .update({
+      status: mode === "cancel" ? "cancelled" : "planned",
+      cancellation_reason: mode === "cancel" ? reason : null,
+    })
+    .eq("project_id", projectId)
+    .eq("id", activityId)
+    .eq("row_version", version)
+    .neq("status", "archived")
+    .select("id")
+    .maybeSingle();
+  if (error) return { message: activityError(error.code) };
+  if (!data)
+    return { message: "Attività modificata o non accessibile. Ricarica." };
+  revalidatePath(`/projects/${projectId}/quadro-logico`);
+  revalidatePath(`/projects/${projectId}/cronoprogramma`);
+  return {
+    message:
+      "Stato aggiornato. Il piano pubblicato resta invariato: modifica i periodi nella prossima revisione.",
   };
 }

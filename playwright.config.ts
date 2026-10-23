@@ -16,7 +16,7 @@ export default defineConfig({
       reuseExistingServer: false,
     },
     {
-      command: "npm run dev -- --port 3106",
+      command: process.env.UI_PRODUCTION === "1" ? "npm run start -- --port 3106" : "npm run dev -- --port 3106",
       url: "http://127.0.0.1:3106/login",
       reuseExistingServer: false,
       env: {
