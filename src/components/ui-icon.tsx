@@ -1,7 +1,7 @@
 export function UiIcon({ name }: { name: string }) {
   const paths: Record<string, string> = {
     edit: "m16 3 5 5-12 12-6 1 1-6Z M14 5l5 5",
-    trash: "M3 6h18 M9 6V3h6v3 M5 6l1 15h12l1-15 M10 10v7 M14 10v7",
+    archive: "M3 7V5h6l2 2h10v13H3Z M12 10v6 M9 13l3 3 3-3",
     plus: "M12 5v14 M5 12h14",
     restore: "M3 4v6h6 M3 10a9 9 0 1 1 1 8",
     overview: "M3 3h7v7H3Z M14 3h7v7h-7Z M3 14h7v7H3Z M14 14h7v7h-7Z",

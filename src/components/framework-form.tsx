@@ -211,7 +211,7 @@ export function FrameworkStatus({
         value={item.status === "active" ? "archived" : "active"}
       />
       <Submit label={item.status === "archived" ? "Riattiva elemento" : "Archivia elemento"}>
-        <UiIcon name={item.status === "archived" ? "restore" : "trash"} />
+        <UiIcon name={item.status === "archived" ? "restore" : "archive"} />
       </Submit>
       {state.message ? (
         <p role="status" className="notice">
