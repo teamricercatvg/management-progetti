@@ -39,7 +39,13 @@ obiettivi/risultati esistenti mantiene i tre livelli originali: la conversione
 di un elemento già salvato in attività non è prevista.
 Pubblicazione richiesta il 16 ottobre 2026 tramite push su main e integrazione
 GitHub–Vercel del progetto dedicato; nessuna modifica al database.
-Esito del deployment da verificare dopo il push.
+Rilascio verificato: commit `9d90ac4`, deployment Production GitHub
+`7115175325` con stato `success` e controllo Vercel riuscito nello scope
+`tor-vergata-igiene`. URL deployment:
+https://management-progetti-ffqjtr2qz-tor-vergata-igiene.vercel.app.
+Verifica pubblica: HTTPS login 200 e redirect apex verso www 308.
+Il flusso autenticato è stato collaudato localmente con dati sintetici;
+nessuna attività di prova creata in produzione.
 Verifiche superate: typecheck, lint, 10 test unitari, build di produzione
 Webpack e 9 test browser su quadro logico/attività con dati sintetici, incluso
 inserimento dal menu, salvataggio e persistenza dopo ricaricamento.

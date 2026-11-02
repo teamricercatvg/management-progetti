@@ -512,3 +512,17 @@ anche uno snapshot delle attività e delle date progetto. Date legacy conservate
 ma non modificabili; unica fonte prevista sono i periodi. Prima della prima
 pubblicazione si legge la bozza importata; poi il corrente. Dettagli e limiti
 nella [consegna 10–11](milestone-10-11.md).
+
+
+## Estensione approvata — 30 ottobre 2026: cestino attività e azioni
+
+`activities.deleted_at` e `deleted_by` distinguono il cestino dall’archivio,
+conservando stato e date. Admin e Manager assegnato possono eliminare in modo
+recuperabile e ripristinare; soltanto Admin può eliminare definitivamente un
+elemento già nel cestino, senza azioni figlie né riferimenti in piani pubblicati.
+Le operazioni richiedono progetto modificabile e versione corrente, passano
+tramite RPC e sono registrate in audit. Nessun DELETE diretto per i client.
+I periodi della bozza vengono annullati con soft delete; il ripristino non li
+riattiva automaticamente. Gli snapshot pubblicati restano immutabili.
+Dettagli e verifiche nel [modello del cestino](activity-deletion-proposal.md).
+Migration locale `20261030110000_activity_deletion.sql`, non applicata al backend.

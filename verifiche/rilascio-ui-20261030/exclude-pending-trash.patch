@@ -1,0 +1,261 @@
+--- a/src/app/(workspace)/projects/[id]/cronoprogramma/page.tsx
++++ b/src/app/(workspace)/projects/[id]/cronoprogramma/page.tsx
+@@ -1,4 +1,3 @@
+-import { ActivityTrash } from "@/components/activity-trash";
+ import { ProjectNavigation } from "@/components/project-navigation";
+ import Link from "next/link";
+ import { notFound } from "next/navigation";
+@@ -26,14 +25,13 @@
+   params: Promise<{ id: string }>;
+   searchParams: Promise<Record<string, string | string[] | undefined>>;
+ }) {
+-  const { project, client, profile } = await getProject((await params).id);
+-  const [allActivities, framework, schedule, search] = await Promise.all([
+-    getActivities(client, project.id, true),
++  const { project, client } = await getProject((await params).id);
++  const [activities, framework, schedule, search] = await Promise.all([
++    getActivities(client, project.id),
+     getFramework(client, project.id),
+     getSchedule(client, project.id),
+     searchParams,
+   ]);
+-  const activities = allActivities.filter((a) => !a.deleted_at);
+   const { revisions, periods, state } = schedule;
+   const draft = revisions.find((r) => r.status === "draft");
+   const current = revisions.find((r) => r.id === state?.current_revision_id);
+@@ -220,7 +218,7 @@
+                         title={g.title}
+                         colSpan={months.length + 1}
+                         rows={rows.map((a) => {
+-                          const actual = allActivities.find((x) => x.id === a.id);
++                          const actual = activities.find((x) => x.id === a.id);
+                           const own = selectedPeriods.filter(
+                             (p) =>
+                               p.activity_id === a.id && p.status === "planned",
+@@ -233,13 +231,12 @@
+                           return (
+                             <tr key={a.id}>
+                               <th scope="row">
+-                                {editable && actual && !actual.deleted_at && actual.status !== "archived" ? (
++                                {editable && actual && actual.status !== "archived" ? (
+                                   <Link href={`${base}?revision=${selected.id}&activity=${a.id}#activity-editor`}>
+                                     {a.code} — {a.title}
+                                   </Link>
+                                 ) : <span>{a.code} — {a.title}</span>}
+                                 <ScheduleDetails key={`${selected.id}-${a.id}`} label={a.code}>
+-                                  {actual?.deleted_at && <p>Attività nel cestino; dati del piano pubblicato conservati.</p>}
+                                   {a.description && <p>{a.description}</p>}
+                                   <small>
+                                     {a.stakeholders || "Soggetti da indicare"}
+@@ -356,7 +353,6 @@
+           readOnly={!editable}
+         />
+       </details>
+-      <ActivityTrash projectId={project.id} activities={allActivities.filter((a) => a.deleted_at)} isAdmin={profile.is_admin} readOnly={project.status === "archived"} />
+     </>
+   );
+ }
+--- a/src/app/(workspace)/projects/[id]/quadro-logico/activity-actions.ts
++++ b/src/app/(workspace)/projects/[id]/quadro-logico/activity-actions.ts
+@@ -32,7 +32,6 @@
+       .eq("project_id", projectId)
+       .eq("id", activityId)
+       .eq("row_version", version)
+-      .is("deleted_at", null)
+       .neq("status", "archived")
+       .select("id")
+       .maybeSingle();
+@@ -76,8 +75,7 @@
+     .update({ status: mode === "archive" ? "archived" : "planned" })
+     .eq("project_id", projectId)
+     .eq("id", activityId)
+-    .eq("row_version", version)
+-    .is("deleted_at", null);
++    .eq("row_version", version);
+   query =
+     mode === "archive"
+       ? query.neq("status", "archived")
+@@ -126,8 +124,7 @@
+     .eq("project_id", projectId)
+     .eq("id", activityId)
+     .eq("row_version", version)
+-    .is("deleted_at", null)
+-      .neq("status", "archived")
++    .neq("status", "archived")
+     .select("id")
+     .maybeSingle();
+   if (error) return { message: activityError(error.code) };
+@@ -140,28 +137,3 @@
+       "Stato aggiornato. Il piano pubblicato resta invariato: modifica i periodi nella prossima revisione.",
+   };
+ }
+-
+-export async function changeActivityDeletion(
+-  projectId: string, activityId: string, previous: ActivityState, form: FormData,
+-): Promise<ActivityState> {
+-  void previous;
+-  const { client, profile } = await requireProfile();
+-  const command = String(form.get("command"));
+-  const version = form.get("row_version");
+-  if (!validId(projectId) || !validId(activityId) || !validVersion(version) ||
+-      !["trash", "restore", "purge"].includes(command) || (command === "purge" && !profile.is_admin)) {
+-    return { message: "Operazione non consentita." };
+-  }
+-  const { error } = await client.rpc("change_activity_deletion", {
+-    target_project: projectId, target_activity: activityId, expected_version: Number(version), command,
+-  });
+-  if (error) return { message:
+-    error.code === "23503" ? "Eliminazione definitiva bloccata: sono presenti azioni collegate o riferimenti nei piani pubblicati." :
+-    error.code === "40001" ? "Attività modificata da un altro utente. Ricarica la pagina." :
+-    error.code === "23514" ? "Operazione non disponibile. Per ripristinare, verifica che risultato e attività collegata siano attivi e non eliminati." :
+-    activityError(error.code),
+-  };
+-  revalidatePath(`/projects/${projectId}/quadro-logico`);
+-  revalidatePath(`/projects/${projectId}/cronoprogramma`);
+-  return { message: command === "trash" ? "Attività spostata nel cestino." : command === "restore" ? "Attività ripristinata. Verifica i periodi nella bozza." : "Attività eliminata definitivamente." };
+-}
+--- a/src/app/(workspace)/projects/[id]/quadro-logico/page.tsx
++++ b/src/app/(workspace)/projects/[id]/quadro-logico/page.tsx
+@@ -1,4 +1,3 @@
+-import { ActivityTrash } from "@/components/activity-trash";
+ import { ProjectNavigation } from "@/components/project-navigation";
+ import { UiIcon } from "@/components/ui-icon";
+ import { CompactText } from "@/components/compact-text";
+@@ -20,13 +19,12 @@
+   params: Promise<{ id: string }>;
+   searchParams: Promise<Record<string, string | string[] | undefined>>;
+ }) {
+-  const { project, client, profile } = await getProject((await params).id);
+-  const [items, allActivities, search] = await Promise.all([
++  const { project, client } = await getProject((await params).id);
++  const [items, activities, search] = await Promise.all([
+     getFramework(client, project.id),
+-    getActivities(client, project.id, true),
++    getActivities(client, project.id),
+     searchParams,
+   ]);
+-  const activities = allActivities.filter((a) => !a.deleted_at);
+   const base = `/projects/${project.id}/quadro-logico`;
+   const readOnly = project.status === "archived";
+   const editing =
+@@ -239,7 +237,6 @@
+           </p>
+         </section>
+       )}
+-      <ActivityTrash projectId={project.id} activities={allActivities.filter((a) => a.deleted_at)} isAdmin={profile.is_admin} readOnly={project.status === "archived"} />
+     </div>
+   );
+ }
+--- a/src/components/activity-deletion.tsx
++++ /dev/null
+@@ -1,30 +0,0 @@
+-"use client";
+-import { useActionState } from "react";
+-import { changeActivityDeletion } from "@/app/(workspace)/projects/[id]/quadro-logico/activity-actions";
+-import type { Activity } from "@/lib/activity-data";
+-import { UiIcon } from "./ui-icon";
+-import { Submit } from "./submit";
+-
+-export function ActivityDeletion({ projectId, activity, command }: {
+-  projectId: string;
+-  activity: Pick<Activity, "id" | "code" | "row_version">;
+-  command: "trash" | "restore" | "purge";
+-}) {
+-  const [state, action] = useActionState(changeActivityDeletion.bind(null, projectId, activity.id), { message: "" });
+-  const label = command === "trash" ? "Sposta nel cestino" : command === "restore" ? "Ripristina dal cestino" : "Elimina definitivamente";
+-  return (
+-    <form action={action} onSubmit={(event) => {
+-      const message = command === "purge"
+-        ? `Eliminare definitivamente ${activity.code}? Non sarà recuperabile. L’operazione è bloccata se esistono azioni collegate o riferimenti pubblicati.`
+-        : command === "trash"
+-          ? `Spostare ${activity.code} nel cestino? Potrai ripristinarla. I periodi della bozza verranno annullati; le azioni collegate e i piani pubblicati resteranno invariati.`
+-          : `Ripristinare ${activity.code}? I periodi della bozza dovranno essere verificati separatamente.`;
+-      if (!window.confirm(message)) event.preventDefault();
+-    }}>
+-      <input type="hidden" name="row_version" value={activity.row_version} />
+-      <input type="hidden" name="command" value={command} />
+-      <Submit label={`${label} ${activity.code}`}><UiIcon name={command === "restore" ? "restore" : command === "purge" ? "delete" : "trash"} /></Submit>
+-      {state.message && <p role="status">{state.message}</p>}
+-    </form>
+-  );
+-}
+--- a/src/components/activity-list.tsx
++++ b/src/components/activity-list.tsx
+@@ -1,4 +1,3 @@
+-import { ActivityDeletion } from "@/components/activity-deletion";
+ import { UiIcon } from "@/components/ui-icon";
+ import { CompactText } from "@/components/compact-text";
+ import Link from "next/link";
+@@ -93,7 +92,6 @@
+                     <UiIcon name="edit" />
+                   </Link>
+                 ) : null}
+-                <ActivityDeletion projectId={projectId} activity={activity} command="trash" />
+                 <ActivityArchive
+                   projectId={projectId}
+                   activity={{
+--- a/src/components/activity-trash.tsx
++++ /dev/null
+@@ -1,26 +0,0 @@
+-import type { Activity } from "@/lib/activity-data";
+-import { ActivityDeletion } from "./activity-deletion";
+-
+-export function ActivityTrash({ projectId, activities, isAdmin, readOnly }: {
+-  projectId: string; activities: Activity[]; isAdmin: boolean; readOnly: boolean;
+-}) {
+-  return (
+-    <details>
+-      <summary>Cestino attività e azioni ({activities.length})</summary>
+-      {activities.length === 0 ? <p>Il cestino è vuoto.</p> : (
+-        <ul className="project-list">
+-          {activities.map((a) => (
+-            <li key={a.id}>
+-              <div><strong>{a.code} — {a.title}</strong>
+-                {!readOnly && <div className="actions">
+-                  <ActivityDeletion projectId={projectId} activity={a} command="restore" />
+-                  {isAdmin && <ActivityDeletion projectId={projectId} activity={a} command="purge" />}
+-                </div>}
+-              </div>
+-            </li>
+-          ))}
+-        </ul>
+-      )}
+-    </details>
+-  );
+-}
+--- a/src/lib/activity-data.ts
++++ b/src/lib/activity-data.ts
+@@ -2,8 +2,6 @@
+ import { getSchedule } from "./schedule-data";
+ import type { SupabaseClient } from "@supabase/supabase-js";
+ export type Activity = {
+-  deleted_at: string | null;
+-  deleted_by: string | null;
+   id: string;
+   result_id: string | null;
+   parent_activity_id: string | null;
+@@ -29,14 +27,13 @@
+ export async function getActivities(
+   client: SupabaseClient,
+   projectId: string,
+-  includeDeleted = false,
+ ): Promise<Activity[]> {
+   const items: Activity[] = [];
+   for (let offset = 0; ; offset += 500) {
+     const { data, error } = await client
+       .from("activities")
+       .select(
+-        "deleted_at,deleted_by,id,result_id,parent_activity_id,category,stakeholders,cancellation_reason,code,title,description,notes,output,status,priority,sort_order,planned_start_date,planned_end_date,actual_start_date,actual_end_date,row_version",
++        "id,result_id,parent_activity_id,category,stakeholders,cancellation_reason,code,title,description,notes,output,status,priority,sort_order,planned_start_date,planned_end_date,actual_start_date,actual_end_date,row_version",
+       )
+       .eq("project_id", projectId)
+       .order("sort_order")
+@@ -53,7 +50,7 @@
+   const periods = schedule.periods.filter(
+     (p) => p.revision_id === source && p.status === "planned",
+   );
+-  return items.filter((a) => includeDeleted || !a.deleted_at).map((a) => {
++  return items.map((a) => {
+     const own = periods.filter((p) => p.activity_id === a.id);
+     return {
+       ...a,

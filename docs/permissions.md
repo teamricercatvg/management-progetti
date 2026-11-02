@@ -111,3 +111,17 @@ tecniche server autorizzate, mai client. Revoca accesso efficace alla query succ
 | Progetto archiviato riceve spesa o rapporto | Negato fino a riapertura controllata |
 
 Test con identità distinte e chiamate dirette, non solo UI o service role.
+
+
+## Estensione approvata — 30 ottobre 2026: cestino attività e azioni
+
+`activities.deleted_at` e `deleted_by` distinguono il cestino dall’archivio,
+conservando stato e date. Admin e Manager assegnato possono eliminare in modo
+recuperabile e ripristinare; soltanto Admin può eliminare definitivamente un
+elemento già nel cestino, senza azioni figlie né riferimenti in piani pubblicati.
+Le operazioni richiedono progetto modificabile e versione corrente, passano
+tramite RPC e sono registrate in audit. Nessun DELETE diretto per i client.
+I periodi della bozza vengono annullati con soft delete; il ripristino non li
+riattiva automaticamente. Gli snapshot pubblicati restano immutabili.
+Dettagli e verifiche nel [modello del cestino](activity-deletion-proposal.md).
+Migration locale `20261030110000_activity_deletion.sql`, non applicata al backend.

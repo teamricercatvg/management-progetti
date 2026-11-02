@@ -1,5 +1,147 @@
 # Milestone 10–11 — Attività e cronoprogramma
 
+## Riallineamento del repository — 2 novembre 2026
+
+Consegna su `main` delle modifiche locali: UI già pubblicata il 28–30 ottobre,
+cestino con ripristino e cancellazione definitiva Admin, migration, test e
+documentazione. Lo stato descritto nelle sezioni precedenti per data resta
+storico: il cestino non è attestato in produzione.
+
+Confrontata una copia temporanea dei sorgenti con il manifest del rilascio
+`dpl_HXbrEjByxmEM1NvRE6A6bR4nhe11`, applicando su quella copia la patch che
+esclude il cestino: tutti i file `src/` e il lockfile coincidono. Le sole
+differenze del manifest sono `.gitignore` e il generato `next-env.d.ts`.
+Questa è una verifica delle evidenze locali di rilascio, non una nuova verifica
+autenticata del sito. Manifest e patch sono versionati in
+`verifiche/rilascio-ui-20261030/`; screenshot e SQL operativi locali sono esclusi.
+
+Aggiunta in `vercel.json` la sospensione del deploy Git automatico di `main`,
+necessaria finché manca la migration del cestino sul backend. Nessun deploy o
+aggiornamento del database è parte di questo riallineamento. Ordine SQL e
+procedura di riattivazione nel [modello del cestino](activity-deletion-proposal.md).
+Verifiche del 2 novembre nel [collaudo](collaudo-milestone-10-11.md).
+
+## Correzione navigazione pubblicata — 30 ottobre 2026
+
+La navigazione comune nasconde il pulsante della sezione già aperta, mostrando
+solo le altre destinazioni. Deploy richiesto ed eseguito:
+`dpl_HXbrEjByxmEM1NvRE6A6bR4nhe11`, produzione READY, alias
+`https://www.ariadne-hub.it`. Next.js 16.4.2, build remota completata in 8 s.
+Typecheck, lint e test browser della navigazione superati prima del rilascio.
+Pacchetto precedente senza cestino, con modifica soltanto a navigazione/CSS
+oltre ai riferimenti generati in next-env.d.ts. Nessuna migration, commit o push.
+Verifica produzione tramite stato e alias Vercel; browser autenticato non usato.
+
+## Rilascio UI senza cestino — 30 ottobre 2026
+
+Su richiesta dell’utente pubblicate soltanto le modifiche che non richiedono la
+migration: versione aggiornata e storico con orologio, etichetta “Azione”,
+navigazione comune tra sezioni e correzione dell’icona archivio. Conservate le
+migliorie precedenti a dettagli espandibili e barre previsto/effettivo.
+
+Deployment `dpl_BWFHTkwk53aFWB9yYwz96g38PwiU` READY in produzione, alias
+`https://www.ariadne-hub.it`. Profilo `teamricercatvg-8749`, scope
+`tor-vergata-igiene`, progetto `prj_pTLN65jStwKna0FdRKlrZVVQUdsW` verificati.
+Build remota Next.js 16.4.2 completata (12 s); typecheck, lint, build locale e
+scenario browser revisioni/navigazione sul pacchetto esatto superati.
+
+Cestino, ripristino dal cestino, eliminazione definitiva e nuove colonne/RPC
+esclusi dal pacchetto. Nessuna migration applicata, nessun commit/push. Il codice
+del cestino resta nel checkout come lavoro locale non pubblicato: non eseguire
+un deploy indiscriminato del checkout prima della migration.
+Manifest SHA256 del pacchetto e patch di esclusione in
+`verifiche/rilascio-ui-20261030/`. File env esclusi con `.vercelignore`.
+Verifica UI autenticata in produzione non eseguita: accesso browser ancora
+bloccato dall’impostazione salvata; conferma rilascio tramite stato Vercel.
+
+## Ulteriori modifiche locali — 30 ottobre 2026
+
+Versione aggiornata in evidenza (bozza se presente, altrimenti piano corrente),
+versioni precedenti dietro l’icona orologio, avviso durante la consultazione
+storica e collegamento di ritorno. Creazione revisione in un pannello espandibile.
+“Sotto-attività” rinominata “Azione” nei form e “Azioni del QL” nella griglia;
+nessuna modifica ai valori interni o al database.
+Navigazione comune tra dettaglio progetto, quadro logico, cronoprogramma e
+indicatori, disponibile anche dalla modifica progetto.
+
+Richiesta aggiuntiva per cestino ed eliminazione definitiva Admin: modello
+[approvato e implementato](activity-deletion-proposal.md), con migration
+versionata e test SQL isolati per permessi, storico, audit e concorrenza.
+Typecheck, lint, unit test, tre test browser e build superati. Il cestino resta locale; le modifiche UI sono pubblicate nel rilascio descritto sopra.
+
+## Deploy verificato — 30 ottobre 2026
+
+Pubblicazione richiesta dall’utente ed eseguita con il profilo dedicato
+`teamricercatvg-8749`, scope `tor-vergata-igiene`, progetto
+`prj_pTLN65jStwKna0FdRKlrZVVQUdsW`.
+Deployment `dpl_8xVx3g8fNEHfqwu2fBK48zFPrqYp` **READY**, target production;
+alias `https://www.ariadne-hub.it` confermato da Vercel inspect.
+Build remota Next.js **16.4.2** completata (28 s); Node selezionato da Vercel
+26.x in base al vincolo già presente `>=22`.
+
+Pacchetto isolato dal checkout locale, base `6e5f524` più le modifiche al
+cronoprogramma; nessun commit/push. Esclusi documenti, screenshot, test e segreti;
+`.vercelignore` esclude `.env` e `.env.*`, anche il file creato da Vercel link.
+Installazione pulita con lockfile riparato per le dipendenze opzionali emnapi
+mancanti, senza aggiornare le versioni già bloccate. Lockfile riportato nel
+checkout; typecheck e lint sul pacchetto riusciti. Audit runtime: zero
+vulnerabilità; resta una segnalazione high nelle dipendenze di sviluppo.
+L’installazione node_modules del checkout originale non è stata modificata.
+
+Verifica autenticata nel browser non eseguita: primo accesso negato; nuovo
+tentativo richiesto dall’utente bloccato da un’impostazione di autorizzazione
+salvata. Nessuna scrittura di dati operativi o modifica database.
+
+## Modifica locale — 30 ottobre 2026
+
+Su richiesta di collaudo, le righe del cronoprogramma mostrano inizialmente
+solo codice/titolo e il pulsante “Mostra dettagli”. Il titolo apre il form
+esistente dell’attività corrente quando modificabile; le revisioni pubblicate
+continuano a mostrare gli snapshot e non vengono alterate dalla modifica.
+I dettagli includono soggetti, descrizione, output, note, stato/date effettive,
+riepilogo e singoli periodi con confronto iniziale e modifica della bozza.
+L’elenco separato sotto la tabella è rimosso.
+
+La griglia e la legenda hanno due sole barre: **previsto** (revisione selezionata)
+e **effettivo** (date correnti). Conservate continuità, pause e selezione delle
+revisioni. Nessuna migration o modifica ai dati operativi; nessun commit, push
+o deploy eseguito per questa richiesta.
+
+Verificati typecheck, lint, 20 test unitari, build Webpack e test browser
+con fixture isolata: apertura/chiusura dettagli, titolo → form, modifica periodi,
+revisioni e assenza di overflow a 1440/390 px. Screenshot locali in
+`test-results/schedule-1440.png` e `test-results/schedule-390.png`.
+La build locale usa Next.js 16.4.0 installato, mentre il manifest richiede
+^16.4.2: il runtime ha emesso un avviso di sicurezza. Dipendenze non aggiornate
+nell’ambito di questa modifica UI; riallineare l’installazione prima di un rilascio.
+
+## Aggiornamento pubblicato — 28 ottobre 2026
+
+La griglia usa barre continue nei mesi consecutivi, su quattro righe fisse
+per iniziale, corrente, selezionato ed effettivo. Le lettere compaiono all’inizio
+di ciascun tratto; i mesi vuoti interrompono le barre. Rimane una vista mensile,
+con date esatte nell’elenco dei periodi. Nessuna modifica ai dati o alle revisioni.
+Verificati typecheck, lint, 20 test unitari, build Webpack e anteprima browser
+con fixture locale e pausa estiva. Screenshot:
+`verifiche/barre-cronoprogramma-20261028/anteprima.jpg`.
+
+Deploy richiesto dall’utente ed eseguito dopo autenticazione del profilo dedicato.
+Account verificato `teamricercatvg-8749`, scope `tor-vergata-igiene`, progetto
+`prj_pTLN65jStwKna0FdRKlrZVVQUdsW`. Wrapper aggiornato per usare la home
+dell’utente corrente, mantenendo il profilo `vercel-teamricercatvg`.
+
+Deployment `dpl_FAVyT5cSLr1E8kX6pCbSSZ4LFMSP` READY in produzione, alias
+`https://www.ariadne-hub.it`. Build remota con Next.js 16.4.2 completata.
+Pacchetto da checkout locale (base `6e5f524` più modifica a pagina e CSS),
+senza commit/push; esclusi documenti locali, screenshot e file env dal caricamento.
+Il primo tentativo è fallito per template Auth mancanti nel pacchetto; inclusi
+`supabase/templates/`, il secondo tentativo è riuscito.
+Verifica pubblica: login HTTP 200, CSS `schedule-bar`/`bar-start`/`bar-end`
+presente, cronoprogramma anonimo reindirizzato al login, nessun riferimento
+alla fixture locale nel bundle esaminato. Nessun host backend visibile nei chunk
+del login: il client Supabase applicativo è inizializzato lato server; questa
+verifica non attesta una nuova sessione autenticata in produzione.
+
 ## Stato del 23 ottobre 2026
 
 Implementazione pubblicata su main e in produzione dopo autorizzazione
