@@ -32,6 +32,7 @@ export async function saveActivity(
       .eq("project_id", projectId)
       .eq("id", activityId)
       .eq("row_version", version)
+      .is("deleted_at", null)
       .neq("status", "archived")
       .select("id")
       .maybeSingle();
@@ -75,7 +76,8 @@ export async function changeActivityArchive(
     .update({ status: mode === "archive" ? "archived" : "planned" })
     .eq("project_id", projectId)
     .eq("id", activityId)
-    .eq("row_version", version);
+    .eq("row_version", version)
+    .is("deleted_at", null);
   query =
     mode === "archive"
       ? query.neq("status", "archived")
@@ -124,7 +126,8 @@ export async function changeActivityCancellation(
     .eq("project_id", projectId)
     .eq("id", activityId)
     .eq("row_version", version)
-    .neq("status", "archived")
+    .is("deleted_at", null)
+      .neq("status", "archived")
     .select("id")
     .maybeSingle();
   if (error) return { message: activityError(error.code) };
@@ -136,4 +139,29 @@ export async function changeActivityCancellation(
     message:
       "Stato aggiornato. Il piano pubblicato resta invariato: modifica i periodi nella prossima revisione.",
   };
+}
+
+export async function changeActivityDeletion(
+  projectId: string, activityId: string, previous: ActivityState, form: FormData,
+): Promise<ActivityState> {
+  void previous;
+  const { client, profile } = await requireProfile();
+  const command = String(form.get("command"));
+  const version = form.get("row_version");
+  if (!validId(projectId) || !validId(activityId) || !validVersion(version) ||
+      !["trash", "restore", "purge"].includes(command) || (command === "purge" && !profile.is_admin)) {
+    return { message: "Operazione non consentita." };
+  }
+  const { error } = await client.rpc("change_activity_deletion", {
+    target_project: projectId, target_activity: activityId, expected_version: Number(version), command,
+  });
+  if (error) return { message:
+    error.code === "23503" ? "Eliminazione definitiva bloccata: sono presenti azioni collegate o riferimenti nei piani pubblicati." :
+    error.code === "40001" ? "Attività modificata da un altro utente. Ricarica la pagina." :
+    error.code === "23514" ? "Operazione non disponibile. Per ripristinare, verifica che risultato e attività collegata siano attivi e non eliminati." :
+    activityError(error.code),
+  };
+  revalidatePath(`/projects/${projectId}/quadro-logico`);
+  revalidatePath(`/projects/${projectId}/cronoprogramma`);
+  return { message: command === "trash" ? "Attività spostata nel cestino." : command === "restore" ? "Attività ripristinata. Verifica i periodi nella bozza." : "Attività eliminata definitivamente." };
 }

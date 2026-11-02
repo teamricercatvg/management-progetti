@@ -1,5 +1,8 @@
 export function UiIcon({ name }: { name: string }) {
   const paths: Record<string, string> = {
+    trash: "M3 6h18 M9 6V3h6v3 M5 6l1 15h12l1-15 M10 10v7 M14 10v7",
+    delete: "M4 4l16 16 M20 4 4 20",
+    clock: "M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0 M12 7v5l3 2",
     edit: "m16 3 5 5-12 12-6 1 1-6Z M14 5l5 5",
     archive: "M3 7V5h6l2 2h10v13H3Z M12 10v6 M9 13l3 3 3-3",
     plus: "M12 5v14 M5 12h14",

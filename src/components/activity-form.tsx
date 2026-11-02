@@ -89,7 +89,7 @@ export function ActivityForm({
         </span>
       ) : null}
       <label>
-        Sotto-attività di un’attività QL
+        Azione collegata a un’attività QL
         <select
           name="parent_activity_id"
           value={values.parent_activity_id}
@@ -118,7 +118,7 @@ export function ActivityForm({
           <option value="general">Generale / trasversale</option>
           <option value="preparatory">Propedeutica</option>
           <option value="administrative">Amministrativa</option>
-          <option value="subactivity">Sotto-attività</option>
+          <option value="subactivity">Azione</option>
         </select>
       </label>
       <div className="project-fields">
@@ -225,7 +225,7 @@ export function ActivityArchive({
             : "Archivia attività"
         }
       >
-        <UiIcon name={activity.status === "archived" ? "restore" : "trash"} />
+        <UiIcon name={activity.status === "archived" ? "restore" : "archive"} />
       </Submit>
       {state.message ? (
         <p role="status" className="notice">

@@ -1,3 +1,5 @@
+import { ActivityTrash } from "@/components/activity-trash";
+import { ProjectNavigation } from "@/components/project-navigation";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProject } from "@/lib/project-data";
@@ -13,6 +15,8 @@ import {
 } from "@/lib/schedule.mjs";
 import { RevisionForm, PeriodForm } from "@/components/schedule-forms";
 import { ActivityForm } from "@/components/activity-form";
+import { ScheduleDetails } from "@/components/schedule-details";
+import { UiIcon } from "@/components/ui-icon";
 import { ActivityList } from "@/components/activity-list";
 export const metadata = { title: "Cronoprogramma" };
 export default async function SchedulePage({
@@ -22,27 +26,30 @@ export default async function SchedulePage({
   params: Promise<{ id: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const { project, client } = await getProject((await params).id);
-  const [activities, framework, schedule, search] = await Promise.all([
-    getActivities(client, project.id),
+  const { project, client, profile } = await getProject((await params).id);
+  const [allActivities, framework, schedule, search] = await Promise.all([
+    getActivities(client, project.id, true),
     getFramework(client, project.id),
     getSchedule(client, project.id),
     searchParams,
   ]);
+  const activities = allActivities.filter((a) => !a.deleted_at);
   const { revisions, periods, state } = schedule;
   const draft = revisions.find((r) => r.status === "draft");
   const current = revisions.find((r) => r.id === state?.current_revision_id);
   const initial = revisions.find((r) => r.id === state?.initial_revision_id);
+  const latest = draft ?? current;
+  const archivedRevisions = revisions.filter((r) => r.id !== latest?.id && r.status === "approved").sort((a, b) => b.revision_number - a.revision_number);
   const selected =
     typeof search.revision === "string"
       ? revisions.find((r) => r.id === search.revision)
-      : (draft ?? current);
+      : latest;
   if (search.revision && !selected) notFound();
   const editable = project.status !== "archived";
   const base = `/projects/${project.id}/cronoprogramma`;
   const selectedPeriods = periods.filter((p) => p.revision_id === selected?.id);
   const initialPeriods = periods.filter((p) => p.revision_id === initial?.id);
-  const currentPeriods = periods.filter((p) => p.revision_id === current?.id);
+  const changes = periodChanges(initialPeriods, selectedPeriods) as { period: Period; change: string }[];
   const selectedActivities =
     selected?.status === "approved" ? selected.activity_snapshot : activities;
   const months = scheduleMonths(
@@ -60,7 +67,7 @@ export default async function SchedulePage({
       .filter((f) => f.type === "expected_result")
       .map((f) => ({ id: f.id, title: `${f.code} — ${f.title}` })),
     { id: "preparatory", title: "Attività propedeutiche" },
-    { id: "subactivity", title: "Sotto-attività del QL" },
+    { id: "subactivity", title: "Azioni del QL" },
     { id: "general", title: "Attività generali e trasversali" },
     { id: "administrative", title: "Gestione amministrativa" },
   ];
@@ -80,10 +87,8 @@ export default async function SchedulePage({
         indica il mese di avvio; le date esatte sono riportate nei periodi. Il
         consuntivo deriva dalle date effettive delle attività.
       </p>
-      <nav className="actions">
-        <Link href={`/projects/${project.id}/quadro-logico`}>
-          Quadro logico
-        </Link>
+      <ProjectNavigation projectId={project.id} current="cronoprogramma" />
+      <nav className="actions" aria-label="Azioni cronoprogramma">
         {editable && (
           <Link className="button-link" href={`${base}?new=1`}>
             Nuova attività
@@ -93,7 +98,7 @@ export default async function SchedulePage({
       </nav>
       {editable &&
         (search.new === "1" || (editing && editing.status !== "archived")) && (
-          <section>
+          <section id="activity-editor">
             <ActivityForm
               key={editing?.id ?? "new"}
               projectId={project.id}
@@ -108,23 +113,41 @@ export default async function SchedulePage({
           </section>
         )}
       <section>
-        <h2>Revisioni</h2>
-        <p>
-          Piano iniziale:{" "}
-          {initial ? `n. ${initial.revision_number}` : "non ancora pubblicato"}{" "}
-          · Piano corrente:{" "}
-          {current ? `n. ${current.revision_number}` : "non ancora pubblicato"}
-        </p>
-        <div className="actions">
-          {revisions
-            .sort((a, b) => a.revision_number - b.revision_number)
-            .map((r) => (
-              <Link key={r.id} href={`${base}?revision=${r.id}`}>
-                {r.revision_number}. {r.title} —{" "}
-                {r.status === "draft" ? "Bozza" : "Pubblicato"}
+        <div className="schedule-version-header">
+          <div>
+            <h2>Versione aggiornata</h2>
+            {latest ? (
+              <Link href={base} aria-current={selected?.id === latest.id ? "page" : undefined}>
+                {latest.revision_number}. {latest.title} — {latest.status === "draft" ? "Bozza" : "Pubblicato"}
               </Link>
-            ))}
+            ) : <p>Nessun piano disponibile.</p>}
+          </div>
+          {archivedRevisions.length > 0 && (
+            <details className="schedule-history">
+              <summary aria-label="Versioni archiviate" title="Versioni archiviate">
+                <UiIcon name="clock" />
+              </summary>
+              <nav aria-label="Versioni archiviate">
+                <h3>Versioni archiviate</h3>
+                <ul>
+                  {archivedRevisions.map((r) => (
+                    <li key={r.id}>
+                      <Link href={`${base}?revision=${r.id}`} aria-current={selected?.id === r.id ? "page" : undefined}>
+                        {r.revision_number}. {r.title} — Pubblicato
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            </details>
+          )}
         </div>
+        {selected && selected.id !== latest?.id && (
+          <p className="notice">
+            Stai consultando la versione archiviata n. {selected.revision_number}.{" "}
+            <Link href={base}>Torna alla versione aggiornata</Link>
+          </p>
+        )}
         {selected && (
           <p>
             {selected.reason}
@@ -133,7 +156,12 @@ export default async function SchedulePage({
               : ""}
           </p>
         )}
-        {editable && !draft && <RevisionForm projectId={project.id} />}
+        {editable && !draft && (
+          <details>
+            <summary>{current ? "Crea nuova revisione" : "Crea primo piano"}</summary>
+            <RevisionForm projectId={project.id} />
+          </details>
+        )}
         {editable && draft && selected?.id === draft.id && (
           <>
             <p className="notice">
@@ -151,11 +179,9 @@ export default async function SchedulePage({
             {selected.revision_number}
           </h2>
           <p>
-            Legenda: <span className="schedule-key initial">I iniziale</span> ·{" "}
-            <span className="schedule-key current">C corrente</span> ·{" "}
-            <span className="schedule-key selected">S selezionato</span> ·{" "}
+            Legenda: <span className="schedule-key planned">P previsto</span> ·{" "}
             <span className="schedule-key actual">E effettivo</span>.
-            Un’attività iniziata senza fine effettiva è mostrata fino a oggi.
+            Le due barre mostrano il previsto del piano selezionato in alto e l’effettivo in basso. Le interruzioni indicano mesi senza attività prevista. Un’attività iniziata senza fine effettiva è mostrata fino a oggi.
           </p>
           {overlappingPeriods(selectedPeriods).length > 0 && (
             <p className="notice">
@@ -172,7 +198,7 @@ export default async function SchedulePage({
             <table className="schedule-table">
               <thead>
                 <tr>
-                  <th>Attività / soggetti coinvolti</th>
+                  <th>Attività</th>
                   {months.map((m) => (
                     <th key={m.start}>
                       {m.label}
@@ -194,7 +220,7 @@ export default async function SchedulePage({
                         title={g.title}
                         colSpan={months.length + 1}
                         rows={rows.map((a) => {
-                          const actual = activities.find((x) => x.id === a.id);
+                          const actual = allActivities.find((x) => x.id === a.id);
                           const own = selectedPeriods.filter(
                             (p) =>
                               p.activity_id === a.id && p.status === "planned",
@@ -207,77 +233,89 @@ export default async function SchedulePage({
                           return (
                             <tr key={a.id}>
                               <th scope="row">
-                                {a.code} — {a.title}
-                                <small>
-                                  {a.stakeholders || "Soggetti da indicare"}
-                                  {a.parent_activity_id
-                                    ? ` · Collegata a ${activities.find((x) => x.id === a.parent_activity_id)?.code ?? a.parent_activity_id}`
-                                    : ""}
-                                </small>
-                                <small>
-                                  {own.length} periodi
-                                  {first
-                                    ? ` · ${date(first)} – ${date(last ?? null)} (intervallo complessivo, incluse pause)`
-                                    : ""}
-                                </small>
-                                <small>
-                                  Stato attuale:{" "}
-                                  {activityStatuses[
-                                    actual?.status as keyof typeof activityStatuses
-                                  ] ?? "—"}
-                                </small>
+                                {editable && actual && !actual.deleted_at && actual.status !== "archived" ? (
+                                  <Link href={`${base}?revision=${selected.id}&activity=${a.id}#activity-editor`}>
+                                    {a.code} — {a.title}
+                                  </Link>
+                                ) : <span>{a.code} — {a.title}</span>}
+                                <ScheduleDetails key={`${selected.id}-${a.id}`} label={a.code}>
+                                  {actual?.deleted_at && <p>Attività nel cestino; dati del piano pubblicato conservati.</p>}
+                                  {a.description && <p>{a.description}</p>}
+                                  <small>
+                                    {a.stakeholders || "Soggetti da indicare"}
+                                    {a.parent_activity_id
+                                      ? ` · Collegata a ${activities.find((x) => x.id === a.parent_activity_id)?.code ?? a.parent_activity_id}`
+                                      : ""}
+                                  </small>
+                                  <small>
+                                    {own.length} periodi
+                                    {first
+                                      ? ` · ${date(first)} – ${date(last ?? null)} (intervallo complessivo, incluse pause)`
+                                      : ""}
+                                  </small>
+                                  <small>
+                                    Stato attuale:{" "}
+                                    {activityStatuses[
+                                      actual?.status as keyof typeof activityStatuses
+                                    ] ?? "—"}
+                                  </small>
+                                  <small>Effettivo: {date(actual?.actual_start_date ?? null)} – {actual?.actual_start_date && !actual.actual_end_date ? "in corso" : date(actual?.actual_end_date ?? null)}</small>
+                                  {a.output && <p>Output: {a.output}</p>}
+                                  {a.notes && <p>Note: {a.notes}</p>}
+                                  <ul className="schedule-periods">
+                                    {changes.filter(({ period }) => period.activity_id === a.id).map(({ period: p, change }) => (
+                                      <li key={p.id}>
+                                        <strong>{a.code} — {p.title}</strong>
+                                        <p>{date(p.start_date)} – {date(p.end_date)} · {p.status === "cancelled" ? "Annullato" : change}
+                                          {p.start_date < project.start_date || p.end_date > project.end_date ? " · Fuori dalle date attuali del progetto" : ""}
+                                        </p>
+                                        {p.notes && <p>{p.notes}</p>}
+                                        {editable && selected.id === draft?.id && (
+                                          <Link href={`${base}?revision=${selected.id}&period=${p.period_key}#period-editor`}>Modifica / annulla periodo</Link>
+                                        )}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </ScheduleDetails>
                               </th>
-                              {months.map((m) => {
-                                const hit = (list: typeof periods) =>
-                                  list.some(
+                              {months.map((m, monthIndex) => {
+                                const hit = (list: typeof periods, index: number) =>
+                                  !!months[index] && list.some(
                                     (p) =>
                                       p.activity_id === a.id &&
                                       p.status === "planned" &&
-                                      intersects(p.start_date, p.end_date, m),
+                                      intersects(p.start_date, p.end_date, months[index]),
                                   );
+                                const actualHit = (index: number) =>
+                                  !!months[index] && !!actual?.actual_start_date &&
+                                  intersects(
+                                    actual.actual_start_date,
+                                    actual.actual_end_date ?? new Date().toISOString().slice(0, 10),
+                                    months[index],
+                                  );
+                                const lanes = [
+                                  { kind: "planned", label: "Previsto", letter: "P", active: (index: number) => hit(selectedPeriods, index) },
+                                  { kind: "actual", label: "Effettivo", letter: "E", active: actualHit },
+                                ];
                                 return (
-                                  <td key={m.start}>
+                                  <td key={m.start} className="schedule-month">
                                     <span className="schedule-cell">
-                                      {hit(initialPeriods) && (
-                                        <b
-                                          className="initial"
-                                          title="Piano iniziale"
-                                        >
-                                          I
-                                        </b>
-                                      )}
-                                      {hit(currentPeriods) && (
-                                        <b
-                                          className="current"
-                                          title="Piano corrente"
-                                        >
-                                          C
-                                        </b>
-                                      )}
-                                      {hit(selectedPeriods) && (
-                                        <b
-                                          className="selected"
-                                          title="Piano selezionato"
-                                        >
-                                          S
-                                        </b>
-                                      )}
-                                      {actual?.actual_start_date &&
-                                        intersects(
-                                          actual.actual_start_date,
-                                          actual.actual_end_date ??
-                                            new Date()
-                                              .toISOString()
-                                              .slice(0, 10),
-                                          m,
-                                        ) && (
-                                          <b
-                                            className="actual"
-                                            title="Effettivo"
+                                      {lanes.map((lane) => {
+                                        const active = lane.active(monthIndex);
+                                        const starts = active && !lane.active(monthIndex - 1);
+                                        const ends = active && !lane.active(monthIndex + 1);
+                                        return (
+                                          <span
+                                            key={lane.kind}
+                                            className={`schedule-track${active ? ` schedule-bar ${lane.kind}` : ""}${starts ? " bar-start" : ""}${ends ? " bar-end" : ""}`}
+                                            title={active ? `${lane.label} · ${m.calendar}` : undefined}
+                                            aria-label={active ? `${lane.label} · ${m.calendar}` : undefined}
+                                            aria-hidden={!active || undefined}
                                           >
-                                            E
-                                          </b>
-                                        )}
+                                            {starts ? lane.letter : null}
+                                          </span>
+                                        );
+                                      })}
                                     </span>
                                   </td>
                                 );
@@ -292,40 +330,8 @@ export default async function SchedulePage({
               </tbody>
             </table>
           </div>
-          <h3>Periodi e confronto con il piano iniziale</h3>
-          <ul className="project-list">
-            {periodChanges(initialPeriods, selectedPeriods).map(
-              ({ period: p, change }: { period: Period; change: string }) => (
-                <li key={p.id}>
-                  <div>
-                    <strong>
-                      {
-                        selectedActivities.find((a) => a.id === p.activity_id)
-                          ?.code
-                      }{" "}
-                      — {p.title}
-                    </strong>
-                    <p>
-                      {date(p.start_date)} – {date(p.end_date)} ·{" "}
-                      {p.status === "cancelled" ? "Annullato" : change}
-                      {p.start_date < project.start_date ||
-                      p.end_date > project.end_date
-                        ? " · Fuori dalle date attuali del progetto"
-                        : ""}
-                    </p>
-                    {p.notes && <p>{p.notes}</p>}
-                    {editable && selected.id === draft?.id && (
-                      <Link href={`${base}?period=${p.period_key}`}>
-                        Modifica / annulla periodo
-                      </Link>
-                    )}
-                  </div>
-                </li>
-              ),
-            )}
-          </ul>
           {editable && selected.id === draft?.id && (
-            <details open={!!editingPeriod}>
+            <details id="period-editor" open={!!editingPeriod}>
               <summary>
                 {editingPeriod ? "Modifica periodo" : "Aggiungi periodo"}
               </summary>
@@ -350,6 +356,7 @@ export default async function SchedulePage({
           readOnly={!editable}
         />
       </details>
+      <ActivityTrash projectId={project.id} activities={allActivities.filter((a) => a.deleted_at)} isAdmin={profile.is_admin} readOnly={project.status === "archived"} />
     </>
   );
 }

@@ -1,3 +1,4 @@
+import { ProjectNavigation } from "@/components/project-navigation";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProject } from "@/lib/project-data";
@@ -51,10 +52,8 @@ export default async function IndicatorsPage({
           successiva.
         </p>
       </div>
+      <ProjectNavigation projectId={project.id} current="indicatori" />
       <div className="actions">
-        <Link href={`/projects/${project.id}/quadro-logico`}>
-          Quadro logico
-        </Link>
         {!archived && activeItems.length ? (
           <Link
             className="button-link"

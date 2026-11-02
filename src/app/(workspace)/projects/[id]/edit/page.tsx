@@ -1,3 +1,4 @@
+import { ProjectNavigation } from "@/components/project-navigation";
 import Link from "next/link";
 import { getProject } from "@/lib/project-data";
 import { ProjectForm } from "@/components/project-form";
@@ -15,6 +16,7 @@ export default async function EditProject({
         <h1>Modifica progetto</h1>
         <p>{project.title}</p>
       </div>
+      <ProjectNavigation projectId={project.id} current="edit" />
       <section>
         {project.status === "archived" ? (
           <p>

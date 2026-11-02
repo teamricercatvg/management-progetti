@@ -206,6 +206,24 @@ createServer(async (req, res) => {
     }
     return res.end(JSON.stringify(draft.id));
   }
+  if (url.pathname === '/rest/v1/rpc/change_activity_deletion') {
+    let raw='';for await(const chunk of req)raw+=chunk;
+    const {target_project:pid,target_activity:aid,expected_version,command}=JSON.parse(raw);
+    const a=activities.get(aid);
+    const fail=code=>{res.statusCode=409;res.end(JSON.stringify({code}));};
+    if(!a||a.project_id!==pid||!(role==='admin'||role==='manager'&&pid===seedId)||command==='purge'&&role!=='admin')return fail('42501');
+    if(a.row_version!==expected_version)return fail('40001');
+    if(command==='purge') {
+      if([...activities.values()].some(x=>x.parent_activity_id===aid)||[...revisions.values()].some(r=>r.status==='approved'&&r.activity_snapshot?.some(x=>x.id===aid)))return fail('23503');
+      for(const [id,p] of periods)if(p.activity_id===aid)periods.delete(id);
+      activities.delete(aid);
+    } else {
+      a.deleted_at=command==='trash'?new Date().toISOString():null;
+      a.deleted_by=command==='trash'?'fixture-user':null;a.row_version++;
+      if(command==='trash')for(const p of periods.values())if(p.activity_id===aid&&revisions.get(p.revision_id)?.status==='draft')p.status='cancelled';
+    }
+    return res.end('null');
+  }
   if (url.pathname === '/rest/v1/activities') {
     const visible=a=>role==='admin'||(role==='manager'&&a.project_id===seedId);
     let rows=[...activities.values()].filter(visible);

@@ -1,3 +1,4 @@
+import { ActivityDeletion } from "@/components/activity-deletion";
 import { UiIcon } from "@/components/ui-icon";
 import { CompactText } from "@/components/compact-text";
 import Link from "next/link";
@@ -92,6 +93,7 @@ export function ActivityList({
                     <UiIcon name="edit" />
                   </Link>
                 ) : null}
+                <ActivityDeletion projectId={projectId} activity={activity} command="trash" />
                 <ActivityArchive
                   projectId={projectId}
                   activity={{

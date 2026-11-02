@@ -1,3 +1,5 @@
+import { ActivityTrash } from "@/components/activity-trash";
+import { ProjectNavigation } from "@/components/project-navigation";
 import { UiIcon } from "@/components/ui-icon";
 import { CompactText } from "@/components/compact-text";
 import { FrameworkBranch, FrameworkTreeControls } from "@/components/framework-tree-controls";
@@ -18,12 +20,13 @@ export default async function FrameworkPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const { project, client } = await getProject((await params).id);
-  const [items, activities, search] = await Promise.all([
+  const { project, client, profile } = await getProject((await params).id);
+  const [items, allActivities, search] = await Promise.all([
     getFramework(client, project.id),
-    getActivities(client, project.id),
+    getActivities(client, project.id, true),
     searchParams,
   ]);
+  const activities = allActivities.filter((a) => !a.deleted_at);
   const base = `/projects/${project.id}/quadro-logico`;
   const readOnly = project.status === "archived";
   const editing =
@@ -158,7 +161,7 @@ export default async function FrameworkPage({
           ← {project.code} · Dettaglio progetto
         </Link>
         <h1>Quadro logico</h1>
-        <Link href={`/projects/${project.id}/indicatori`}>Indicatori del progetto</Link>
+        <ProjectNavigation projectId={project.id} current="quadro-logico" />
         <p>{project.title}</p>
         <p>
           Obiettivi generali → obiettivi specifici → risultati attesi →
@@ -236,6 +239,7 @@ export default async function FrameworkPage({
           </p>
         </section>
       )}
+      <ActivityTrash projectId={project.id} activities={allActivities.filter((a) => a.deleted_at)} isAdmin={profile.is_admin} readOnly={project.status === "archived"} />
     </div>
   );
 }

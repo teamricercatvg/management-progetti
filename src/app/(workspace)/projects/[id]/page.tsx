@@ -1,3 +1,4 @@
+import { ProjectNavigation } from "@/components/project-navigation";
 import Link from "next/link";
 import { getProject } from "@/lib/project-data";
 import { statuses, organizationRoles } from "@/lib/projects.mjs";
@@ -51,16 +52,7 @@ export default async function ProjectDetail({
           </div>
         ) : null}
       </div>
-      <div className="actions">
-        <Link
-          className="button-link"
-          href={`/projects/${project.id}/quadro-logico`}
-        >
-          Quadro logico
-        </Link>
-        <Link className="button-link" href={`/projects/${project.id}/indicatori`}>Indicatori</Link>
-      </div>
-      <Link className="button-link" href={`/projects/${project.id}/cronoprogramma`}>Cronoprogramma</Link>
+      <ProjectNavigation projectId={project.id} current="" />
       {search.saved === "1" ? (
         <p className="notice" role="status">
           Progetto salvato.

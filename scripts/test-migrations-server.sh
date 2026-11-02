@@ -91,6 +91,10 @@ for db in foundation_test foundation_replay; do
 done
 run_sql foundation_test < "$work/supabase/tests/schedule.sql"
 bash "$work/supabase/tests/schedule-concurrency.sh" "$container"
+for db in foundation_test foundation_replay; do
+  run_sql "$db" < "$work/supabase/migrations/20261030110000_activity_deletion.sql"
+done
+run_sql foundation_test < "$work/supabase/tests/activity-deletion.sql"
 # Test transaction rollback of the entire migration chain, omitting their wrappers.
 docker exec "$container" createdb -h /tmp -U postgres foundation_rollback
 sed '/^create role /d' "$work/supabase/tests/bootstrap.sql" | run_sql foundation_rollback

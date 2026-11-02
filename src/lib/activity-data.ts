@@ -2,6 +2,8 @@ import "server-only";
 import { getSchedule } from "./schedule-data";
 import type { SupabaseClient } from "@supabase/supabase-js";
 export type Activity = {
+  deleted_at: string | null;
+  deleted_by: string | null;
   id: string;
   result_id: string | null;
   parent_activity_id: string | null;
@@ -27,13 +29,14 @@ export type Activity = {
 export async function getActivities(
   client: SupabaseClient,
   projectId: string,
+  includeDeleted = false,
 ): Promise<Activity[]> {
   const items: Activity[] = [];
   for (let offset = 0; ; offset += 500) {
     const { data, error } = await client
       .from("activities")
       .select(
-        "id,result_id,parent_activity_id,category,stakeholders,cancellation_reason,code,title,description,notes,output,status,priority,sort_order,planned_start_date,planned_end_date,actual_start_date,actual_end_date,row_version",
+        "deleted_at,deleted_by,id,result_id,parent_activity_id,category,stakeholders,cancellation_reason,code,title,description,notes,output,status,priority,sort_order,planned_start_date,planned_end_date,actual_start_date,actual_end_date,row_version",
       )
       .eq("project_id", projectId)
       .order("sort_order")
@@ -50,7 +53,7 @@ export async function getActivities(
   const periods = schedule.periods.filter(
     (p) => p.revision_id === source && p.status === "planned",
   );
-  return items.map((a) => {
+  return items.filter((a) => includeDeleted || !a.deleted_at).map((a) => {
     const own = periods.filter((p) => p.activity_id === a.id);
     return {
       ...a,
