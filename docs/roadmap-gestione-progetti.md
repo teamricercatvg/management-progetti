@@ -851,6 +851,40 @@ Checklist obbligatoria per implementazione e rilascio:
   attività fra risultati, conflitti e dati già inseriti; coordinare migration
   e frontend nel rilascio e documentare il collaudo.
 
+### Milestone 11A - Gestione utenti e accessi
+
+**Stato:** pianificata il 2 novembre 2026; interfaccia da realizzare.
+Da eseguire dopo le milestone 10–11 e prima del budget, mantenendo la numerazione
+esistente. Rende autonoma l’amministrazione degli accessi prima di introdurre
+i dati economici e riutilizza autenticazione, profili, membership e RPC delle
+milestone 4–5. L’area Amministrazione della milestone 6 è attualmente un segnaposto.
+
+| Aspetto | Dettaglio |
+| --- | --- |
+| Obiettivo | Consentire agli Admin di gestire utenti e accessi ai progetti dal sito |
+| Output atteso | Area Amministrazione con elenco e ricerca utenti, dettaglio profilo, inviti email, gestione ruolo Admin, attivazione/disattivazione e assegnazione/revoca dei Manager ai progetti |
+| Attivita' principali | Collegare l’interfaccia ai profili e alle RPC esistenti; implementare invito e reinvio controllato tramite Auth; mostrare stato degli accessi e membership; gestire errori, duplicati e inviti scaduti |
+| File o aree coinvolte | Route `/admin`, azioni server, integrazione Supabase Auth, `profiles`, `global_user_roles`, `project_memberships`, RPC `set_profile_active` e `set_admin_role`, test e documentazione |
+| Decisioni da prendere | Campi modificabili del profilo, ricerca/paginazione, visualizzazione stato invito, regole di reinvio e assegnazione prima dell’accettazione |
+| Verifiche | Accesso consentito solo agli Admin anche nelle azioni server; invito e accettazione; disattivazione/riattivazione; promozione/revoca Admin; assegnazione/revoca Manager; protezione dell’ultimo Admin, audit, concorrenza e RLS con ruoli diversi |
+| Rischi o attenzioni | Escalation di privilegi, esposizione di email o credenziali, perdita dell’ultimo Admin attivo, inviti duplicati o stato Auth/profilo incoerente |
+| Criteri di completamento | Admin gestisce il ciclo invito/accesso e le assegnazioni dal sito; Manager e utenti disabilitati non accedono alle funzioni amministrative; collaudo documentato e stato locale/pubblicato verificato separatamente |
+
+Vincoli del perimetro:
+
+- MVP con Admin e Manager: il Manager deriva dalle membership dei progetti,
+  non da un nuovo ruolo globale. Operator/Viewer e assegnazioni alle attività
+  restano fuori ambito.
+- Disabilitare gli utenti conservando dati e audit; nessuna cancellazione
+  definitiva degli account. Riutilizzare la protezione dell’ultimo Admin attivo.
+- Rispettare i vincoli esistenti sui progetti archiviati e verificare che la
+  revoca impedisca le successive operazioni anche con una sessione già aperta.
+- Operazioni Auth privilegiate solo sul server, previa autorizzazione Admin;
+  service role mai nel client. Eventuali modifiche al modello richiedono
+  approvazione e migration versionate.
+- La dashboard di monitoraggio resta nella milestone 15; questa milestone
+  riguarda esclusivamente utenti e accessi.
+
 ### Milestone 12 - Budget
 
 | Aspetto | Dettaglio |
@@ -1074,10 +1108,11 @@ Ordine consigliato:
 11. implementare indicatori;
 12. implementare attivita' e assegnazioni;
 13. implementare cronogramma e revisioni;
-14. implementare budget, impegni e spese;
-15. implementare rapporti operativi;
-16. implementare dashboard;
-17. eseguire hardening, audit, test finali e deploy controllato.
+14. implementare gestione utenti e accessi nell’area Amministrazione (Milestone 11A);
+15. implementare budget, impegni e spese;
+16. implementare rapporti operativi;
+17. implementare dashboard di monitoraggio;
+18. eseguire hardening, audit, test finali e deploy controllato.
 
 Motivazione dell'ordine:
 
@@ -1085,6 +1120,8 @@ Motivazione dell'ordine:
 - prima dell'autenticazione si predispone la casella Google Workspace e si verifica il canale email;
 - poi si mette in sicurezza il sistema con autenticazione, ruoli e RLS;
 - solo dopo si costruiscono le funzionalita' applicative;
+- la gestione utenti e accessi completa l’area Amministrazione prima del budget,
+  rendendo gestibili dal sito gli accessi ai progetti e ai successivi dati economici;
 - budget, report e dashboard arrivano dopo le strutture fondative da cui dipendono;
 - test, audit e deploy chiudono il ciclo quando i flussi principali sono verificabili.
 
