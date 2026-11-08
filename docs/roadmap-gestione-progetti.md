@@ -853,11 +853,12 @@ Checklist obbligatoria per implementazione e rilascio:
 
 ### Milestone 11A - Gestione utenti e accessi
 
-**Stato:** pianificata il 2 novembre 2026; interfaccia da realizzare.
+**Stato:** implementata localmente l’8 novembre 2026; rilascio e collaudo umano
+pendenti. Vedere la [consegna 11A](milestone-11a.md).
 Da eseguire dopo le milestone 10–11 e prima del budget, mantenendo la numerazione
 esistente. Rende autonoma l’amministrazione degli accessi prima di introdurre
 i dati economici e riutilizza autenticazione, profili, membership e RPC delle
-milestone 4–5. L’area Amministrazione della milestone 6 è attualmente un segnaposto.
+milestone 4–5. L’area Amministrazione della milestone 6 è sostituita localmente dalla gestione utenti.
 
 | Aspetto | Dettaglio |
 | --- | --- |

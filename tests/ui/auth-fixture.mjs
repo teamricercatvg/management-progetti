@@ -31,6 +31,10 @@ function session(role) {
     user,
   };
 }
+const adminProfiles = new Map();
+const adminRoles = new Set();
+const adminMemberships = new Map();
+const targetId = "00000000-0000-4000-8000-000000000099";
 const projects = new Map();
 const associations = [];
 const framework = new Map();
@@ -38,6 +42,7 @@ const activities = new Map();
 const indicators = new Map();
 const revisions = new Map(), periods = new Map(), scheduleStates = new Map();
 let failProjectReads = false;
+let failAdminChange = false;
 const entity = {
   id: "00000000-0000-4000-8000-000000000010",
   code: "ORG",
@@ -46,6 +51,11 @@ const entity = {
 const seedId = "00000000-0000-4000-8000-000000000007";
 const otherId = "00000000-0000-4000-8000-000000000008";
 function resetProjects() {
+  failAdminChange = false;
+  adminProfiles.clear(); adminRoles.clear(); adminMemberships.clear();
+  adminProfiles.set(targetId, { id: targetId, display_name: "Utente invitato", is_active: true, row_version: 1 });
+  adminProfiles.set(id, { id, display_name: "Admin collaudo", is_active: true, row_version: 1 });
+  adminRoles.add(id);
   failProjectReads = false;
   framework.clear();
   activities.clear();
@@ -112,8 +122,53 @@ createServer(async (req, res) => {
       ),
     );
   const url = new URL(req.url, "http://localhost");
+  if (url.pathname === "/auth/v1/admin/users") {
+    if (req.headers.authorization !== "Bearer local-ui-service") { res.statusCode = 403; return res.end("{}"); }
+    return res.end(JSON.stringify({ users: [{ id: targetId, email: "duplicate@example.test" }, { id, email: "admin@example.test" }], aud: "authenticated" }));
+  }
+  if (url.pathname.startsWith("/auth/v1/admin/users/")) {
+    if (req.headers.authorization !== "Bearer local-ui-service") { res.statusCode = 403; return res.end("{}"); }
+    return res.end(JSON.stringify({ id: targetId, email: "invited@example.test", invited_at: "2026-01-01T00:00:00Z", confirmation_sent_at: "2026-01-01T00:00:00Z" }));
+  }
+  if (url.pathname === "/auth/v1/invite") {
+    if (req.headers.authorization !== "Bearer local-ui-service") { res.statusCode = 403; return res.end("{}"); }
+    let raw = ""; for await (const chunk of req) raw += chunk;
+    const args = JSON.parse(raw);
+    if (args.email === "duplicate@example.test") { res.statusCode = 422; return res.end(JSON.stringify({ msg: "already registered" })); }
+    return res.end(JSON.stringify({ id: targetId, email: args.email }));
+  }
+  if (["/rest/v1/profiles", "/rest/v1/global_user_roles", "/rest/v1/project_memberships", "/rest/v1/rpc/set_profile_active", "/rest/v1/rpc/set_admin_role"].includes(url.pathname)) {
+    if (role !== "admin") { res.statusCode = 403; return res.end(JSON.stringify({ code: "42501" })); }
+    let raw = ""; for await (const chunk of req) raw += chunk;
+    const args = raw ? JSON.parse(raw) : {};
+    const single = req.headers.accept?.includes("vnd.pgrst.object");
+    if (url.pathname.includes("/rpc/")) {
+      if (failAdminChange) { res.statusCode = 403; return res.end(JSON.stringify({ code: "42501" })); }
+      if (args.target_user === id && (args.active === false || args.enabled === false)) { res.statusCode = 400; return res.end(JSON.stringify({ code: "23514" })); }
+      if ("active" in args) adminProfiles.get(args.target_user).is_active = args.active;
+      else if (args.enabled) adminRoles.add(args.target_user); else adminRoles.delete(args.target_user);
+      return res.end("null");
+    }
+    let rows;
+    if (url.pathname.endsWith("profiles")) {
+      rows = [...adminProfiles.values()];
+      if (url.searchParams.has("id")) rows = rows.filter(p => "eq." + p.id === url.searchParams.get("id"));
+      if (url.searchParams.has("display_name")) rows = rows.filter(p => p.display_name.includes(url.searchParams.get("display_name").slice(7, -1)));
+      if (req.method === "PATCH") { rows = rows.filter(p => "eq." + p.row_version === url.searchParams.get("row_version")); rows.forEach(p => { p.display_name = args.display_name; p.row_version++; }); }
+    } else if (url.pathname.endsWith("global_user_roles")) rows = [...adminRoles].filter(user_id => !url.searchParams.get("user_id")?.startsWith("eq.") || "eq." + user_id === url.searchParams.get("user_id")).map(user_id => ({ user_id }));
+    else {
+      if (req.method === "POST") for (const item of Array.isArray(args) ? args : [args]) adminMemberships.set(item.project_id, { ...item, id: "00000000-0000-4000-8000-000000000088", row_version: 1 });
+      rows = [...adminMemberships.values()];
+      if (url.searchParams.get("status") === "eq.active") rows = rows.filter(m => m.status === "active");
+      if (url.searchParams.has("project_id") && url.searchParams.get("project_id").startsWith("eq.")) rows = rows.filter(m => "eq." + m.project_id === url.searchParams.get("project_id"));
+      if (req.method === "PATCH") rows.forEach(m => { m.status = args.status; m.row_version++; });
+    }
+    res.setHeader("Content-Range", `0-${Math.max(0, rows.length-1)}/${rows.length}`);
+    return res.end(JSON.stringify(single ? rows[0] || null : rows));
+  }
   if (url.pathname === "/fixture/reset") {
     resetProjects();
+    failAdminChange = url.searchParams.get("scenario") === "role_failure";
     if (url.searchParams.get("scenario") === "pagination") {
       const template = projects.get(seedId);
       projects.clear();
@@ -288,6 +343,8 @@ createServer(async (req, res) => {
     const visible = (p) =>
       role === "admin" || (role === "manager" && p.id === seedId);
     let rows = [...projects.values()].filter(visible);
+    const idsFilter = url.searchParams.get("id");
+    if (idsFilter?.startsWith("in.(")) rows = rows.filter(project => idsFilter.slice(4, -1).split(",").includes(project.id));
     for (const key of ["id", "status", "row_version"]) {
       const filter = url.searchParams.get(key);
       if (filter?.startsWith("eq."))

@@ -538,3 +538,36 @@ textarea:focus-visible {
 .schedule-history li { margin:.5rem 0; }
 
 .project-navigation { margin:1rem 0; }
+
+.admin-users { list-style: none; padding: 0; }
+.admin-users > li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--border, #ddd); }
+.admin-access fieldset { border: 0; padding: 0; margin: 0; }
+
+.admin-users > li > div { min-width: 0; overflow-wrap: anywhere; }
+
+.admin-toolbar { display: flex; justify-content: flex-end; margin: 0 0 24px; }
+.admin-search { grid-template-columns: minmax(0, 1fr) auto; align-items: end; }
+.admin-table-scroll { overflow-x: auto; }
+.admin-table { width: 100%; border-collapse: collapse; text-align: left; }
+.admin-table th, .admin-table td { padding: 16px 12px; border-bottom: 1px solid #dce5df; vertical-align: top; }
+.admin-table thead { background: #f3f6f3; }
+.admin-table th[scope="row"] { font-weight: 500; min-width: 150px; }
+.admin-table td:last-child { min-width: 220px; }
+.admin-table ul { padding-left: 18px; margin: 0; }
+.admin-table p { margin: 0 0 8px; }
+.invite-dialog { width: min(640px, calc(100vw - 32px)); max-height: calc(100dvh - 48px); overflow-y: auto; margin: auto; padding: 28px; border: 1px solid #dce5df; border-radius: 20px; color: #173d36; background: white; box-shadow: 0 24px 80px #173d3633; }
+.invite-dialog::backdrop { background: #102c2370; }
+.invite-dialog-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.invite-dialog-heading h2 { margin: 0; }
+.invite-dialog-heading button { background: #eef4ed; color: #205b4c; }
+.invite-projects { min-width: 0; border: 1px solid #dce5df; border-radius: 8px; padding: 12px; max-height: 240px; overflow-y: auto; }
+.invite-projects label { display: flex; align-items: start; gap: 10px; margin: 12px 0; overflow-wrap: anywhere; }
+.invite-projects input { width: 18px; height: 18px; flex: 0 0 auto; margin: 0; }
+@media (max-width: 500px) { .admin-search { grid-template-columns: 1fr; } .invite-dialog { padding: 20px; } }
+
+.admin-search { grid-template-columns: minmax(0, 1fr) auto auto; }
+.admin-sort { background: transparent; color: #173d36; padding: 0; text-align: left; white-space: nowrap; }
+.admin-table thead input { min-width: 110px; padding: 8px; font-size: 14px; }
+.admin-table .admin-email { overflow-wrap: anywhere; min-width: 180px; }
+.admin-pagination { display: flex; align-items: center; gap: 16px; margin-top: 24px; }
+@media (max-width: 600px) { .admin-search { grid-template-columns: 1fr; } .admin-pagination { flex-wrap: wrap; } }

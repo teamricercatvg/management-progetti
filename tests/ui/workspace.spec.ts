@@ -58,7 +58,7 @@ test("Admin navigation, mobile layout, account and logout", async ({
     .getByRole("link", { name: "Amministrazione" })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Amministrazione", exact: true }),
+    page.getByRole("heading", { name: "Utenti e accessi", exact: true }),
   ).toBeVisible();
   await page
     .getByRole("navigation")
