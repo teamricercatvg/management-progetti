@@ -56,8 +56,9 @@ collaudo nella [consegna Milestone 9](docs/milestone-9.md).
 
 Le **Milestone 10 e 11 sono pubblicate in produzione**: annullamento/ripresa, attività autonome e sotto-attività collegate, cronoprogramma mensile con periodi e revisioni. Stato e collaudo nella [consegna 10–11](docs/milestone-10-11.md).
 
-La **Milestone 11A è implementata localmente**: utenti, inviti, ruoli e accessi
-ai progetti nell’area Amministrazione. Rilascio e collaudo umano pendenti;
+La **Milestone 11A è pubblicata in produzione**: utenti, inviti, ruoli e accessi
+ai progetti nell’area Amministrazione. Deploy READY l’8 novembre 2026;
+collaudo email operativo e verifica autenticata in produzione da completare;
 vedere la [consegna 11A](docs/milestone-11a.md).
 
 ## Documentazione

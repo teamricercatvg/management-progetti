@@ -1,7 +1,8 @@
 # Milestone 11A — Gestione utenti e accessi
 
-8 novembre 2026. Implementazione locale; non pubblicata. Nessuna nuova migration
-né modifica al modello dati. Commit, push e deploy non eseguiti.
+8 novembre 2026. Implementazione pubblicata in produzione dopo richiesta
+esplicita dell’utente. Nessuna nuova migration né modifica al modello dati.
+Deployment READY; collaudo email e verifica autenticata in produzione pendenti.
 
 ## Funzioni e decisioni
 
@@ -129,3 +130,29 @@ Verifiche: 22 test unitari e 13 test browser passati; lint e build con TypeScrip
 superati. Inclusi ricerca email/progetto, filtri combinati, ordinamento email,
 tutte le colonne e ricerca oltre i primi 25 record su un insieme sintetico di
 60 utenti. Nessuna modifica al database operativo o invio email di collaudo.
+
+
+## Rilascio produzione — 8 novembre 2026
+
+- Commit applicativo `6f2c38d` pubblicato su `origin/main` con il profilo
+  GitHub dedicato `teamricercatvg`.
+- Account Vercel `teamricercatvg-8749`, scope `tor-vergata-igiene`, progetto
+  `management-progetti` verificati. Variabili production previste presenti;
+  nessuna modifica ai valori o alle impostazioni dell’infrastruttura.
+- Pacchetto estratto dal commit con `git archive`, senza modifiche locali
+  estranee alla milestone. `.vercelignore` esclude i file `.env`.
+- Controllo backend in sola lettura: migration `20261030110000` registrata,
+  colonne `deleted_at`/`deleted_by` e RPC `change_activity_deletion` presenti.
+  Superato quindi il precedente blocco documentato al rilascio completo dei
+  sorgenti. Nessuna migration eseguita in questa sessione.
+- Deployment `dpl_7TFJu6rYknGKqXkUhyj1WKgntvCg`, target production, **READY**;
+  alias `https://www.ariadne-hub.it` assegnato. Build remota Next.js 16.4.2
+  e TypeScript superati. URL immutabile:
+  https://management-progetti-79in8zvel-tor-vergata-igiene.vercel.app
+- Verifica del rilascio tramite stato/alias Vercel. I 22 test unitari e 13 test
+  browser dell’implementazione sono locali/isolati; non attestano invio SMTP,
+  ricezione o una sessione autenticata sul nuovo deployment.
+- Aggiornamento successivo di README, roadmap e presente consegna con un commit
+  solo documentale: i sorgenti applicativi distribuiti restano quelli di `6f2c38d`.
+- Modifiche locali a env, infrastruttura, accessi e file generati preservate.
+  Deploy Git automatico resta disabilitato come nella configurazione esistente.
