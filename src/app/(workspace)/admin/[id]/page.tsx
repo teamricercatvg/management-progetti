@@ -12,7 +12,11 @@ export default async function AdminUser({ params, searchParams }: { params: Prom
   const q = (search.q || "").trim().slice(0, 120);
   const page = Math.min(100000, Math.max(1, Math.floor(Number(search.page) || 1)));
   let projectQuery = client.from("projects").select("id,code,title,status", { count: "exact" }).order("code").order("id").range((page - 1) * 25, page * 25 - 1);
-  if (q) projectQuery = projectQuery.ilike("title", `%${q.replace(/[\\%_]/g, "\\$&")}%`);
+  if (q) {
+    // Quote PostgREST operands and treat wildcard characters as literal text.
+    const pattern = JSON.stringify(`%${q.replace(/[\\%_]/g, "\\$&")}%`);
+    projectQuery = projectQuery.or(`code.ilike.${pattern},title.ilike.${pattern}`);
+  }
   const [profileResult, roles, projects, authResult] = await Promise.all([
     client.from("profiles").select("id,display_name,is_active,row_version").eq("id", id).maybeSingle(),
     client.from("global_user_roles").select("user_id").eq("user_id", id),
@@ -42,7 +46,7 @@ export default async function AdminUser({ params, searchParams }: { params: Prom
       <AccessForm id={id} command="admin" enabled={!isAdmin} label={isAdmin ? "Revoca ruolo Admin" : "Assegna ruolo Admin"} disabled={!profile.is_active && !isAdmin} />
     </section>
     <section className="panel"><h2>Assegnazioni Manager</h2><p>Un Admin accede a tutti i progetti anche senza assegnazioni. I progetti archiviati richiedono la riapertura prima di modificare gli accessi.</p>
-      <form><label>Cerca progetto per titolo <input name="q" defaultValue={q} maxLength={120} /></label><button type="submit">Cerca</button></form>
+      <form><label>Cerca progetto per codice o titolo <input name="q" defaultValue={q} maxLength={120} /></label><button type="submit">Cerca</button></form>
       <ul className="admin-users">{(projects.data || []).map(project => {
         const active = statuses.get(project.id) === "active";
         return <li key={project.id}><div><Link href={`/projects/${project.id}`}>{project.code} — {project.title}</Link><p>{active ? "Manager assegnato" : "Non assegnato"}{project.status === "archived" ? " · Progetto archiviato" : ""}</p></div><AccessForm id={id} projectId={project.id} command="membership" enabled={!active} label={`${active ? "Revoca" : "Assegna"} Manager — ${project.code}`} disabled={project.status === "archived" || (!active && !profile.is_active)} /></li>;

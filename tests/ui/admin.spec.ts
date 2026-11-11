@@ -140,3 +140,22 @@ test("directory searches email and project, combines column filters and sorts", 
   await page.getByLabel("Filtra Stato", { exact: true }).fill("disabilitato");
   await expect(page.getByRole("status")).toHaveText("0 utenti trovati");
 });
+
+
+test("assignment search matches a code or any title fragment regardless of case", async ({ page }) => {
+  await login(page);
+  await page.goto(`/admin/${target}`);
+  const search = page.getByLabel("Cerca progetto per codice o titolo");
+  for (const term of ["demo", "DIMOSTRATIVO", "mostra"]) {
+    await search.fill(term);
+    await page.getByRole("button", { name: "Cerca", exact: true }).click();
+    await expect(page).toHaveURL(new RegExp(`q=${term}`));
+    await expect(page.getByRole("link", { name: "DEMO — Progetto dimostrativo", exact: true })).toBeVisible();
+  }
+  await search.fill("inesistente");
+  await page.getByRole("button", { name: "Cerca", exact: true }).click();
+  await expect(page.getByText("Nessun progetto trovato.")).toBeVisible();
+  await search.fill("");
+  await page.getByRole("button", { name: "Cerca", exact: true }).click();
+  await expect(page.getByRole("link", { name: "DEMO — Progetto dimostrativo", exact: true })).toBeVisible();
+});

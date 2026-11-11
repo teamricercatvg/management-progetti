@@ -156,3 +156,19 @@ tutte le colonne e ricerca oltre i primi 25 record su un insieme sintetico di
   solo documentale: i sorgenti applicativi distribuiti restano quelli di `6f2c38d`.
 - Modifiche locali a env, infrastruttura, accessi e file generati preservate.
   Deploy Git automatico resta disabilitato come nella configurazione esistente.
+
+
+## Correzione ricerca assegnazioni — 11 novembre 2026 (locale)
+
+La ricerca nel dettaglio utente ora confronta codice e titolo, senza distinguere
+maiuscole e minuscole e accettando una parola o una parte del testo. Il codice
+visualizzato prima del titolo (come ALBANIA) era escluso dal filtro precedente.
+Etichetta aggiornata a «Cerca progetto per codice o titolo». Operandi PostgREST
+quotati e caratteri wildcard trattati come testo letterale.
+
+Verifiche locali: typecheck, lint, 22 test unitari e 8 test browser Admin
+superati su servizio sintetico, inclusa ricerca per codice, parola nel titolo,
+frammento, nessun risultato e ripristino con campo vuoto. Il primo avvio browser
+si è interrotto; ripetizione superata. Build non completata: Turbopack non riesce
+ad aprire una porta interna (EPERM), anche nel tentativo con escalation.
+Nessun commit, push o deploy della correzione; verifica in produzione pendente.
