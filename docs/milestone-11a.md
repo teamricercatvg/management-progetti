@@ -219,3 +219,19 @@ Verifica congiunta: typecheck, lint, 23 test unitari e 14 test browser
 Admin/workspace superati; inclusi assenza del campo generale, filtro progetti
 con Admin, combinazione dei filtri e azzeramento. Build di produzione demandata
 al rilascio Vercel a causa del blocco locale Turbopack già documentato.
+
+
+### Rilascio congiunto e verifica in produzione
+
+- Commit applicativo `b370b92` pubblicato su `origin/main`.
+- Deployment `dpl_6uHmZTmPt3RicLBkmVnT9PUSbsYJ`, production, READY;
+  alias `https://www.ariadne-hub.it`. Sorgenti estratti dal commit e SHA
+  registrato nei metadati Vercel. Build remota Next.js 16.4.2 e TypeScript
+  superati. URL immutabile:
+  https://management-progetti-m810r2z1e-tor-vergata-igiene.vercel.app.
+- Verifica autenticata su `/admin`: campo generale e pulsante Cerca assenti,
+  presenti i cinque filtri e Azzera filtri. Digitando «Albania» nella colonna
+  Progetti associati compaiono 3 utenti: un Manager associato e due Admin con
+  «Accesso a tutti i progetti». Nessuna modifica operativa ad accessi o dati.
+- Il commit successivo aggiorna solo questa consegna; i sorgenti distribuiti
+  restano quelli di `b370b92`. Deploy Git automatico invariato.
