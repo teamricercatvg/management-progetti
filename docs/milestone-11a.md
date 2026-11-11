@@ -158,7 +158,7 @@ tutte le colonne e ricerca oltre i primi 25 record su un insieme sintetico di
   Deploy Git automatico resta disabilitato come nella configurazione esistente.
 
 
-## Correzione ricerca assegnazioni — 11 novembre 2026 (locale)
+## Correzione ricerca assegnazioni — 11 novembre 2026 (pubblicata)
 
 La ricerca nel dettaglio utente ora confronta codice e titolo, senza distinguere
 maiuscole e minuscole e accettando una parola o una parte del testo. Il codice
@@ -171,4 +171,15 @@ superati su servizio sintetico, inclusa ricerca per codice, parola nel titolo,
 frammento, nessun risultato e ripristino con campo vuoto. Il primo avvio browser
 si è interrotto; ripetizione superata. Build non completata: Turbopack non riesce
 ad aprire una porta interna (EPERM), anche nel tentativo con escalation.
-Nessun commit, push o deploy della correzione; verifica in produzione pendente.
+Rilascio autorizzato e completato: commit `7adff2a` pubblicato su `origin/main`.
+Deployment production `dpl_9ckfqBmLo4eYfh5USg8N85Gko5VT`, READY, con alias
+`https://www.ariadne-hub.it`. Sorgenti estratti dal commit Git e SHA registrato
+nei metadati Vercel; build remota Next.js 16.4.2 e TypeScript superati.
+URL immutabile: https://management-progetti-5ez57rupa-tor-vergata-igiene.vercel.app.
+
+Verifica autenticata sul dominio pubblico: inserito «Albania» nella ricerca
+assegnazioni e inviato il modulo; URL con `?q=Albania`, unico risultato
+«ALBANIA — Hub pediatrico e Centro per lo Sviluppo del Bambino a Tirana».
+Nessuna assegnazione o dato operativo modificato. Il successivo commit di
+consegna aggiorna soltanto la documentazione; i sorgenti distribuiti restano
+quelli di `7adff2a`. Deploy Git automatico invariato (disabilitato).
