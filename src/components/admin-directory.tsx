@@ -4,25 +4,20 @@ import { useMemo, useState } from "react";
 import { directoryColumns, selectDirectoryRows } from "@/lib/admin-directory.mjs";
 export type DirectoryRow = {
   id: string; name: string; email: string; status: string; role: string;
-  projectsText: string; isAdmin: boolean;
+  projectsText: string; projectsSearchText?: string; isAdmin: boolean;
   projects: { id: string; label: string }[];
 };
 export function AdminDirectory({ rows }: { rows: DirectoryRow[] }) {
-  const [query, setQuery] = useState("");
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [sort, setSort] = useState("name");
   const [direction, setDirection] = useState("asc");
   const [page, setPage] = useState(1);
-  const filtered: DirectoryRow[] = useMemo(() => selectDirectoryRows(rows, query, filters, sort, direction), [rows, query, filters, sort, direction]);
+  const filtered: DirectoryRow[] = useMemo(() => selectDirectoryRows(rows, "", filters, sort, direction), [rows, filters, sort, direction]);
   const pages = Math.max(1, Math.ceil(filtered.length / 25));
   const currentPage = Math.min(page, pages);
   const visible = filtered.slice((currentPage - 1) * 25, currentPage * 25);
   return <>
-    <form className="admin-search" onSubmit={event => { event.preventDefault(); setPage(1); }}>
-      <label>Cerca per nome, email o progetto<input value={query} onChange={event => { setQuery(event.target.value); setPage(1); }} maxLength={254} type="search" /></label>
-      <button type="submit">Cerca</button>
-      <button type="button" onClick={() => { setQuery(""); setFilters({}); setPage(1); }}>Azzera filtri</button>
-    </form>
+    <button type="button" onClick={() => { setFilters({}); setPage(1); }}>Azzera filtri</button>
     <p role="status">{filtered.length} utenti trovati</p>
     <div className="admin-table-scroll"><table className="admin-table">
       <thead><tr>{directoryColumns.map(([key, label]) => <th key={key} scope="col" aria-sort={sort === key ? direction === "asc" ? "ascending" : "descending" : "none"}>

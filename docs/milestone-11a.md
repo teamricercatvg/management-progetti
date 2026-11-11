@@ -123,8 +123,9 @@ fonte fallisce o è incompleta viene mostrato un errore, senza risultati parzial
 che potrebbero essere scambiati per assenza di utenti o assegnazioni. Limite
 operativo di 100.000 record per fonte; una scala superiore richiederebbe una
 ricerca backend dedicata. I filtri sono locali alla pagina e si azzerano
-ricaricandola. La ricerca progetti considera le assegnazioni esplicite; per gli
-Admin l’accesso globale è indicato separatamente.
+ricaricandola. La versione pubblicata inizialmente considera le assegnazioni esplicite; per gli
+Admin l’accesso globale è indicato separatamente. La correzione locale descritta
+sotto estende anche la ricerca all’accesso globale.
 
 Verifiche: 22 test unitari e 13 test browser passati; lint e build con TypeScript
 superati. Inclusi ricerca email/progetto, filtri combinati, ordinamento email,
@@ -183,3 +184,38 @@ assegnazioni e inviato il modulo; URL con `?q=Albania`, unico risultato
 Nessuna assegnazione o dato operativo modificato. Il successivo commit di
 consegna aggiorna soltanto la documentazione; i sorgenti distribuiti restano
 quelli di `7adff2a`. Deploy Git automatico invariato (disabilitato).
+
+
+## Filtro progetti e accesso globale — 11 novembre 2026
+
+Nel filtro «Progetti associati», gli Admin sono ora
+ricercabili anche tramite codice o titolo di ogni progetto esistente, inclusi
+gli archiviati, senza necessità di una membership esplicita. Cercando «Albania»
+compaiono quindi sia i Manager assegnati sia gli Admin con accesso globale.
+Un progetto inesistente non aggiunge automaticamente gli Admin ai risultati.
+La tabella mantiene la dicitura «Accesso a tutti i progetti» e l’ordinamento
+sui testi visualizzati; gli altri filtri continuano a combinarsi con la ricerca.
+Si riutilizza l’elenco completo dei progetti già letto con sessione e RLS, senza
+nuove query o modifiche a ruoli, assegnazioni e database.
+
+Stato iniziale: correzione locale; rilascio con la semplificazione sotto.
+
+Verifiche: typecheck, lint, 23 test unitari e 8 test browser Admin superati
+con dati sintetici locali. Primo tentativo browser interrotto dal server di
+sviluppo; ripetizione superata. Build locale bloccata da Turbopack (apertura
+porta interna: EPERM), anche con escalation. Nessun commit, push o deploy
+di questa seconda correzione al momento della prima verifica.
+
+
+## Semplificazione filtri utenti — 11 novembre 2026
+
+Rimosso il campo generale «Cerca per nome, email o progetto» e il relativo
+pulsante «Cerca». Restano i filtri delle cinque colonne, applicati subito, e
+«Azzera filtri», che svuota i campi e torna alla prima pagina. Il filtro
+«Progetti associati» comprende anche gli Admin con accesso globale secondo
+la correzione precedente. Entrambe le modifiche autorizzate al rilascio.
+
+Verifica congiunta: typecheck, lint, 23 test unitari e 14 test browser
+Admin/workspace superati; inclusi assenza del campo generale, filtro progetti
+con Admin, combinazione dei filtri e azzeramento. Build di produzione demandata
+al rilascio Vercel a causa del blocco locale Turbopack già documentato.

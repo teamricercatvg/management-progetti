@@ -23,3 +23,22 @@ test("every column is filterable and sortable, ordering is stable and input is p
   }
   assert.equal(JSON.stringify(rows), original);
 });
+
+
+test("project filters include global Admin access only for existing projects", () => {
+  const directory = [
+    { id: "1", name: "Admin", email: "admin@example.test", status: "Attivo", role: "Admin", isAdmin: true, projectsText: "Accesso a tutti i progetti", projectsSearchText: "ALBANIA — Hub pediatrico a Tirana ARCH — Progetto archiviato" },
+    { id: "2", name: "Manager Albania", email: "manager@example.test", status: "Attivo", role: "Manager", isAdmin: false, projectsText: "ALBANIA — Hub pediatrico a Tirana" },
+    { id: "3", name: "Altro utente", email: "other@example.test", status: "Attivo", role: "Manager", isAdmin: false, projectsText: "ALTRO — Progetto diverso" },
+  ];
+  const ids = (query = "", filters = {}) => selectDirectoryRows(directory, query, filters).map(row => row.id);
+  assert.deepEqual(ids("", { projectsText: "albania" }), ["1", "2"]);
+  assert.deepEqual(ids("", { projectsText: "PEDIATRICO" }), ["1", "2"]);
+  assert.deepEqual(ids("Albania"), ["1", "2"]);
+  assert.deepEqual(ids("", { projectsText: "archiviato" }), ["1"]);
+  assert.deepEqual(ids("", { projectsText: "inesistente" }), []);
+  assert.deepEqual(ids("", { projectsText: "Albania", role: "manager" }), ["2"]);
+  assert.deepEqual(ids("", { projectsText: "Albania", status: "disabilitato" }), []);
+  assert.deepEqual(ids("other@example.test", { projectsText: "Albania" }), []);
+  assert.deepEqual(ids("", { projectsText: "Accesso a tutti" }), ["1"]);
+});

@@ -41,6 +41,7 @@ export default async function Admin() {
     const admins = new Set(roles.map(role => role.user_id));
     const projectById = new Map(projects.map(project => [project.id, project]));
     inviteProjects = projects.filter(project => project.status !== "archived");
+    const allProjectsSearchText = projects.map(project => `${project.code} — ${project.title}`).join(" ");
     rows = profiles.map(profile => {
       if (!emails.has(profile.id)) throw new Error("Profilo Auth non disponibile");
       const assigned = memberships.filter(membership => membership.user_id === profile.id).map(membership => {
@@ -54,6 +55,7 @@ export default async function Admin() {
         status: profile.is_active ? "Attivo" : "Disabilitato",
         role: isAdmin ? "Admin" : assigned.length ? "Manager" : "Nessun ruolo assegnato",
         isAdmin, projects: assigned,
+        projectsSearchText: isAdmin ? allProjectsSearchText : "",
         projectsText: [isAdmin ? "Accesso a tutti i progetti" : "", ...assigned.map(project => project.label), !isAdmin && !assigned.length ? "Nessun progetto" : ""].join(" ").trim(),
       };
     });
