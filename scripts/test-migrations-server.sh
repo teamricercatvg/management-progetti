@@ -98,6 +98,9 @@ run_sql foundation_test < "$work/supabase/tests/activity-deletion.sql"
 for db in foundation_test foundation_replay; do
   run_sql "$db" < "$work/supabase/migrations/20261114120000_financial_plan.sql"
 done
+for db in foundation_test foundation_replay; do
+  run_sql "$db" < "$work/supabase/migrations/20261114173000_financial_hierarchy.sql"
+done
 run_sql foundation_test < "$work/supabase/tests/finance.sql"
 for db in foundation_test foundation_replay; do
   docker exec "$container" pg_dump -h /tmp -U postgres -d "$db" --schema-only --schema public --schema app_private | sed '/^\\restrict /d; /^\\unrestrict /d' > "$work/$db-m12.sql"

@@ -21,6 +21,8 @@ export type FinancialLine = {
   line_item_id: string;
   category_id: string;
   category_name_snapshot: string;
+  macro_code?: string | null;
+  macro_name_snapshot?: string | null;
   description: string;
   planned_amount: number;
   notes: string | null;

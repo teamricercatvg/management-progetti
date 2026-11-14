@@ -6,6 +6,7 @@ import {
   money,
   percent,
   financialSummary,
+  financeHierarchy,
   accountBalances,
   commitmentRemainders,
   planSlices,
@@ -205,4 +206,33 @@ test("Project years follow anniversaries, including leap day and outside dates",
   );
   assert.equal(elapsedPercent("2026-01-01", "2026-12-31", "2025-01-01"), 0);
   assert.equal(elapsedPercent("2026-01-01", "2026-12-31", "2027-01-01"), 100);
+});
+
+test("Hierarchy groups snapshot labels; macro filtering excludes other costs", () => {
+  const own = [
+    {
+      ...lines[0],
+      macro_code: "1",
+      macro_name_snapshot: "Staff",
+      category_name_snapshot: "1.1 · Employees",
+    },
+    {
+      ...lines[0],
+      id: "other",
+      line_item_id: "other",
+      planned_amount: 200,
+      macro_code: "2",
+      macro_name_snapshot: "Supplies",
+      category_name_snapshot: "2.1 · Equipment",
+    },
+  ];
+  const groups = financeHierarchy(own);
+  assert.equal(groups.length, 2);
+  assert.equal(groups[0].lines.length, 1);
+  assert.equal(groups[0].label, "1 · Staff");
+  const one = financialSummary(data, own, { line_item_ids: ["other"] }, dates);
+  assert.equal(one.planned, 20000n);
+  assert.equal(one.spent, 0n);
+  assert.equal(one.committed, 0n);
+  assert.equal(one.cash, null);
 });

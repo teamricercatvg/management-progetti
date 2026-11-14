@@ -218,3 +218,44 @@ test("Register linked payment without double counting; reject overpayment and re
     "300,00 EUR",
   );
 });
+
+test("Hierarchy collapses without double counting and keeps source notes compact", async ({
+  page,
+  request,
+}, testInfo) => {
+  await request.get(`${fixture}/fixture/reset?scenario=finance-hierarchy`);
+  await login(page);
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto(`${base}/piano`);
+  await expect(page.locator("[data-finance-line]")).toHaveCount(0);
+  await page
+    .getByRole("button", { name: "Espandi tutto", exact: true })
+    .click();
+  await expect(page.locator("[data-finance-line]")).toHaveCount(12);
+  await expect(page.locator(".finance-group-row.depth-0")).toHaveCount(2);
+  await expect(page.locator(".finance-plan-table tfoot")).toContainText(
+    "1.800.000,00",
+  );
+  await page
+    .getByRole("button", { name: "Solo macrovoci", exact: true })
+    .click();
+  await expect(page.locator("[data-finance-line]")).toHaveCount(0);
+  await expect(page.locator(".finance-plan-table tfoot")).toContainText(
+    "1.800.000,00",
+  );
+  await page
+    .getByRole("button", { name: "Espandi tutto", exact: true })
+    .click();
+  await expect(page.locator("[data-finance-line]")).toHaveCount(12);
+  await page.screenshot({
+    path: testInfo.outputPath("gerarchia-piano-desktop.png"),
+  });
+  await page.goto(base);
+  await page
+    .getByRole("button", { name: "Per macrovoce", exact: true })
+    .click();
+  await expect(page.locator(".finance-table tbody tr")).toHaveCount(2);
+  await expect(page.locator(".finance-metric").first()).toContainText(
+    "1.800.000,00",
+  );
+});

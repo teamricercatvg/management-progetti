@@ -27,7 +27,8 @@ select public.edit_financial_plan(:'pa','save_account',null,jsonb_build_object('
 select public.edit_financial_plan(:'pb','save_account',null,jsonb_build_object('partner_id',:'p3','name','Other account')) as a3 \gset
 select pg_temp.denied(format('select public.edit_financial_plan(%L,''save_entry'',null,%L)',:'pa',jsonb_build_object('kind','income','reference','NO-PLAN','description','No plan','partner_id',:'p1','account_id',:'a1','entry_date','2026-07-01','original_currency_code','EUR','original_amount','100','register','true')::text));
 select public.edit_financial_plan(:'pa','create_revision',null,'{"title":"Initial","reason":"Donor approval"}') as r1 \gset
-select public.edit_financial_plan(:'pa','save_line',1,jsonb_build_object('revision_id',:'r1','code','A1','category_code','A','category_name','Personnel','description','Staff','planned_amount','1000'));
+select public.edit_financial_plan(:'pa','save_line',1,jsonb_build_object('revision_id',:'r1','code','A1','category_code','A','category_name','Personnel','macro_code','1','macro_name','Human resources','description','Staff','planned_amount','1000'));
+select pg_temp.check_true((select macro_code='1' and macro_name_snapshot='Human resources' from public.budget_lines where revision_id=:'r1'),'Explicit macro hierarchy saved');
 select id as line, line_item_id as item from public.budget_lines where revision_id=:'r1' \gset
 select public.edit_financial_plan(:'pa','save_allocation',2,jsonb_build_object('revision_id',:'r1','budget_line_id',:'line','partner_id',:'p1','project_year','1','amount','600'));
 select public.edit_financial_plan(:'pa','save_allocation',3,jsonb_build_object('revision_id',:'r1','budget_line_id',:'line','partner_id',:'p2','project_year','2','amount','400'));
@@ -68,6 +69,7 @@ select public.edit_financial_plan(:'pa','save_rate',1,'{"source_currency_code":"
 select pg_temp.check_true((select amount=90 and applied_rate=0.9 and exchange_rate_id=:'rate1' from public.financial_entries where id=:'fx'),'Posted exchange rate frozen across rate revisions');
 select public.edit_financial_plan(:'pa','create_revision',null,'{"title":"Second","reason":"Revision"}') as r2 \gset
 select pg_temp.check_true((select count(*)=2 from public.budget_allocations ba join public.budget_lines l on l.id=ba.budget_line_id where revision_id=:'r2'),'Complete allocations cloned');
+select pg_temp.check_true((select macro_code='1' and macro_name_snapshot='Human resources' from public.budget_lines where revision_id=:'r2'),'Revision preserves macro hierarchy snapshot');
 select pg_temp.denied(format('select public.edit_financial_plan(%L,''publish'',99,%L)',:'pa',jsonb_build_object('revision_id',:'r2','title','Second','reason','Stale')::text));
 reset role;
 select set_config('request.jwt.claim.sub','90000000-0000-4000-8000-000000000003',true);

@@ -188,3 +188,32 @@ https://www.ariadne-hub.it. Build remota e TypeScript completati. Collaudo
 con un account reale in produzione da eseguire; i flussi sono stati verificati
 localmente con dati sintetici. Le indicazioni di stato locale nelle sezioni
 precedenti documentano la consegna iniziale e sono superate da questo rilascio.
+
+## Gerarchia AICS e importazione Tirana — 14 novembre 2026
+
+Estensione richiesta durante l'importazione: gerarchia esplicita macrovoce →
+categoria → voce. La macrovoce e il suo nome sono snapshot della riga di piano;
+le revisioni ne conservano la struttura e le versioni approvate restano immutabili.
+La categoria è condivisa nella bozza: modificarne la macrovoce aggiorna tutte le
+sue voci in quella bozza. I vecchi client che non inviano i campi conservano
+la gerarchia esistente. La RPC precedente è richiamabile solo dal ruolo interno.
+Migration: `20261114173000_financial_hierarchy.sql`.
+
+Il piano mostra inizialmente le macrovoci, con subtotali e ripartizioni aggregate;
+le sezioni sono espandibili fino alle voci. I codici compatti dei risultati e
+partner hanno la denominazione completa nel tooltip. Note e fonti sono
+espandibili. La dashboard aggiunge la vista Per macrovoce. Nessun subtotale
+viene registrato come spesa o sommato nuovamente.
+
+Per Tirana sono state riconciliate le 60 voci valorizzate tra PF ufficiale,
+annualità e foglio Riparto partner. Conservate anche 12 categorie a zero del
+modello AICS. Il responsabile ha confermato: incrocio proporzionale per le quote
+non esplicitamente incrociate nei file, associazione della quota FNSBC a UNSBC,
+fine al 31 ottobre 2029. Le fonti e le ipotesi restano nelle note delle voci.
+L'importazione usa audit di sistema, transazione unica e controlli dei totali,
+senza creare entrate, impegni, spese o trasferimenti.
+
+Verifiche: 31 test unitari; cinque test browser finanziari, inclusi espansione,
+subtotali invarianti e filtro per macrovoce; suite PostgreSQL completa con
+snapshot della gerarchia, autorizzazione, concorrenza e rollback; typecheck,
+lint e build. I dati di progetto e le credenziali non sono inclusi nel repository.

@@ -6,6 +6,7 @@ import type { Project } from "@/lib/project-data";
 import {
   elapsedPercent,
   financialSummary,
+  financeHierarchy,
   money,
   percent,
   projectYears,
@@ -96,13 +97,30 @@ export function FinanceDashboard({
   const base = `/projects/${project.id}/piano-finanziario`;
   const filtered = !!(partner || result || year);
   const rows = useMemo(() => {
-    let groups: { id: string; label: string; sub?: string }[];
+    let groups: {
+      id: string;
+      label: string;
+      sub?: string;
+      lineIds?: string[];
+    }[];
     if (view === "line_item_id")
       groups = lines.map((l) => ({
         id: l.line_item_id,
         label: `${data.items.find((i) => i.id === l.line_item_id)?.code ?? ""} · ${l.description}`,
         sub: l.category_name_snapshot,
       }));
+    else if (view === "macro")
+      groups = financeHierarchy(lines).map(
+        (g: {
+          key: string;
+          label: string;
+          lines: { line_item_id: string }[];
+        }) => ({
+          id: g.key,
+          label: g.label,
+          lineIds: g.lines.map((l) => l.line_item_id),
+        }),
+      );
     else if (view === "partner_id")
       groups = [
         ...data.partners.map((p) => ({ id: p.id, label: p.label })),
@@ -136,7 +154,10 @@ export function FinanceDashboard({
         summary: financialSummary(
           data,
           lines,
-          { ...filters, [view]: g.id },
+          {
+            ...filters,
+            ...(g.lineIds ? { line_item_ids: g.lineIds } : { [view]: g.id }),
+          },
           dates,
         ),
       }));
@@ -372,6 +393,7 @@ export function FinanceDashboard({
           <div className="finance-segmented" aria-label="Vista del riepilogo">
             {[
               ["line_item_id", "Per voce"],
+              ["macro", "Per macrovoce"],
               ["partner_id", "Per partner"],
               ["result_id", "Per risultato"],
               ["project_year", "Per anno"],
@@ -417,11 +439,13 @@ export function FinanceDashboard({
                 <th scope="col">
                   {view === "line_item_id"
                     ? "Voce di spesa"
-                    : view === "partner_id"
-                      ? "Partner"
-                      : view === "result_id"
-                        ? "Risultato"
-                        : "Anno di progetto"}
+                    : view === "macro"
+                      ? "Macrovoce / categoria"
+                      : view === "partner_id"
+                        ? "Partner"
+                        : view === "result_id"
+                          ? "Risultato"
+                          : "Anno di progetto"}
                 </th>
                 <th scope="col" className="finance-number">
                   Previsto

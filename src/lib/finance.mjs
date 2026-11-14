@@ -149,6 +149,8 @@ export function financialSummary(data, lines, filters = {}, dates) {
   const remaining = commitmentRemainders(data.entries);
   const years = projectYears(dates.start_date, dates.end_date);
   const matches = (row) =>
+    (!filters.line_item_ids ||
+      filters.line_item_ids.includes(row.line_item_id)) &&
     ["line_item_id", "partner_id", "result_id", "project_year"].every(
       (key) =>
         !filters[key] ||
@@ -178,6 +180,7 @@ export function financialSummary(data, lines, filters = {}, dates) {
     // Receipts/transfers have no cost line/result. Cash is shown only by project/partner.
     if (
       !filters.line_item_id &&
+      !filters.line_item_ids &&
       !filters.result_id &&
       !filters.project_year &&
       e.status === "posted"
@@ -195,7 +198,10 @@ export function financialSummary(data, lines, filters = {}, dates) {
     }
   }
   const cashApplicable =
-    !filters.line_item_id && !filters.result_id && !filters.project_year;
+    !filters.line_item_id &&
+    !filters.line_item_ids &&
+    !filters.result_id &&
+    !filters.project_year;
   return {
     planned,
     spent,
@@ -247,4 +253,31 @@ export function financeError(code, message = "") {
   if (["23514", "23502", "22P02", "22003", "22007", "22008"].includes(code))
     return "Verifica i campi obbligatori, gli importi, le date e i collegamenti del movimento.";
   return "Salvataggio non riuscito. Verifica il registro prima di riprovare.";
+}
+
+/** Revision snapshots own group labels; headers never become expense lines. */
+export function financeHierarchy(lines) {
+  const groups = new Map();
+  for (const line of lines) {
+    const key = line.macro_code
+      ? `macro:${line.macro_code}`
+      : `category:${line.category_name_snapshot}`;
+    if (!groups.has(key))
+      groups.set(key, {
+        key,
+        label: line.macro_code
+          ? `${line.macro_code} · ${line.macro_name_snapshot}`
+          : line.category_name_snapshot,
+        categories: new Map(),
+        lines: [],
+      });
+    const group = groups.get(key);
+    group.lines.push(line);
+    if (!group.categories.has(line.category_name_snapshot))
+      group.categories.set(line.category_name_snapshot, []);
+    group.categories.get(line.category_name_snapshot).push(line);
+  }
+  return [...groups.values()].sort((a, b) =>
+    a.label.localeCompare(b.label, "it", { numeric: true }),
+  );
 }

@@ -135,7 +135,7 @@ export function resetFinance(scenario = "") {
       destination_account_id: uuid(6),
     }),
   ];
-  if (scenario === "finance-showcase") {
+  if (["finance-showcase", "finance-hierarchy"].includes(scenario)) {
     data.lines[0].planned_amount = 480000;
     data.allocations[0].amount = 300000;
     data.allocations[1].amount = 180000;
@@ -201,6 +201,13 @@ export function resetFinance(scenario = "") {
     data.entries[4].amount = 300000;
     data.entries[4].original_amount = "300000";
   }
+  if (scenario === "finance-hierarchy")
+    data.lines.forEach((line, i) => {
+      line.macro_code = i < 6 ? "1" : "2";
+      line.macro_name_snapshot =
+        i < 6 ? "Risorse umane e formazione" : "Dotazioni e gestione";
+      line.notes = "Fonti del piano e criteri di riparto dettagliati.";
+    });
 }
 export async function financeFixture(req, res, url, role, project) {
   if (
@@ -279,6 +286,8 @@ export async function financeFixture(req, res, url, role, project) {
           description: p.description,
           planned_amount: Number(p.planned_amount),
           notes: p.notes,
+          macro_code: p.macro_code || null,
+          macro_name_snapshot: p.macro_name || null,
         };
       if (line) Object.assign(line, next);
       else data.lines.push(next);

@@ -172,6 +172,30 @@ export function LineForm({
       <Hidden name="revision_id" value={draft.id} />
       <Hidden name="row_version" value={draft.row_version} />
       <Hidden name="line_item_id" value={line?.line_item_id} />
+      <div className="finance-fields">
+        <label>
+          Codice macrovoce (opzionale)
+          <input
+            name="macro_code"
+            maxLength={40}
+            defaultValue={line?.macro_code ?? ""}
+            placeholder="1"
+          />
+        </label>
+        <label>
+          Nome macrovoce (opzionale)
+          <input
+            name="macro_name"
+            maxLength={160}
+            defaultValue={line?.macro_name_snapshot ?? ""}
+            placeholder="Risorse umane per gestione e supporto generale"
+          />
+        </label>
+      </div>
+      <p className="finance-help">
+        Macrovoce → categoria → voce. I totali si calcolano dalle sole voci. La
+        macrovoce si applica a tutte le voci della categoria nella bozza.
+      </p>
       <div className="finance-fields three">
         <label>
           Codice voce

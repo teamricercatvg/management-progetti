@@ -1,3 +1,4 @@
+import { FinancePlanTable } from "@/components/finance-plan-table";
 import Link from "next/link";
 import { randomUUID } from "node:crypto";
 import { notFound } from "next/navigation";
@@ -316,146 +317,15 @@ function Plan({
             aria-label="Voci del piano e ripartizioni"
             tabIndex={0}
           >
-            <table className="finance-table finance-plan-table">
-              <caption>
-                Piano selezionato · confronto con il primo piano approvato
-              </caption>
-              <thead>
-                <tr>
-                  <th>Voce / categoria</th>
-                  <th className="finance-number">Iniziale</th>
-                  <th className="finance-number">Versione selezionata</th>
-                  <th className="finance-number">Variazione</th>
-                  <th>Risultati</th>
-                  <th>Partner</th>
-                  <th>Anni</th>
-                  {isDraft && <th>Azioni</th>}
-                </tr>
-              </thead>
-              <tbody>
-                {lines.map((l) => {
-                  const own = data.allocations.filter(
-                      (a) => a.budget_line_id === l.id,
-                    ),
-                    original = initial.find(
-                      (x) => x.line_item_id === l.line_item_id,
-                    ),
-                    value = cents(l.planned_amount);
-                  return (
-                    <tr key={l.id}>
-                      <th scope="row">
-                        <span>
-                          {
-                            data.items.find((i) => i.id === l.line_item_id)
-                              ?.code
-                          }{" "}
-                          · {l.description}
-                        </span>
-                        <small>{l.category_name_snapshot}</small>
-                        {l.notes && <small>{l.notes}</small>}
-                      </th>
-                      <td className="finance-number">
-                        {data.state
-                          ? money(original?.planned_amount ?? 0, "").trim()
-                          : "—"}
-                      </td>
-                      <td className="finance-number finance-emphasis">
-                        {money(value, "").trim()}
-                      </td>
-                      <td className="finance-number">
-                        {data.state
-                          ? money(
-                              value - cents(original?.planned_amount ?? 0),
-                              "",
-                            ).trim()
-                          : "—"}
-                      </td>
-                      {(
-                        ["result_id", "partner_id", "project_year"] as const
-                      ).map((dim) => {
-                        const groups = new Map<
-                          string,
-                          { label: string; amount: bigint }
-                        >();
-                        let allocated = 0n;
-                        for (const a of own)
-                          if (a[dim]) {
-                            const key = String(a[dim]);
-                            const label =
-                              dim === "result_id"
-                                ? (a.result_label ??
-                                  data.results.find((r) => r.id === a.result_id)
-                                    ?.label ??
-                                  "Risultato")
-                                : dim === "partner_id"
-                                  ? (a.partner_label ??
-                                    data.partners.find(
-                                      (p) => p.id === a.partner_id,
-                                    )?.label ??
-                                    "Partner")
-                                  : `Anno ${a.project_year}`;
-                            groups.set(key, {
-                              label,
-                              amount:
-                                (groups.get(key)?.amount ?? 0n) +
-                                cents(a.amount),
-                            });
-                            allocated += cents(a.amount);
-                          }
-                        return (
-                          <td key={dim}>
-                            <ul className="finance-allocations">
-                              {[...groups].map(([key, g]) => (
-                                <li key={key}>
-                                  <span>{g.label}</span>
-                                  <strong>{money(g.amount, "").trim()}</strong>
-                                </li>
-                              ))}
-                              {allocated < value && (
-                                <li className="finance-unassigned">
-                                  <span>Da ripartire</span>
-                                  <strong>
-                                    {money(value - allocated, "").trim()}
-                                  </strong>
-                                </li>
-                              )}
-                              {value === 0n && <li>—</li>}
-                            </ul>
-                          </td>
-                        );
-                      })}
-                      {isDraft && (
-                        <td>
-                          <Link
-                            href={`${base}?revision=${selected.id}&line=${l.id}#plan-editor`}
-                          >
-                            Modifica / ripartisci
-                          </Link>
-                        </td>
-                      )}
-                    </tr>
-                  );
-                })}
-              </tbody>
-              <tfoot>
-                <tr>
-                  <th>Totale {project.currency_code}</th>
-                  <td className="finance-number">
-                    {data.state
-                      ? money(
-                          initial.reduce(
-                            (s, l) => s + cents(l.planned_amount),
-                            0n,
-                          ),
-                          "",
-                        ).trim()
-                      : "—"}
-                  </td>
-                  <td className="finance-number">{money(total, "").trim()}</td>
-                  <td colSpan={isDraft ? 5 : 4} />
-                </tr>
-              </tfoot>
-            </table>
+            <FinancePlanTable
+              project={project}
+              data={data}
+              lines={lines}
+              initial={initial}
+              selected={selected}
+              isDraft={!!isDraft}
+              base={base}
+            />
             {!lines.length && (
               <p className="finance-empty-inline">
                 Aggiungi la prima voce del piano finanziario.
