@@ -74,7 +74,7 @@ erDiagram
     logical_framework_items ||--o{ indicators : misura
     organizations ||--o{ project_organizations : partecipa
     projects ||--|{ project_organizations : coinvolge
-    project_exchange_rates o|--o{ expenses : converte
+    project_exchange_rates o|--o{ financial_entries : converte
     projects ||--o{ schedule_revisions : pianifica
     schedule_revisions ||--o{ activity_schedule_periods : contiene
     activities ||--o{ activity_schedule_periods : programma
@@ -82,11 +82,13 @@ erDiagram
     budget_revisions ||--o{ budget_lines : contiene
     budget_line_items ||--o{ budget_lines : identifica
     budget_categories ||--o{ budget_lines : classifica
-    budget_lines ||--o{ budget_line_result_allocations : ripartisce
-    logical_framework_items ||--o{ budget_line_result_allocations : riceve
-    budget_line_items ||--o{ commitments : impegna
-    budget_line_items ||--o{ expenses : paga
-    commitments o|--o{ expenses : regola
+    budget_lines ||--o{ budget_allocations : ripartisce
+    logical_framework_items ||--o{ budget_allocations : riceve
+    budget_line_items ||--o{ financial_entries : classifica
+    financial_entries o|--o{ financial_entries : regola
+    project_organizations ||--o{ project_bank_accounts : possiede
+    project_organizations ||--o{ financial_entries : movimenta
+    project_bank_accounts o|--o{ financial_entries : registra
     reports ||--|{ report_activities : copre
     activities ||--o{ report_activities : documentata
     indicators ||--o{ indicator_measurements : rileva
@@ -259,128 +261,68 @@ lo stato `approved` indica il piano reso ufficiale, senza un secondo approvatore
 contenuto e metadati, aggiorna il puntatore e scrive l’audit in una transazione.
 Una bozza basata su un corrente superato richiede riallineamento prima di pubblicare.
 
-## 7. Budget, impegni e spese
+## 7. Piano finanziario, impegni, spese e fondi
 
-| Tabella | Campi | Vincoli e significato |
-| --- | --- | --- |
-| `budget_categories` | `P`, `code text!`, `name text!`, `sort_order integer!`, `status text!` | `UNIQUE(project_id,code)`; ordine ≥ 0; stati `active/archived`; categorie locali al progetto |
-| `budget_line_items` | `P`, `code text!`, `status text!` | `UNIQUE(project_id,code)`; identità stabile della voce fra revisioni, stati `active/archived` |
-| `budget_revisions` | `P`, `revision_number integer!`, `based_on_id uuid? → budget_revisions`, `title text!`, `reason text!`, `status text!`, `approved_by uuid? → profiles`, `approved_at timestamptz?` | `UNIQUE(project_id,revision_number)`; numero ≥ 1; stati `draft/approved`; stesse regole di transizione dei piani |
-| `budget_lines` | `P`, `revision_id uuid! → budget_revisions`, `line_item_id uuid! → budget_line_items`, `category_id uuid! → budget_categories`, `category_name_snapshot text!`, `description text!`, `planned_amount numeric(18,2)!`, `notes text?` | `UNIQUE(project_id,revision_id,line_item_id)`; importo ≥ 0; nome categoria fissato nello snapshot alla pubblicazione |
-| `budget_line_result_allocations` | `P`, `budget_line_id uuid! → budget_lines`, `result_id uuid! → logical_framework_items`, `amount numeric(18,2)!` | `UNIQUE(project_id,budget_line_id,result_id)`; solo risultati, importo > 0 |
-| `project_budget_state` | `project_id uuid! PK → projects`, `initial_revision_id uuid! → budget_revisions`, `current_revision_id uuid! → budget_revisions`, `A` | Puntatori composti a revisioni approvate dello stesso progetto, come per il cronogramma |
-| `commitments` | `P`, `line_item_id uuid! → budget_line_items`, `reference text!`, `description text!`, `commitment_date date!`, `amount numeric(18,2)!`, `status text!`, `closed_at timestamptz?`, `notes text?` | `UNIQUE(project_id,reference)`; importo > 0; stati `draft/confirmed/closed/cancelled` |
-| `expenses` | `P`, `line_item_id uuid! → budget_line_items`, `commitment_id uuid? → commitments`, `reference text!`, `description text!`, `payment_date date!`, `original_currency_code text!`, `original_amount numeric(20,6)!`, `exchange_rate_id uuid? → project_exchange_rates`, `applied_rate numeric(24,12)?`, `amount numeric(18,2)?`, `status text!`, `posted_by uuid? → profiles`, `posted_at timestamptz?`, `void_reason text?`, `notes text?` | `UNIQUE(project_id,reference)`; importo > 0; stati `draft/posted/voided`; FK composta `(project_id,commitment_id,line_item_id)` all'impegno se presente |
+Aggiornamento del 14 novembre 2026 sulla richiesta esplicita dell’utente per M12.
+Implementazione locale, migration operativa non applicata. Questa sezione
+sostituisce il contratto economico iniziale; dizionario dettagliato, stati,
+calcoli, esempi e collaudo sono nella [consegna M12](milestone-12.md).
 
-### Cambi medi mensili
+| Tabella | Contenuto e vincoli principali |
+| --- | --- |
+| `budget_categories` | Categoria locale per natura, codice univoco nel progetto |
+| `budget_line_items` | Identità e codice stabile della voce, condivisa da versioni e movimenti |
+| `budget_revisions` | Una sola bozza, base corrente, numero progressivo, titolo/motivo e snapshot date/valuta; approvati immutabili |
+| `budget_lines` | Voce/revisione unica, descrizione, categoria congelata e previsto non negativo |
+| `budget_allocations` | Quote combinate risultato × partner × anno, dimensioni opzionali, almeno una indicata, somma ≤ previsto; combinazioni uniche anche con NULL |
+| `project_budget_state` | Prima versione e versione corrente approvate, aggiornate solo dalla RPC |
+| `project_bank_accounts` | Conto associato a un partner del progetto, nome/banca/riferimento, archivio; partner del conto immutabile |
+| `project_exchange_rates` | Tasso medio mensile per valuta estera, versioni immutabili con fonte/metodo/data e motivazione delle correzioni |
+| `financial_entries` | Registro tipizzato `income/commitment/expense/transfer`; riferimento unico per progetto e tipo, partner, conto, voce, collegamenti e stati controllati |
 
-| Tabella | Campi | Vincoli e significato |
-| --- | --- | --- |
-| `project_exchange_rates` | `P`, `source_currency_code text!`, `rate_month date!`, `version integer!`, `rate numeric(24,12)!`, `source text!`, `source_reference text?`, `calculation_method text!`, `observed_at timestamptz!`, `supersedes_rate_id uuid? → project_exchange_rates`, `reason text?` | `UNIQUE(project_id,source_currency_code,rate_month,version)`; mese = primo giorno; versione ≥ 1; tasso finito > 0; valuta sorgente diversa dalla principale |
+I partner sono `project_organizations`, non profili utente. FK composte impediscono
+collegamenti tra progetti e conti attribuiti a un partner diverso. Una quota
+conserva un solo importo e tutte le dimensioni, permettendo anche filtri incrociati.
+La parte da ripartire resta esplicita. Anno 1 parte dall’avvio, con intervalli di
+12 mesi; il modello gestisce fino a 100 annualità.
 
-Convenzione: **1 unità di valuta della spesa = rate unità della valuta principale**.
-La valuta destinazione è sempre `projects.currency_code`. Ogni progetto ha la
-propria serie di cambi, perché la metodologia può dipendere dal finanziamento.
-Manager assegnato e Admin inseriscono il tasso medio del mese, documentando fonte,
-metodo (es. media aritmetica delle osservazioni disponibili), data e riferimento.
-Nessun tasso inventato, nessuna automazione o fonte ufficiale già configurata.
-In futuro si potrà acquisire da una fonte ufficiale: scelta della fonte, copertura,
-festivi e metodo di media saranno specificati prima dell’integrazione. Il dato
-mensile può essere aggiornato durante il mese creando nuove versioni.
+Entrate: partner e conto obbligatori. Impegni/spese: voce e partner obbligatori,
+conto e risultato opzionali. Trasferimenti: due partner, conti opzionali;
+se il partner è lo stesso servono due conti distinti. Il pagamento collegato
+richiede stesso progetto/voce/partner/risultato e impegno aperto.
 
-Le versioni sono immutabili. Correzione tramite nuova versione con predecessore
-dello stesso progetto/valuta/mese e motivazione; un solo successore, numerazione
-sotto lock della serie. Il tasso corrente è l’ultima versione, non un UPDATE del
-precedente. Per inserire un nuovo mese non occorre un predecessore.
+Stati: impegno `draft → confirmed → closed`, annullamento di bozza o confermato
+solo senza pagamenti registrati. Altri movimenti `draft → posted → voided`;
+una bozza può essere scartata con `cancelled`, anche senza cambio. Importi
+registrati immutabili: rettifica tramite annullamento motivato e nuovo movimento.
+La chiusura libera il residuo non pagato; l’annullamento di un pagamento dopo
+chiusura non riapre il contratto.
 
-Le spese in bozza mostrano un’anteprima ricalcolabile col tasso corrente del mese
-della `payment_date`; assenza del cambio impedisce contabilizzazione e totale
-convertito, non equivale a cambio 1. Alla contabilizzazione il DB fissa FK alla
-versione, `applied_rate` e `amount = round(original_amount × applied_rate, 2)`
-nella stessa transazione. `applied_rate` e `amount` possono essere nulli solo in
-bozza; posted/voided richiedono valori positivi e coerenti col cambio applicato.
-Una spesa nella valuta principale usa rate 1 e FK nulla.
-Per una spesa estera, FK, valuta sorgente e mese devono corrispondere; il DB copia
-il tasso, mai il client. `original_amount` deve rispettare la precisione della
-valuta sorgente supportata (fino a sei decimali). Nessuna conversione sugli
-impegni o sul budget, che sono espressi nella valuta principale.
+Previsto = piano approvato corrente; speso = pagamenti posted; impegni residui =
+importi confirmed meno pagamenti posted collegati. Disponibile sul piano =
+previsto − speso − impegni residui. Saldo fondi = entrate + trasferimenti ricevuti
+− trasferimenti inviati − spese. I trasferimenti si annullano nel totale progetto.
+Senza piano approvato i movimenti sono bloccati e i residui non sono presentati
+come zero. Superamenti del piano o della quota partner richiedono una motivazione;
+non è ammesso superare l’importo dell’impegno con i pagamenti collegati.
 
-Dashboard: somma gli importi convertiti delle spese posted; conserva sempre
-importo/valuta originali e cambio applicato consultabili. Un aggiornamento del
-cambio non riscrive i pagamenti già contabilizzati: per applicarlo anche a questi
-si annulla e si registra la rettifica, con audit. Questo distingue fluttuazioni
-mensili da rivalutazioni retroattive. Il primo progetto EUR può usare solo spese
-EUR con rate 1; il modello supporta già le spese estere richieste.
+Le ripartizioni del piano non vengono usate per inventare consuntivi per risultato.
+I fondi ricevuti sono aggregabili per progetto/partner, non per voce o risultato.
+Le date fuori progetto sono segnalate. Un piano storico mostra la previsione
+storica, non un saldo retroattivo: la ricostruzione a una data resta futura.
 
-Esempio puramente aritmetico: 100 USD × 0,90 EUR/USD = 90 EUR; un altro mese a
-0,92 produce 92 EUR. Due pagamenti nei due mesi valgono 182 EUR in dashboard.
-Il passaggio a cambi giornalieri richiederà una migration esplicita della granularità,
-preservando le versioni mensili già applicate.
+Valuta principale congelata dal primo piano/cambio/movimento. Importi monetari a
+due decimali e somme applicative in centesimi BigInt. Spese estere fino a sei
+decimali: 1 unità estera = tasso unità principali; il DB copia l’ultima versione
+mensile e arrotonda a due decimali alla registrazione. Senza tasso solo bozza;
+nuove versioni del cambio non rivalutano i pagamenti già registrati. Fonte,
+metodo e data sono obbligatori; nessuna acquisizione automatica è configurata.
 
-### Versioni e identità delle voci
-
-Impegni e spese si riferiscono alla voce stabile `budget_line_items`, non alla
-riga di una revisione: cambiare piano non sposta o duplica il consuntivo.
-Ogni revisione conserva importi, descrizioni, categoria e allocazioni completi;
-la procedura di copia include tutte le voci già presenti. Una voce soppressa
-resta nel nuovo piano con importo zero. Nuovi impegni e pagamenti richiedono voce
-attiva e presente nel budget corrente approvato; i pagamenti di un impegno già
-confermato restano possibili anche se la voce è successivamente archiviata.
-
-Le regole di pubblicazione, puntatori, base corrente, lock e immutabilità
-sono le stesse del cronogramma. La valuta è quella immutabile del progetto:
-gli importi originali esteri restano separati dalla conversione in tale valuta.
-Totali monetari nella valuta principale arrotondati a due decimali;
-percentuali solo derivate e non arrotondate prima di sommare gli importi.
-
-Allocazioni opzionali: somma per riga ≤ importo previsto; il resto è «non allocato».
-Controllo transazionale con lock della riga budget anche per INSERT concorrenti
-o riduzione dell'importo previsto. La percentuale è `amount/planned_amount × 100`;
-con importo previsto zero non ci sono allocazioni. Queste ripartizioni riguardano
-solo il piano: non presentare spese effettive per risultato ottenute distribuendo
-implicitamente i pagamenti nelle stesse percentuali.
-
-### Stati e calcoli senza doppio conteggio
-
-Una spesa rappresenta un **pagamento effettivo**, non una fattura da pagare.
-Fatture, IVA separata, rate contabili e rimborsi richiedono estensioni.
-L'importo è il costo totale inclusivo di eventuali imposte.
-
-- Impegno: `draft → confirmed → closed`; `draft/confirmed → cancelled` solo se
-  senza pagamenti contabilizzati. L'importo confermato è congelato; un adeguamento
-  richiede una nuova voce di impegno con riferimento distinto. La chiusura libera
-  l'importo non pagato; stato terminale, non accetta nuovi pagamenti.
-- Spesa: `draft → posted → voided`; contabilizzazione e annullamento solo con
-  autore/data/audit, annullamento motivato. La spesa posted è immutabile; correggere
-  significa annullare e inserire un nuovo pagamento, senza riscrivere lo storico.
-- Per confermare un pagamento con impegno, questo deve essere confirmed e della
-  stessa voce/progetto. Somma dei pagamenti posted ≤ importo impegno: lock sulla
-  riga impegno, verifica e inserimento nella stessa transazione. Un annullamento
-  dopo chiusura non riapre l'impegno; per ripagare occorre un nuovo impegno o una
-  spesa diretta motivata. Date fuori progetto sono segnalate, non bloccate: il saldo
-  può avvenire dopo la fine delle attività.
-- `previsto` = somma delle righe della revisione corrente approvata.
-- `speso` = somma expenses posted, inclusi pagamenti diretti senza impegno.
-- `impegnato_totale` = somma importi degli impegni confirmed o closed.
-- `impegnato_residuo` = somma, per i soli confirmed, di importo meno pagamenti posted.
-- `residuo_di_cassa` = previsto − speso.
-- `disponibile` = previsto − speso − impegnato_residuo.
-- `scostamento` = speso + impegnato_residuo − previsto (positivo = superamento).
-
-Esempio: previsto 1.000, impegno 600, pagato sull'impegno 200 e pagato direttamente
-100: speso 300, impegnato residuo 400, disponibile 300. Sottrarre tutti i 600
-oltre allo speso conterebbe due volte i 200 già pagati. Impegni/spese in bozza o
-annullati non contribuiscono. Senza budget approvato, previsto e residui sono
-non disponibili, non zero; la registrazione di movimenti è bloccata.
-
-Conferma di impegni e contabilizzazione di spese serializzate con lock della voce
-stabile, per verificare anche il disponibile e la motivazione di superamento.
-Superamenti del previsto ammessi con segnalazione e motivazione obbligatoria in
-`notes` al confermare/contabilizzare; anche un budget rivisto al ribasso richiede
-motivazione. Questo gestionale monitora il progetto, non impone un blocco contabile.
-Storico di piano e consuntivo corrente sono due dimensioni distinte: confrontare
-un vecchio budget con spese di oggi va etichettato chiaramente, non chiamato saldo
-storico. Un saldo «alla data» richiederà ricostruzione di eventi e annullamenti.
+RPC di scrittura serializzata con lock del progetto, controllo della versione,
+RLS, audit e owner dedicato senza login/bypass. La lettura della situazione usa
+una sola istruzione SQL per evitare pagamenti osservati separatamente dagli
+impegni e non applica il limite di pagina ai totali. Il client non decide autori,
+approvatori, puntatori o tassi applicati.
 
 ## 8. Rapporti, validazione e rettifiche
 

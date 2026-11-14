@@ -42,14 +42,14 @@ tramite operazione controllata che rispetta vincoli e audit.
 | `activity_schedule_periods` | L/C/M in bozza | Come Admin nei progetti assegnati |
 | `project_schedule_state` | L/T tramite pubblicazione | Come Admin nei progetti assegnati |
 | `budget_categories` | L/C/M | L/C/M assegnati |
-| `budget_line_items` | L/C/M | L/C/M assegnati |
-| `budget_revisions` | L/C/M/T; pubblica proprie bozze | Come Admin nei progetti assegnati |
+| `budget_line_items` | L/C; identità e codice stabili | Come Admin nei progetti assegnati |
+| `budget_revisions` | L/C/M/T; pubblica la bozza condivisa del progetto | Come Admin nei progetti assegnati |
 | `budget_lines` | L/C/M in bozza | Come Admin nei progetti assegnati |
-| `budget_line_result_allocations` | L/C/M in bozza | Come Admin nei progetti assegnati |
+| `budget_allocations` (risultato/partner/anno) | L/C/M in bozza | Come Admin nei progetti assegnati |
 | `project_budget_state` | L/T tramite pubblicazione | Come Admin nei progetti assegnati |
 | `project_exchange_rates` | L/C; correzione mediante nuova versione | Come Admin nei progetti assegnati |
-| `commitments` | L/C/M/T | Come Admin nei progetti assegnati |
-| `expenses` | L/C/M/T; conversione fissata dal DB | Come Admin nei progetti assegnati |
+| `financial_entries` (entrate/impegni/spese/trasferimenti) | L/C/M bozze; T registrazione/chiusura/annullamento | Come Admin nei progetti assegnati |
+| `project_bank_accounts` | L/C/M/T archivio, partner immutabile | Come Admin nei progetti assegnati |
 | `reports` | L/C/M bozze di ogni autore; T registrazione/rettifica | Come Admin nei progetti assegnati |
 | `report_activities` | Come rapporto padre | Come rapporto padre |
 | `audit_log` | L completo | L degli eventi dei propri progetti |
@@ -125,3 +125,13 @@ I periodi della bozza vengono annullati con soft delete; il ripristino non li
 riattiva automaticamente. Gli snapshot pubblicati restano immutabili.
 Dettagli e verifiche nel [modello del cestino](activity-deletion-proposal.md).
 Migration locale `20261030110000_activity_deletion.sql`, non applicata al backend.
+
+## Implementazione M12 — 14 novembre 2026
+
+Le nove tabelle del piano finanziario consentono SELECT con RLS di progetto.
+Le scritture passano esclusivamente per `edit_financial_plan`: owner
+`ariadne_finance` senza login/superuser/bypass RLS, controllo esplicito del
+chiamante, progetto non archiviato, lock e verifica della versione. Nessun DML
+diretto al client o service role. `financial_snapshot` è security invoker e legge
+un unico snapshot coerente senza troncamento dei totali. Modello e verifiche
+nella [consegna M12](milestone-12.md); migration non applicata in produzione.

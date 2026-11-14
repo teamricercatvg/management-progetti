@@ -63,7 +63,13 @@ export function parseProject(form) {
   }
   return { data, errors };
 }
-export function projectError(code) {
+export function projectError(code, message = "") {
+  if (code === "23514" && message.startsWith("Valuta non modificabile"))
+    return "La valuta non può cambiare dopo l’avvio del piano finanziario.";
+  if (code === "23514" && message.startsWith("Partner già utilizzato"))
+    return "Questo partner è già utilizzato nel piano finanziario e non può essere sostituito.";
+  if (code === "23503")
+    return "L’associazione è utilizzata da altri dati del progetto e non può essere rimossa.";
   if (code === "23505")
     return "Codice o associazione già presente. Usa un valore diverso.";
   if (code === "23514")

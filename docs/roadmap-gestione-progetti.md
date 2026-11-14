@@ -886,7 +886,14 @@ Vincoli del perimetro:
 - La dashboard di monitoraggio resta nella milestone 15; questa milestone
   riguarda esclusivamente utenti e accessi.
 
-### Milestone 12 - Budget
+### Milestone 12 - Piano finanziario
+
+**Aggiornamento del 14 novembre 2026:** implementata e collaudata localmente su
+richiesta dell’utente. Ambito esteso a entrate, impegni, spese, trasferimenti,
+conti dei partner, ripartizioni combinate risultato/partner/anno e dashboard
+finanziaria. Questa richiesta anticipa il nucleo M13 e la parte finanziaria di
+M15; le tabelle sotto conservano la sequenza originaria. Rilascio non eseguito.
+Vedere [consegna e modello implementato](milestone-12.md).
 
 | Aspetto | Dettaglio |
 | --- | --- |
@@ -900,6 +907,10 @@ Vincoli del perimetro:
 | Criteri di completamento | Budget leggibile, calcolabile e protetto |
 
 ### Milestone 13 - Impegni, spese e consuntivo
+
+Il nucleo impegni/spese/consuntivo è incluso nell’estensione M12 del 14 novembre
+2026. Non ricreare tali strutture; restano evoluzioni successive allegati e
+funzioni contabili non richieste.
 
 | Aspetto | Dettaglio |
 | --- | --- |

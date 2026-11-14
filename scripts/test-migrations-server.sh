@@ -95,6 +95,16 @@ for db in foundation_test foundation_replay; do
   run_sql "$db" < "$work/supabase/migrations/20261030110000_activity_deletion.sql"
 done
 run_sql foundation_test < "$work/supabase/tests/activity-deletion.sql"
+for db in foundation_test foundation_replay; do
+  run_sql "$db" < "$work/supabase/migrations/20261114120000_financial_plan.sql"
+done
+run_sql foundation_test < "$work/supabase/tests/finance.sql"
+for db in foundation_test foundation_replay; do
+  docker exec "$container" pg_dump -h /tmp -U postgres -d "$db" --schema-only --schema public --schema app_private | sed '/^\\restrict /d; /^\\unrestrict /d' > "$work/$db-m12.sql"
+done
+diff -u "$work/foundation_test-m12.sql" "$work/foundation_replay-m12.sql"
+echo 'PASS: financial plan schema replay matches'
+bash "$work/supabase/tests/finance-concurrency.sh" "$container"
 # Test transaction rollback of the entire migration chain, omitting their wrappers.
 docker exec "$container" createdb -h /tmp -U postgres foundation_rollback
 sed '/^create role /d' "$work/supabase/tests/bootstrap.sql" | run_sql foundation_rollback

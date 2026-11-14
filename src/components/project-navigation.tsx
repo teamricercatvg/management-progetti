@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export function ProjectNavigation({ projectId, current }: {
   projectId: string;
-  current: "" | "quadro-logico" | "cronoprogramma" | "indicatori" | "edit";
+  current: "" | "quadro-logico" | "cronoprogramma" | "indicatori" | "edit" | "piano-finanziario";
 }) {
   return (
     <nav className="actions project-navigation" aria-label="Sezioni del progetto">
@@ -11,6 +11,7 @@ export function ProjectNavigation({ projectId, current }: {
         ["quadro-logico", "Quadro logico"],
         ["cronoprogramma", "Cronoprogramma"],
         ["indicatori", "Indicatori"],
+        ["piano-finanziario", "Piano finanziario"],
       ].filter(([path]) => path !== current).map(([path, label]) => (
         <Link key={path} className="button-link" href={`/projects/${projectId}${path ? `/${path}` : ""}`}>
           {label}

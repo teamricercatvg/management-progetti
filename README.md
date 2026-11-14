@@ -1,7 +1,7 @@
 # Gestione Progetti — Ariadne Hub
 
 Applicazione in progettazione per la gestione di progetti non profit: quadro
-logico, attività, cronogramma, indicatori, budget e rapporti operativi.
+logico, attività, cronogramma, indicatori, piano finanziario e rapporti operativi.
 
 ## Stato
 
@@ -61,8 +61,15 @@ ai progetti nell’area Amministrazione. Deploy READY l’8 novembre 2026;
 collaudo email operativo e verifica autenticata in produzione da completare;
 vedere la [consegna 11A](docs/milestone-11a.md).
 
+La **Milestone 12 è implementata e verificata localmente** (14 novembre 2026):
+piano finanziario versionato, ripartizioni per risultati/partner/anni, entrate,
+impegni, spese, trasferimenti, conti, cambi mensili e dashboard finanziaria.
+Migration operativa e pubblicazione non eseguite; vedere la
+[consegna Milestone 12](docs/milestone-12.md).
+
 ## Documentazione
 
+- [Consegna Milestone 12 — Piano finanziario](docs/milestone-12.md)
 - [Roadmap e requisiti](docs/roadmap-gestione-progetti.md)
 - [Regole operative](AGENTS.md)
 - [Consegna Milestone 1](docs/milestone-1.md)

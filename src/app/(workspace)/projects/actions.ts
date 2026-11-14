@@ -36,7 +36,8 @@ export async function saveProject(
       .neq("status", "archived")
       .select("id")
       .maybeSingle();
-    if (result.error) return { message: projectError(result.error.code) };
+    if (result.error)
+      return { message: projectError(result.error.code, result.error.message) };
     if (!result.data)
       return {
         message:
@@ -49,7 +50,8 @@ export async function saveProject(
       .insert({ ...data, status: "draft" })
       .select("id")
       .single();
-    if (result.error) return { message: projectError(result.error.code) };
+    if (result.error)
+      return { message: projectError(result.error.code, result.error.message) };
     savedId = result.data.id;
   }
   revalidatePath("/projects");
@@ -79,7 +81,7 @@ export async function changeStatus(
     .neq("status", status)
     .select("id")
     .maybeSingle();
-  if (error) return { message: projectError(error.code) };
+  if (error) return { message: projectError(error.code, error.message) };
   if (!data)
     return {
       message:
@@ -107,7 +109,7 @@ export async function linkOrganization(
   const { error } = await client
     .from("project_organizations")
     .insert({ project_id: id, organization_id, role });
-  if (error) return { message: projectError(error.code) };
+  if (error) return { message: projectError(error.code, error.message) };
   revalidatePath(`/projects/${id}`);
   return { message: "Ente associato." };
 }
@@ -125,7 +127,7 @@ export async function removeOrganization(
     target_project: id,
     target_link: link,
   });
-  if (error) return { message: projectError(error.code) };
+  if (error) return { message: projectError(error.code, error.message) };
   revalidatePath(`/projects/${id}`);
   return { message: "Associazione rimossa." };
 }

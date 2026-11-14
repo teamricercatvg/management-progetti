@@ -1,5 +1,6 @@
 // Local UI contract fixture only. This does not validate Supabase security/RLS.
 import { createServer } from "node:http";
+import {financeFixture,resetFinance} from './finance-fixture.mjs';
 const id = "00000000-0000-4000-8000-000000000006";
 function session(role) {
   const user = {
@@ -53,6 +54,7 @@ const entity = {
 const seedId = "00000000-0000-4000-8000-000000000007";
 const otherId = "00000000-0000-4000-8000-000000000008";
 function resetProjects() {
+  resetFinance();
   failAdminChange = false;
   passwordEvidence.clear();
   adminProfiles.clear(); adminRoles.clear(); adminMemberships.clear();
@@ -138,6 +140,7 @@ createServer(async (req, res) => {
       ),
     );
   const url = new URL(req.url, "http://localhost");
+  if (await financeFixture(req,res,url,role,projects.get(seedId))) return;
   if (url.pathname === "/auth/v1/admin/users") {
     if (req.headers.authorization !== "Bearer local-ui-service") { res.statusCode = 403; return res.end("{}"); }
     return res.end(JSON.stringify({ users: [{ id: targetId, email: "duplicate@example.test", invited_at: "2026-01-01" }, { id, email: "admin@example.test", email_confirmed_at: "2026-01-01", app_metadata: passwordEvidence.get(id) || {} }], aud: "authenticated" }));
@@ -191,6 +194,7 @@ createServer(async (req, res) => {
   }
   if (url.pathname === "/fixture/reset") {
     resetProjects();
+    resetFinance(url.searchParams.get('scenario') ?? '');
     failAdminChange = url.searchParams.get("scenario") === "role_failure";
     if (url.searchParams.get("scenario") === "pagination") {
       const template = projects.get(seedId);
