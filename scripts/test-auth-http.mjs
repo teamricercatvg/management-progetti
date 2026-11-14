@@ -50,6 +50,6 @@ for (const type of ["invite", "recovery"]) {
     redirect: "manual",
   });
   assert.equal(response.status, 303);
-  assert.equal(response.headers.get("location"), `${origin}/login?status=expired`);
+  assert.equal(response.headers.get("location"), `${origin}/auth/invitation-help`);
 }
 console.log("Auth HTTP: policy, origin rejection, legacy invitations and safe redirects passed.");

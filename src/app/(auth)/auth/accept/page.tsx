@@ -1,4 +1,4 @@
-import { Submit } from "@/components/submit";
+import { AcceptInviteForm } from "@/components/accept-invite-form";
 export const dynamic = "force-dynamic";
 export default async function Accept({
   searchParams,
@@ -16,11 +16,7 @@ export default async function Accept({
       {valid ? (
         <>
           <p>Prosegui per impostare la tua password.</p>
-          <form action="/auth/confirm" method="post">
-            <input type="hidden" name="token_hash" value={token_hash} />
-            <input type="hidden" name="type" value={type} />
-            <Submit>Continua</Submit>
-          </form>
+          <AcceptInviteForm tokenHash={token_hash} type={type} />
         </>
       ) : (
         <p>Collegamento non valido. Richiedine uno nuovo all’amministratore.</p>

@@ -331,3 +331,23 @@ typecheck e lint superati; build remota riuscita. Deployment production
 sorgenti estratti dal commit e SHA nei metadati. Verifica autenticata sul
 sito dopo reload: tutti e cinque gli utenti attuali mostrano «Abilitato»,
 compreso procurement. Nessun dato Auth o permesso modificato.
+
+
+## Primo invito: scelta password e invii ripetuti — 14 novembre 2026
+
+I log Auth mostrano una conferma procurement riuscita e una seconda richiesta
+con token non trovato nello stesso secondo. Il modulo POST nativo non attivava
+il pending di useFormStatus: ora un lock sincrono nel modulo impedisce invii
+ripetuti e disabilita Continua durante la navigazione. La conferma riuscita
+continua a salvare la sessione e porta a /password. GET non consuma token.
+
+Un errore di verifica porta a /auth/invitation-help, non al login: spiega
+link già usato/scaduto o conferma fallita e permette di richiedere un nuovo
+collegamento password. Nessuna accettazione di token invalidi né uso della
+sessione di un altro account come prova dell’invito. Origin check conservato.
+Il recupero dalla pagina dedicata mantiene lì anche la conferma dell’invio;
+risposta uniforme per indirizzi conosciuti e sconosciuti.
+
+Test isolati con token monouso: doppio clic genera un solo POST, sessione
+persistita, scelta e salvataggio password, riuso del token e recupero senza
+passaggio al login. Fixture senza dati reali; nessuna email operativa inviata.

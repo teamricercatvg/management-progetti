@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
   const form = await request.formData();
   const token_hash = String(form.get("token_hash") ?? "");
   const type = String(form.get("type") ?? "");
-  if (token_hash && ["invite", "recovery"].includes(type)) {
+  if (token_hash && token_hash.length <= 512 && ["invite", "recovery"].includes(type)) {
     const client = await createClient();
     const { error } = await client.auth.verifyOtp({
       token_hash,
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.redirect(new URL("/password", origin), 303);
   }
   return NextResponse.redirect(
-    new URL("/login?status=expired", origin),
+    new URL("/auth/invitation-help", origin),
     303,
   );
 }

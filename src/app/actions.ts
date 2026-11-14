@@ -22,17 +22,18 @@ export async function logout() {
   redirect("/login?status=out");
 }
 export async function recover(form: FormData) {
+  const destination = form.get("context") === "invitation" ? "/auth/invitation-help" : "/login";
   const email = String(form.get("email") ?? "").trim();
-  if (!validEmail(email)) redirect("/login?status=email");
+  if (!validEmail(email)) redirect(`${destination}?status=email`);
   const client = await createClient();
   if (!process.env.APP_URL && process.env.NODE_ENV === "production")
-    redirect("/login?status=unavailable");
+    redirect(`${destination}?status=unavailable`);
   const origin = appOrigin(process.env.APP_URL || "http://127.0.0.1:3000");
   // Same public result for unknown, rate-limited and registered addresses.
   await client.auth.resetPasswordForEmail(email, {
     redirectTo: `${origin}/auth/accept`,
   });
-  redirect("/login?status=sent");
+  redirect(`${destination}?status=sent`);
 }
 export async function updatePassword(form: FormData) {
   const { client, user } = await requireProfile();

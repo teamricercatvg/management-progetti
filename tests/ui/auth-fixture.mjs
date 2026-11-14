@@ -31,6 +31,7 @@ function session(role) {
     user,
   };
 }
+const consumedInvites = new Set();
 const passwordEvidence = new Map();
 const adminProfiles = new Map();
 const adminRoles = new Set();
@@ -91,6 +92,19 @@ createServer(async (req, res) => {
       Buffer.from(req.headers.authorization.split(".")[1], "base64url"),
     ).fixture_role;
   } catch {}
+  if (req.url === "/auth/v1/verify") {
+    let body = "";
+    for await (const chunk of req) body += chunk;
+    const { token_hash } = JSON.parse(body);
+    if (!token_hash.startsWith("valid-fixture-") || consumedInvites.has(token_hash)) {
+      res.statusCode = 403;
+      return res.end(JSON.stringify({code:"otp_expired", msg:"One-time token not found"}));
+    }
+    consumedInvites.add(token_hash);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    return res.end(JSON.stringify(session("manager")));
+  }
+  if (req.url.startsWith("/auth/v1/recover")) return res.end("{}");
   if (req.url.startsWith("/auth/v1/token")) {
     let body = "";
     for await (const chunk of req) body += chunk;
