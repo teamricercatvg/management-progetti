@@ -314,3 +314,13 @@ sicurezza da valutare separatamente. Diff controllato; nessun commit o deploy.
   per conto dei titolari in produzione.
 - Nessuna migration. Il commit documentale successivo non cambia i sorgenti
   distribuiti. Deploy automatico Git invariato (disabilitato).
+
+
+### Correzione della regola di conferma — 14 novembre 2026
+
+L’utente precisa che tutti gli account attuali sono già abilitati.
+«Da confermare» indica solo la conferma email/invito ancora pendente;
+«Abilitato» usa email_confirmed_at di Auth, senza richiedere il marcatore
+password introdotto successivamente. «Disabilitato» mantiene la precedenza.
+Rimossa dal dettaglio la richiesta impropria di un nuovo accesso/password.
+Questa regola sostituisce quella del rilascio precedente.
