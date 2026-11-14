@@ -281,3 +281,19 @@ escalation. Nessun commit, push o deploy di questa modifica.
   password in produzione dopo il deploy ancora da eseguire dal titolare.
 - Nessuna migration o modifica a ruoli e membership. Commit successivo solo
   documentale; sorgenti distribuiti `ea08f1d`.
+
+
+## Stato utente unico — 14 novembre 2026 (locale)
+
+Su richiesta dell’utente, elenco e dettaglio mostrano un solo stato:
+«Da confermare» prima dell’impostazione/verifica della password, «Abilitato»
+dopo salvataggio o accesso con password riuscito, «Disabilitato» quando
+l’accesso è revocato. La disabilitazione prevale anche su una password verificata.
+Restano invariati il marcatore server e i permessi. Gli account storici privi
+del marcatore passano ad Abilitato al successivo accesso con password riuscito.
+Modifica locale, non ancora pubblicata.
+
+Verifiche: 24 test unitari, typecheck, lint e 14 test browser Admin/workspace
+superati. Il primo avvio browser è stato interrotto dal promemoria di sicurezza
+Next.js; la ripetizione è riuscita. Il runtime segnala un aggiornamento di
+sicurezza da valutare separatamente. Diff controllato; nessun commit o deploy.

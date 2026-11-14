@@ -53,7 +53,7 @@ export default async function Admin() {
       const isAdmin = admins.has(profile.id);
       return {
         id: profile.id, name: profile.display_name, email: emails.get(profile.id)?.email || "",
-        status: `${profile.is_active ? "Abilitato" : "Disabilitato"} · ${emails.get(profile.id)?.setup}`,
+        status: profile.is_active ? emails.get(profile.id)!.setup : "Disabilitato",
         role: isAdmin ? "Admin" : assigned.length ? "Manager" : "Nessun ruolo assegnato",
         isAdmin, projects: assigned,
         projectsSearchText: isAdmin ? allProjectsSearchText : "",
