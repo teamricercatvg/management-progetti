@@ -324,3 +324,10 @@ L’utente precisa che tutti gli account attuali sono già abilitati.
 password introdotto successivamente. «Disabilitato» mantiene la precedenza.
 Rimossa dal dettaglio la richiesta impropria di un nuovo accesso/password.
 Questa regola sostituisce quella del rilascio precedente.
+
+Rilasciata la correzione nel commit `7eaf85e` su main. Test unitari (24),
+typecheck e lint superati; build remota riuscita. Deployment production
+`dpl_eSMTCw2WVAfdWr7hYkCpZevjGDpn` READY, alias www.ariadne-hub.it,
+sorgenti estratti dal commit e SHA nei metadati. Verifica autenticata sul
+sito dopo reload: tutti e cinque gli utenti attuali mostrano «Abilitato»,
+compreso procurement. Nessun dato Auth o permesso modificato.
