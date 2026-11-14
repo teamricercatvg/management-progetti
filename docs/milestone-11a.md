@@ -351,3 +351,17 @@ risposta uniforme per indirizzi conosciuti e sconosciuti.
 Test isolati con token monouso: doppio clic genera un solo POST, sessione
 persistita, scelta e salvataggio password, riuso del token e recupero senza
 passaggio al login. Fixture senza dati reali; nessuna email operativa inviata.
+
+### Rilascio correzione primo invito
+
+- Commit `2ef05ed` pubblicato su origin/main.
+- 24 test unitari, 8 test browser inviti/workspace, typecheck e lint superati.
+  Primo avvio browser interrotto dal promemoria Next.js; ripetizione riuscita.
+- Deploy `dpl_BiXxio4chxSWkahwFQDMPVqHZtLw`, production READY, build remota
+  e TypeScript superati; alias https://www.ariadne-hub.it. URL immutabile:
+  https://management-progetti-ikmwr2nv5-tor-vergata-igiene.vercel.app.
+- Sorgenti estratti dal commit, SHA nei metadati, file env esclusi.
+- Verifica HTTP in produzione: POST con token vuoto reindirizza 303 alla
+  pagina assistenza invito, che risponde 200 con richiesta nuovo collegamento.
+  Invito valido e password verificati con fixture isolata; nessun invito reale
+  inviato per il collaudo. Nessuna migration o modifica a utenti e permessi.
