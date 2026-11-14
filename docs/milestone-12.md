@@ -165,3 +165,26 @@ Non sono compresi allegati, import da Excel, cambi automatici, contabilità IVA,
 riconciliazione bancaria automatica o ricostruzione del saldo storico a una data.
 La dashboard generale di M15 resta distinta dalla dashboard finanziaria qui
 implementata.
+
+
+## Rilascio autorizzato — 14 novembre 2026
+
+Commit applicativo `187bfdb`, pubblicato su `origin/main`. Backup completo
+verificato: `/var/backups/management-progetti/20261114T162449Z`.
+La CLI con `PGSSLMODE=disable` ha rilevato una sola migration pendente:
+`20261114120000_financial_plan.sql`. Il primo tentativo con il ruolo postgres
+è stato annullato per proprietà delle tabelle; applicazione completata tramite
+`/usr/local/sbin/ariadne-db-migrate` come `supabase_admin`, includendo versione,
+nome e testo nello storico Supabase nella stessa transazione. Ulteriore backup
+preventivo del wrapper: `20261114T162528928929Z.dump`.
+
+Dry run successivo: database aggiornato, nessuna migration pendente. Verificate
+le nove tabelle con RLS attiva e i controlli health/REST/autenticazione del
+backend. Nessun movimento finanziario reale creato per il collaudo.
+
+Frontend pubblicato da archivio Git pulito del commit applicativo; deploy
+`dpl_8tvZqdX7WD1ajfM5T6oHrpA81Mte` in stato **READY**, alias
+https://www.ariadne-hub.it. Build remota e TypeScript completati. Collaudo
+con un account reale in produzione da eseguire; i flussi sono stati verificati
+localmente con dati sintetici. Le indicazioni di stato locale nelle sezioni
+precedenti documentano la consegna iniziale e sono superate da questo rilascio.

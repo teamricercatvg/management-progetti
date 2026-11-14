@@ -61,10 +61,10 @@ ai progetti nell’area Amministrazione. Deploy READY l’8 novembre 2026;
 collaudo email operativo e verifica autenticata in produzione da completare;
 vedere la [consegna 11A](docs/milestone-11a.md).
 
-La **Milestone 12 è implementata e verificata localmente** (14 novembre 2026):
+La **Milestone 12 è implementata e pubblicata** (14 novembre 2026):
 piano finanziario versionato, ripartizioni per risultati/partner/anni, entrate,
 impegni, spese, trasferimenti, conti, cambi mensili e dashboard finanziaria.
-Migration operativa e pubblicazione non eseguite; vedere la
+Migration applicata e frontend pubblicato in produzione il 14 novembre 2026; vedere la
 [consegna Milestone 12](docs/milestone-12.md).
 
 ## Documentazione

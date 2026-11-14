@@ -134,4 +134,4 @@ Le scritture passano esclusivamente per `edit_financial_plan`: owner
 chiamante, progetto non archiviato, lock e verifica della versione. Nessun DML
 diretto al client o service role. `financial_snapshot` è security invoker e legge
 un unico snapshot coerente senza troncamento dei totali. Modello e verifiche
-nella [consegna M12](milestone-12.md); migration non applicata in produzione.
+nella [consegna M12](milestone-12.md); migration applicata in produzione il 14 novembre 2026.
