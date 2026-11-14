@@ -11,7 +11,13 @@ export default async function FinanceLayout({
   params: Promise<{ id: string }>;
   children: React.ReactNode;
 }) {
-  const { project } = await getFinancePage((await params).id);
+  const { project, data } = await getFinancePage((await params).id);
+  const hasTestEntries = data.entries.some(
+    (entry) =>
+      entry.reference.startsWith("TEST-") &&
+      entry.notes?.startsWith("[DATI DI TEST]") &&
+      ["draft", "confirmed", "posted"].includes(entry.status),
+  );
   return (
     <div className="finance-page">
       <div className="finance-heading">
@@ -30,6 +36,13 @@ export default async function FinanceLayout({
       </div>
       <ProjectNavigation projectId={project.id} current="piano-finanziario" />
       <FinanceNavigation projectId={project.id} />
+      {hasTestEntries && (
+        <p className="finance-callout" role="note">
+          <strong>Dati di prova presenti.</strong> I movimenti contrassegnati TEST
+          sono fittizi. Quelli registrati sono inclusi nei saldi e nei residui;
+          annullali al termine del collaudo.
+        </p>
+      )}
       {project.status === "archived" && (
         <p className="finance-callout">
           Progetto archiviato: consultazione in sola lettura.

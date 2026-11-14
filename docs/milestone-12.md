@@ -225,3 +225,31 @@ Importazione Tirana completata in transazione dopo prova con rollback; backup
 `20261114T163852663551Z.dump`. Rilettura tramite snapshot con RLS: confronto
 integrale di importi, descrizioni, gerarchia, note e 151 quote con i dati preparati,
 nessuna differenza; sei macrovoci e tre annualità, zero movimenti finanziari.
+
+## Collaudo con movimenti nel progetto Tirana — 14 novembre 2026
+
+Su richiesta esplicita del responsabile sono stati aggiunti al progetto reale
+17 movimenti fittizi: due entrate, quattro trasferimenti, quattro impegni e
+sette spese, con quattro conti di prova senza IBAN reale. Riferimenti del lotto
+`TEST-TIR-20261114-`, descrizioni `[TEST]` e note `[DATI DI TEST]` distinguono
+ogni record. Le pagine finanziarie mostrano un avviso finché rimangono bozze,
+impegni aperti o movimenti registrati del collaudo. Gli importi sono inclusi nei
+totali ordinari: al termine occorre annullarli, conservando lo storico.
+
+Il caso copre pagamenti parziali e completi di impegni, chiusura sotto preventivo,
+spese dirette, un pagamento senza conto, trasferimenti fra partner e giroconto
+fra due conti dello stesso partner. Totali di prova: ricevuto 250.000 EUR,
+speso 45.500 EUR, impegni ancora da pagare 70.000 EUR, residuo piano
+1.884.500 EUR, saldo fondi 204.500 EUR e fondi dopo gli impegni 134.500 EUR.
+Il piano approvato e le sue 151 ripartizioni sono rimasti identici.
+
+Tutte le creazioni e chiusure sono state prima validate dalle RPC applicative
+in una transazione annullata. Inserimento definitivo amministrativo con audit
+di sistema e backup `20261114T164909977502Z.dump`; nessun cambio di schema.
+Rilettura e confronto integrale del piano, riconciliazione dei saldi per partner,
+conto, risultato, anno e macrovoce completati. Il database respinge un pagamento
+superiore al residuo dell'impegno e un conto appartenente a un altro partner.
+Verifica browser desktop sulla copia dei dati riletti: sette pagine finanziarie,
+quattro moduli, filtri, avviso, saldi e registri senza errori JavaScript o overflow.
+La prova visiva usa una copia locale: non equivale a un accesso autenticato al sito
+operativo, che richiede il login dell'utente. Typecheck e lint superati.
