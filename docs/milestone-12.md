@@ -217,3 +217,11 @@ Verifiche: 31 test unitari; cinque test browser finanziari, inclusi espansione,
 subtotali invarianti e filtro per macrovoce; suite PostgreSQL completa con
 snapshot della gerarchia, autorizzazione, concorrenza e rollback; typecheck,
 lint e build. I dati di progetto e le credenziali non sono inclusi nel repository.
+
+Rilascio gerarchia: commit `d374beb`, deploy
+`dpl_8ePDLtHq2VEh48XbHd74XFyPFmg6` READY sul dominio operativo.
+Migration applicata con backup `20261114T163801490012Z.dump`.
+Importazione Tirana completata in transazione dopo prova con rollback; backup
+`20261114T163852663551Z.dump`. Rilettura tramite snapshot con RLS: confronto
+integrale di importi, descrizioni, gerarchia, note e 151 quote con i dati preparati,
+nessuna differenza; sei macrovoci e tre annualità, zero movimenti finanziari.

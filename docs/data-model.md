@@ -468,3 +468,13 @@ I periodi della bozza vengono annullati con soft delete; il ripristino non li
 riattiva automaticamente. Gli snapshot pubblicati restano immutabili.
 Dettagli e verifiche nel [modello del cestino](activity-deletion-proposal.md).
 Migration locale `20261030110000_activity_deletion.sql`, non applicata al backend.
+
+### Estensione M12 — gerarchia del piano (14 novembre 2026)
+
+`budget_lines.macro_code` e `macro_name_snapshot`, entrambi opzionali ma presenti
+insieme, distinguono la macrovoce dalla categoria e dalla voce. Sono parte dello
+snapshot della revisione: copia integrale in revisione, immutabilità dopo
+approvazione. Le categorie di una stessa bozza condividono la macrovoce; la RPC
+aggiorna insieme le voci della categoria quando viene modificata. Totali e
+subtotali sono derivati esclusivamente dalle voci, mai registrati come importi
+aggiuntivi. I codici non devono essere interpretati implicitamente come gerarchia.
