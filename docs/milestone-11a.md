@@ -263,3 +263,21 @@ Conferma del collaudo umano: logout, nuovo accesso con email/password di
 procurement e apertura ALBANIA riusciti. TypeScript e lint superati. Build
 locale ancora bloccata da Turbopack (EPERM su porta interna), anche con
 escalation. Nessun commit, push o deploy di questa modifica.
+
+
+### Rilascio stati di attivazione — 14 novembre 2026
+
+- Commit applicativo `ea08f1d` pubblicato su `origin/main`.
+- Deployment production `dpl_DUboZwatojxmM2a2foH1p56Yb6tS`, READY,
+  alias `https://www.ariadne-hub.it`. Sorgenti estratti dal commit, SHA
+  registrato nei metadati. Build remota Next.js 16.4.2 e TypeScript superati.
+  URL: https://management-progetti-a436y2cne-tor-vergata-igiene.vercel.app.
+- Directory verificata con sessione Admin sul dominio pubblico: mostra
+  «Abilitato · Email confermata · Password da verificare» per gli account
+  esistenti, incluso procurement. Il precedente collaudo umano di procurement
+  resta valido, ma precede l’introduzione del marcatore: occorre un nuovo
+  accesso con password per registrarne automaticamente l’evidenza.
+- Registrazione del marcatore verificata nei test isolati; nuovo accesso
+  password in produzione dopo il deploy ancora da eseguire dal titolare.
+- Nessuna migration o modifica a ruoli e membership. Commit successivo solo
+  documentale; sorgenti distribuiti `ea08f1d`.
