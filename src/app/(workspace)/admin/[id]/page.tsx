@@ -1,3 +1,4 @@
+import { accountSetup } from "@/lib/account-setup.mjs";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireAdmin, adminAuth, type AdminProfile } from "@/lib/admin-data";
@@ -34,9 +35,9 @@ export default async function AdminUser({ params, searchParams }: { params: Prom
   const authUser = authResult?.data?.user;
   return <>
     <Link href="/admin">← Utenti e accessi</Link>
-    <div className="page-heading"><h1>{profile.display_name}</h1><p>{profile.is_active ? "Profilo attivo" : "Profilo disabilitato"} · {isAdmin ? "Amministratore" : "Accesso tramite assegnazioni ai progetti"}</p></div>
-    <section className="panel"><h2>Profilo</h2><ProfileNameForm key={profile.row_version} profile={profile} />
-      {authUser ? <><p>Email: {authUser.email || "Non disponibile"}</p><p>{authUser.email_confirmed_at ? "Email confermata" : authUser.invited_at ? "Invito in attesa di accettazione" : "Email non confermata"}</p>
+    <div className="page-heading"><h1>{profile.display_name}</h1><p>{profile.is_active ? "Account abilitato" : "Profilo disabilitato"} · {isAdmin ? "Amministratore" : "Accesso tramite assegnazioni ai progetti"}</p></div>
+    <section className="panel"><h2>Profilo</h2><p>Abilitato significa autorizzato a usare Ariadne; l’attivazione si completa con la conferma email e una password verificata.</p><ProfileNameForm key={profile.row_version} profile={profile} />
+      {authUser ? <><p>Email: {authUser.email || "Non disponibile"}</p><p>{accountSetup(authUser)}</p>{authUser.email_confirmed_at && !authUser.app_metadata?.ariadne_password_verified_at && <p>Se la password non è stata impostata, usa «Hai dimenticato la password?» dalla pagina di accesso. La conferma dell’email da sola non prova il completamento.</p>}
         {authUser.invited_at && <p>Invito: {new Date(authUser.confirmation_sent_at || authUser.invited_at).toLocaleString("it-IT", { timeZone: "Europe/Rome" })}</p>}
         {!authUser.email_confirmed_at && authUser.invited_at && profile.is_active && <><p>Se il collegamento è scaduto, reinvia l’invito. La scadenza è verificata al momento dell’accettazione.</p><InviteForm id={id} /></>}
       </> : <p role="alert">Dati dell’invito non disponibili. Le impostazioni di accesso restano consultabili.</p>}

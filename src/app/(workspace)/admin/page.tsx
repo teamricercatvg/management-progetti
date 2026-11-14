@@ -1,3 +1,4 @@
+import { accountSetup } from "@/lib/account-setup.mjs";
 import { requireAdmin, adminAuth } from "@/lib/admin-data";
 import { InviteDialog } from "@/components/admin-forms";
 import { AdminDirectory, type DirectoryRow } from "@/components/admin-directory";
@@ -16,11 +17,11 @@ async function readAll<T>(read: (offset: number) => PromiseLike<{ data: T[] | nu
 }
 async function readEmails() {
   const auth = await adminAuth();
-  const emails = new Map<string, string>();
+  const emails = new Map<string, { email: string; setup: string }>();
   for (let page = 1; page <= 1000; page++) {
     const { data, error } = await auth.listUsers({ page, perPage: 100 });
     if (error) throw new Error("Email non disponibili");
-    data.users.forEach(user => emails.set(user.id, user.email || ""));
+    data.users.forEach(user => emails.set(user.id, { email: user.email || "", setup: accountSetup(user) }));
     if (data.users.length < 100) return emails;
   }
   throw new Error("Directory Auth troppo estesa");
@@ -51,8 +52,8 @@ export default async function Admin() {
       }).sort((a, b) => a.label.localeCompare(b.label, "it", { numeric: true }));
       const isAdmin = admins.has(profile.id);
       return {
-        id: profile.id, name: profile.display_name, email: emails.get(profile.id) || "",
-        status: profile.is_active ? "Attivo" : "Disabilitato",
+        id: profile.id, name: profile.display_name, email: emails.get(profile.id)?.email || "",
+        status: `${profile.is_active ? "Abilitato" : "Disabilitato"} · ${emails.get(profile.id)?.setup}`,
         role: isAdmin ? "Admin" : assigned.length ? "Manager" : "Nessun ruolo assegnato",
         isAdmin, projects: assigned,
         projectsSearchText: isAdmin ? allProjectsSearchText : "",

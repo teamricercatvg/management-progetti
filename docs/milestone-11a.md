@@ -235,3 +235,31 @@ al rilascio Vercel a causa del blocco locale Turbopack già documentato.
   «Accesso a tutti i progetti». Nessuna modifica operativa ad accessi o dati.
 - Il commit successivo aggiorna solo questa consegna; i sorgenti distribuiti
   restano quelli di `b370b92`. Deploy Git automatico invariato.
+
+
+## Abilitazione e attivazione account — 14 novembre 2026 (locale)
+
+La directory distingue «Abilitato/Disabilitato» dallo stato di attivazione:
+invito in attesa, email da confermare, email confermata con password da
+verificare, attivazione completata con password verificata. Il dettaglio
+spiega che confermare il link non dimostra il salvataggio di una password.
+
+Dopo un accesso con password riuscito oppure un aggiornamento password riuscito,
+il server registra `ariadne_password_verified_at` in Auth app_metadata per il
+solo ID restituito dalla sessione/Auth. Il campo è informativo, non concede
+permessi; user_metadata e last_sign_in_at non vengono usati come prova. Nessun
+valore password viene memorizzato nel campo. Gli account precedenti restano
+«Password da verificare» fino a una successiva operazione verificata. Un errore
+di registrazione non blocca l’accesso o annulla una password già salvata; lo
+stato può quindi restare prudenzialmente da verificare. Nessuna migration.
+
+Verifica: 24 test unitari e 14 test browser Admin/workspace superati; inclusa
+registrazione dopo login e distinzione da invito non accettato. La modifica
+è locale, non ancora pubblicata. Per procurement è stato richiesto il recupero;
+l’utente ha riportato la conferma «Password aggiornata» dal sito operativo.
+Il nuovo indicatore non era ancora distribuito durante quel salvataggio.
+
+Conferma del collaudo umano: logout, nuovo accesso con email/password di
+procurement e apertura ALBANIA riusciti. TypeScript e lint superati. Build
+locale ancora bloccata da Turbopack (EPERM su porta interna), anche con
+escalation. Nessun commit, push o deploy di questa modifica.

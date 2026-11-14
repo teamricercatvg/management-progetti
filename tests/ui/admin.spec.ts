@@ -123,6 +123,8 @@ test("directory searches email and project, combines column filters and sorts", 
   await page.getByRole("button", { name: "Assegna Manager — DEMO", exact: true }).click();
   await expect(page.getByRole("button", { name: "Revoca Manager — DEMO", exact: true })).toBeVisible();
   await page.goto("/admin");
+  await expect(page.getByText("Abilitato · Attivazione completata · Password verificata", { exact: true })).toBeVisible();
+  await expect(page.getByText("Abilitato · Invito in attesa", { exact: true })).toBeVisible();
   await expect(page.getByLabel("Cerca per nome, email o progetto", { exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Cerca", exact: true })).toHaveCount(0);
   await page.getByLabel("Filtra Email", { exact: true }).fill("duplicate@example.test");

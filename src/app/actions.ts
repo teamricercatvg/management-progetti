@@ -1,4 +1,5 @@
 "use server";
+import { recordPasswordEvidence } from "@/lib/password-evidence";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireProfile } from "@/lib/auth";
@@ -9,8 +10,9 @@ export async function login(form: FormData) {
   if (!validEmail(email) || !password || password.length > 128)
     redirect("/login?status=invalid");
   const client = await createClient();
-  const { error } = await client.auth.signInWithPassword({ email, password });
+  const { data, error } = await client.auth.signInWithPassword({ email, password });
   if (error) redirect("/login?status=invalid");
+  if (data.user) await recordPasswordEvidence(data.user.id);
   redirect("/overview");
 }
 export async function logout() {
@@ -33,11 +35,12 @@ export async function recover(form: FormData) {
   redirect("/login?status=sent");
 }
 export async function updatePassword(form: FormData) {
-  const { client } = await requireProfile();
+  const { client, user } = await requireProfile();
   const password = String(form.get("password") ?? "");
   if (!validPassword(password) || password !== form.get("confirm"))
     redirect("/password?status=invalid");
   const { error } = await client.auth.updateUser({ password });
   if (error) redirect("/password?status=failed");
+  await recordPasswordEvidence(user.id);
   redirect("/account?status=updated");
 }

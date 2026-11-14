@@ -31,6 +31,7 @@ function session(role) {
     user,
   };
 }
+const passwordEvidence = new Map();
 const adminProfiles = new Map();
 const adminRoles = new Set();
 const adminMemberships = new Map();
@@ -52,6 +53,7 @@ const seedId = "00000000-0000-4000-8000-000000000007";
 const otherId = "00000000-0000-4000-8000-000000000008";
 function resetProjects() {
   failAdminChange = false;
+  passwordEvidence.clear();
   adminProfiles.clear(); adminRoles.clear(); adminMemberships.clear();
   adminProfiles.set(targetId, { id: targetId, display_name: "Utente invitato", is_active: true, row_version: 1 });
   adminProfiles.set(id, { id, display_name: "Admin collaudo", is_active: true, row_version: 1 });
@@ -124,10 +126,17 @@ createServer(async (req, res) => {
   const url = new URL(req.url, "http://localhost");
   if (url.pathname === "/auth/v1/admin/users") {
     if (req.headers.authorization !== "Bearer local-ui-service") { res.statusCode = 403; return res.end("{}"); }
-    return res.end(JSON.stringify({ users: [{ id: targetId, email: "duplicate@example.test" }, { id, email: "admin@example.test" }], aud: "authenticated" }));
+    return res.end(JSON.stringify({ users: [{ id: targetId, email: "duplicate@example.test", invited_at: "2026-01-01" }, { id, email: "admin@example.test", email_confirmed_at: "2026-01-01", app_metadata: passwordEvidence.get(id) || {} }], aud: "authenticated" }));
   }
   if (url.pathname.startsWith("/auth/v1/admin/users/")) {
     if (req.headers.authorization !== "Bearer local-ui-service") { res.statusCode = 403; return res.end("{}"); }
+    if (req.method === "PUT") {
+      let raw = ""; for await (const chunk of req) raw += chunk;
+      const args = JSON.parse(raw);
+      const userId = url.pathname.split("/").pop();
+      passwordEvidence.set(userId, args.app_metadata);
+      return res.end(JSON.stringify({ id: userId, app_metadata: args.app_metadata }));
+    }
     return res.end(JSON.stringify({ id: targetId, email: "invited@example.test", invited_at: "2026-01-01T00:00:00Z", confirmation_sent_at: "2026-01-01T00:00:00Z" }));
   }
   if (url.pathname === "/auth/v1/invite") {
