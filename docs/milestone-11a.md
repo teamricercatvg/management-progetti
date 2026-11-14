@@ -297,3 +297,20 @@ Verifiche: 24 test unitari, typecheck, lint e 14 test browser Admin/workspace
 superati. Il primo avvio browser è stato interrotto dal promemoria di sicurezza
 Next.js; la ripetizione è riuscita. Il runtime segnala un aggiornamento di
 sicurezza da valutare separatamente. Diff controllato; nessun commit o deploy.
+
+
+### Rilascio stato unico — 14 novembre 2026
+
+- Commit applicativo `e9dc24a` pubblicato su `origin/main`.
+- Deploy production `dpl_Hv8RKeZWP2GKo8YcdME76RP6WLaS`, READY;
+  https://management-progetti-dmlnuem44-tor-vergata-igiene.vercel.app
+  con alias https://www.ariadne-hub.it. Build e TypeScript remoti superati.
+- Pacchetto estratto dal commit con git archive; SHA nei metadati Vercel.
+  Escluse modifiche locali estranee e file .env tramite .vercelignore.
+- Verificata la directory autenticata in produzione dopo ricaricamento:
+  diciture composte rimosse, cinque account storici mostrano Da confermare
+  perché privi del marcatore. Il passaggio ad Abilitato richiede un successivo
+  accesso con password riuscito; verificato nei test isolati, non eseguito
+  per conto dei titolari in produzione.
+- Nessuna migration. Il commit documentale successivo non cambia i sorgenti
+  distribuiti. Deploy automatico Git invariato (disabilitato).
