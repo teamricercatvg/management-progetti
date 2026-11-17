@@ -1,4 +1,7 @@
 "use client";
+import { financialHistory } from "@/lib/finance-history.mjs";
+import { ExpenseHistory } from "./expense-history";
+import { UiIcon } from "./ui-icon";
 import { FinanceMovementDetail } from "./finance-movement-detail";
 import type { Project } from "@/lib/project-data";
 import { useSearchParams } from "next/navigation";
@@ -32,19 +35,23 @@ export function FinanceRegister({
   readOnly: boolean;
 }) {
   const searchParams = useSearchParams();
-  const selectedId = searchParams.get("entry");
-  function selectEntry(id?: string) {
-    window.history.replaceState(null, "", id ? `${base}?entry=${id}#movement-detail` : base);
+  const history = useMemo(() => financialHistory(data.entries.filter(e => e.kind === "expense")), [data.entries]);
+  const visibleEntries: FinancialEntry[] = kind === "expense" ? history.current : data.entries;
+  const requestedId = searchParams.get("entry");
+  const selectedId = kind === "expense" && requestedId ? history.currentId(requestedId) : requestedId;
+  const showHistory = kind === "expense" && (searchParams.get("history") === "1" || selectedId !== requestedId);
+  function selectEntry(id?: string, historyOpen = false) {
+    window.history.replaceState(null, "", id ? `${base}?entry=${id}${historyOpen ? "&history=1" : ""}#movement-detail` : base);
   }
   const [query, setQuery] = useState(""),
     [partner, setPartner] = useState(""),
     [status, setStatus] = useState(""),
     [from, setFrom] = useState(""),
     [to, setTo] = useState(""),
-    [page, setPage] = useState(() => Math.max(0, Math.floor(data.entries.filter(e => e.kind === kind).findIndex(e => e.id === initialEntryId) / 30)));
+    [page, setPage] = useState(() => Math.max(0, Math.floor(visibleEntries.filter(e => e.kind === kind).findIndex(e => e.id === (kind === "expense" && initialEntryId ? history.currentId(initialEntryId) : initialEntryId)) / 30)));
   const rows = useMemo(
     () =>
-      data.entries.filter(
+      visibleEntries.filter(
         (e) =>
           e.kind === kind &&
           (!partner ||
@@ -57,7 +64,7 @@ export function FinanceRegister({
             .toLowerCase()
             .includes(query.toLowerCase()),
       ),
-    [data.entries, kind, partner, status, from, to, query],
+    [visibleEntries, kind, partner, status, from, to, query],
   );
   const remainder = commitmentRemainders(data.entries);
   const total = rows.reduce(
@@ -195,6 +202,7 @@ export function FinanceRegister({
                     {e.reference}
                   </button>
                   <small>{e.description}</small>
+                  {kind === "expense" && history.versions(e.id).length > 1 && <button type="button" className="secondary" title="Cronologia della spesa" aria-label={`Cronologia ${e.reference}`} aria-expanded={selectedId === e.id && showHistory} onClick={() => selectEntry(selectedId === e.id && showHistory ? undefined : e.id, true)}><UiIcon name="clock" /></button>}
                   {e.reminder_text && <span className={`finance-reminder-icon ${e.reminder_priority}`} title={e.reminder_text} role="img" aria-label={`Reminder ${e.reminder_priority === "red" ? "urgente" : e.reminder_priority === "orange" ? "da verificare" : "promemoria"}: ${e.reminder_text}`}>●</span>}
                 </th>
                 <td className="finance-date">
@@ -267,7 +275,7 @@ export function FinanceRegister({
                 </td>
               </tr>
               {selectedId === e.id && <tr className="finance-detail-row"><td colSpan={kind === "commitment" ? 9 : kind === "income" ? 6 : 7}>
-                <FinanceMovementDetail key={e.id} project={project} data={data} kind={kind} entry={e} newId={newId} onClose={() => selectEntry()} />
+                <>{showHistory ? <ExpenseHistory project={project} data={data} versions={history.versions(e.id)} selectedId={requestedId} onClose={() => selectEntry()} /> : <FinanceMovementDetail key={e.id} project={project} data={data} kind={kind} entry={e} newId={newId} onClose={() => selectEntry()} />}</>
               </td></tr>}
               </Fragment>
             ))}

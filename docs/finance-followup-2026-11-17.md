@@ -117,3 +117,16 @@ Include la rinomina richiesta del riquadro e campo in “Reminder”.
 Verificati typecheck, lint, 34 test unitari e prova browser di importo/mese/valuta.
 Commit, push e deploy di queste ulteriori modifiche autorizzati dall’utente
 il 17 novembre 2026. Nessuna nuova migration richiesta.
+
+## Cronologia spese — modifica locale successiva
+
+Il registro spese mostra soltanto l’ultima registrazione di ciascuna catena di
+correzioni. Le versioni sostituite sono escluse prima di ricerca, filtri e
+paginazione; restano conservate nel database. Icona orologio sulla riga corrente
+per aprire la cronologia e consultare le vecchie versioni in sola lettura, con
+importi, cambi applicati, note e motivazione. I link diretti alle vecchie versioni
+aprono la cronologia sotto la versione corrente. Gli annullamenti senza
+sostituzione restano consultabili nel registro. Nessuna nuova migration.
+Typecheck, lint, 36 test unitari e prova browser di correzione/cronologia superati.
+Commit, push e deploy della cronologia autorizzati dall’utente il 17 novembre
+2026. Nessuna modifica al database richiesta.

@@ -6,8 +6,8 @@ import type { FinancialData, FinancialEntry } from "@/lib/finance-data";
 import type { Project } from "@/lib/project-data";
 import { commitmentRemainders, dateLabel, decimalLabel, entryStates, money } from "@/lib/finance.mjs";
 import { EntryForm, EntryTransition, ExpenseReminderForm } from "@/components/finance-forms";
-export function FinanceMovementDetail({ project, data, kind, entry, newId, onClose }: {
- project: Project; data: FinancialData; kind: FinancialEntry["kind"]; entry?: FinancialEntry; newId: string; onClose: () => void;
+export function FinanceMovementDetail({ project, data, kind, entry, newId, onClose, detailId = "movement-detail" }: {
+ project: Project; data: FinancialData; kind: FinancialEntry["kind"]; entry?: FinancialEntry; newId: string; onClose: () => void; detailId?: string;
 }) {
  const [editing, setEditing] = useState(false);
  const [deleting, setDeleting] = useState(false);
@@ -16,7 +16,7 @@ export function FinanceMovementDetail({ project, data, kind, entry, newId, onClo
  const labels = ["", {income:"entrata",commitment:"impegno",expense:"spesa",transfer:"trasferimento"}[kind]];
  const remainders = commitmentRemainders(data.entries);
  return (
-        <section className="finance-editor" id="movement-detail">
+        <section className="finance-editor" id={detailId}>
           <div className="finance-section-heading">
             <h3>
               {entry

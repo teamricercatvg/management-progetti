@@ -280,6 +280,15 @@ test("Inline detail, persistent reminder, correction and soft deletion", async (
  await detail.getByLabel('Importo EUR',{exact:true}).fill('120');
  await detail.getByRole('button',{name:'Salva correzione',exact:true}).click();
  await expect(page.locator('tbody')).toContainText('EXPENSE-16-R2');
+ await expect(page.getByRole('button',{name:'EXPENSE-16',exact:true})).toHaveCount(0);
+ await page.getByRole('button',{name:'Chiudi cronologia',exact:true}).click();
+ await page.getByRole('button',{name:'Cronologia EXPENSE-16-R2',exact:true}).click();
+ const history = page.getByRole('region',{name:'Cronologia della spesa'});
+ await expect(history).toContainText('EXPENSE-16');
+ await history.locator('summary').click();
+ await expect(history.getByRole('button',{name:'Modifica movimento',exact:true})).toHaveCount(0);
+ await expect(history).toContainText('100,00 EUR');
+ await history.getByRole('button',{name:'Chiudi cronologia',exact:true}).click();
  await page.getByRole('button',{name:'EXPENSE-16-R2',exact:true}).click();
  await expect(detail).toContainText('Correzione di EXPENSE-16');
  await detail.getByRole('button',{name:'Elimina movimento',exact:true}).click();
