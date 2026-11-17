@@ -253,3 +253,10 @@ Verifica browser desktop sulla copia dei dati riletti: sette pagine finanziarie,
 quattro moduli, filtri, avviso, saldi e registri senza errori JavaScript o overflow.
 La prova visiva usa una copia locale: non equivale a un accesso autenticato al sito
 operativo, che richiede il login dell'utente. Typecheck e lint superati.
+
+## Riscontri del 17 novembre 2026 — implementazione locale
+
+Dettagli sotto riga, prefetch delle sezioni, correzioni atomiche con storico,
+annullamento a icona, reminder delle spese e integrazione InforEuro. Modello
+approvato dall’utente; migration preparata e testata solo in PostgreSQL isolato.
+Nessun rilascio operativo. [Specifica e limiti](finance-followup-2026-11-17.md).

@@ -478,3 +478,13 @@ approvazione. Le categorie di una stessa bozza condividono la macrovoce; la RPC
 aggiorna insieme le voci della categoria quando viene modificata. Totali e
 subtotali sono derivati esclusivamente dalle voci, mai registrati come importi
 aggiuntivi. I codici non devono essere interpretati implicitamente come gerarchia.
+
+### Estensione finanziaria approvata — 17 novembre 2026
+
+`financial_entries` aggiunge `correction_of_id` (FK stesso progetto e univoca),
+`reminder_text` (max 4000 caratteri) e `reminder_priority` (green/orange/red).
+Reminder solo per spese, testo e priorità entrambi presenti o entrambi nulli.
+La correzione annulla l’originale e registra la sostituzione atomicamente,
+conservando importi originali e audit. RLS, archivio e versioni ottimistiche
+restano applicati; nessun DELETE. [Consegna locale](finance-followup-2026-11-17.md),
+migration `20261117100000_financial_followup.sql`, non applicata in produzione.
