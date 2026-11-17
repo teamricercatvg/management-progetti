@@ -101,7 +101,11 @@ done
 for db in foundation_test foundation_replay; do
   run_sql "$db" < "$work/supabase/migrations/20261114173000_financial_hierarchy.sql"
 done
-run_sql foundation_test < "$work/supabase/tests/finance.sql"
+for db in foundation_test foundation_replay; do
+  run_sql "$db" < "$work/supabase/migrations/20261117100000_financial_followup.sql"
+done
+# Expand the relative test include before sending SQL into the container.
+awk 'FNR==NR {cases=cases $0 "\n"; next} /\\ir finance-followup.sql/ {printf "%s",cases; next} {print}' "$work/supabase/tests/finance-followup.sql" "$work/supabase/tests/finance.sql" | run_sql foundation_test
 for db in foundation_test foundation_replay; do
   docker exec "$container" pg_dump -h /tmp -U postgres -d "$db" --schema-only --schema public --schema app_private | sed '/^\\restrict /d; /^\\unrestrict /d' > "$work/$db-m12.sql"
 done

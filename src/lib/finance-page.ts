@@ -1,9 +1,10 @@
 import "server-only";
 import { cache } from "react";
+import { requireProfile } from "./auth";
 import { getProject } from "./project-data";
 import { getFinancialData } from "./finance-data";
 export const getFinancePage = cache(async (id: string) => {
-  const context = await getProject(id);
-  const data = await getFinancialData(context.client, id);
+  const { client } = await requireProfile();
+  const [context, data] = await Promise.all([getProject(id), getFinancialData(client, id)]);
   return { ...context, data };
 });

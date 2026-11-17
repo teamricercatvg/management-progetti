@@ -91,7 +91,9 @@ select pg_temp.denied(format('select public.edit_financial_plan(%L,''publish'',1
 select public.edit_financial_plan(:'pa','save_allocation',1,jsonb_build_object('revision_id',:'r3','budget_line_id',:'shorter_line','partner_id',:'p2','project_year','2','amount','0'));
 select public.edit_financial_plan(:'pa','publish',2,jsonb_build_object('revision_id',:'r3','title','Shorter project','reason','Out-of-period allocation removed'));
 select pg_temp.check_true((select current_revision_id=:'r3' from public.project_budget_state where project_id=:'pa'),'Shortened project can remove obsolete year allocation and publish');
+\ir finance-followup.sql
 update public.projects set status='archived' where id=:'pa';
+select pg_temp.denied(format('select public.edit_financial_plan(%L,''save_reminder'',4,%L)',:'pa',jsonb_build_object('id',:'corrected_fx','reminder_text','Archived','reminder_priority','red')::text));
 select pg_temp.denied(format('select public.edit_financial_plan(%L,''create_revision'',null,''{"title":"No","reason":"Archived"}'')',:'pa'));
 reset role;
 set local role anon;

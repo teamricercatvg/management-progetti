@@ -568,6 +568,7 @@ export function EntryForm({
   entry?: FinancialEntry;
   newId: string;
 }) {
+  const correcting = !!entry && entry.status !== "draft";
   const [partner, setPartner] = useState(entry?.partner_id ?? "");
   const [destination, setDestination] = useState(
     entry?.destination_partner_id ?? "",
@@ -604,12 +605,14 @@ export function EntryForm({
   return (
     <FinanceForm
       projectId={projectId}
-      command="save_entry"
+      command={correcting ? "correct_entry" : "save_entry"}
       onSuccess={() => setSaved(true)}
     >
       <Hidden name="id" value={entry?.id ?? newId} />
       <Hidden name="row_version" value={entry?.row_version} />
       <Hidden name="kind" value={kind} />
+      {correcting && <label>Motivazione della correzione<input name="reason" required maxLength={4000} /></label>}
+      {correcting && <p className="finance-callout">La nuova registrazione sostituisce il movimento originale, che resta nello storico. Usa un riferimento distinto.</p>}
       {kind === "expense" && (
         <label>
           Collegamento a un impegno
@@ -649,7 +652,7 @@ export function EntryForm({
             name="reference"
             required
             maxLength={100}
-            defaultValue={entry?.reference}
+            defaultValue={correcting ? `${entry.reference.slice(0, 85)}-R${entry.row_version}` : entry?.reference}
             placeholder="Es. CONTR-2026-01"
           />
         </label>
@@ -794,8 +797,8 @@ export function EntryForm({
       </div>
       {originalCurrency !== currency && (
         <p className="finance-callout">
-          La spesa sarà convertita con l’ultima versione del cambio medio del
-          mese del pagamento. Senza cambio può essere salvata solo in bozza.
+          La spesa sarà convertita con l’ultima versione del cambio del mese del pagamento.
+          {currency === "EUR" ? " Se manca, alla registrazione viene acquisito il tasso mensile InforEuro. Se la fonte non è disponibile puoi salvare una bozza." : " Senza cambio può essere salvata solo in bozza."}
         </p>
       )}
       {kind === "transfer" && (
@@ -857,16 +860,16 @@ export function EntryForm({
           richiedono un annullamento motivato.
         </span>
         <div className="finance-buttons">
-          <button
+          {!correcting && <button
             className="secondary"
             name="register"
             value="false"
             type="submit"
           >
             Salva bozza
-          </button>
+          </button>}
           <button name="register" value="true" type="submit">
-            {kind === "commitment" ? "Conferma impegno" : `Registra ${title}`}
+            {correcting ? "Salva correzione" : kind === "commitment" ? "Conferma impegno" : `Registra ${title}`}
           </button>
         </div>
       </div>
@@ -911,4 +914,16 @@ export function EntryTransition({
       </button>
     </FinanceForm>
   );
+}
+
+export function ExpenseReminderForm({projectId, entry}: {projectId: string; entry: FinancialEntry}) {
+ return <FinanceForm projectId={projectId} command="save_reminder">
+  <Hidden name="id" value={entry.id}/><Hidden name="row_version" value={entry.row_version}/>
+  <label>Reminder per il rendiconto<textarea name="reminder_text" maxLength={4000} rows={3} defaultValue={entry.reminder_text ?? ""}/></label>
+  <label>Priorità<select name="reminder_priority" defaultValue={entry.reminder_priority ?? "orange"}>
+   <option value="green">Verde · promemoria</option><option value="orange">Arancione · da verificare</option><option value="red">Rosso · urgente</option>
+  </select></label>
+  <p className="finance-help">Lascia il testo vuoto per rimuovere il reminder.</p>
+  <button type="submit">Salva reminder</button>
+ </FinanceForm>;
 }

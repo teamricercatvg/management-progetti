@@ -344,6 +344,24 @@ export async function financeFixture(req, res, url, role, project) {
     draft.row_version++;
     return send(draft.id);
   }
+  if (command === "save_reminder") {
+    const row = data.entries.find(e => e.id === p.id);
+    if (!row || row.row_version !== expected_version) return fail("Stale", "40001");
+    row.reminder_text = p.reminder_text || null;
+    row.reminder_priority = row.reminder_text ? p.reminder_priority : null;
+    row.row_version++;
+    return send(row.id);
+  }
+  if (command === "correct_entry") {
+    const row = data.entries.find(e => e.id === p.id);
+    if (!row || row.row_version !== expected_version) return fail("Stale", "40001");
+    row.status = row.kind === "commitment" ? "cancelled" : "voided";
+    row.void_reason = p.reason;
+    row.row_version++;
+    const next = {...row, ...p, id:id(), correction_of_id:row.id, amount:Number(p.original_amount), status:p.kind === "commitment" ? "confirmed" : "posted", row_version:3};
+    data.entries.unshift(next);
+    return send(next.id);
+  }
   if (command === "save_entry") {
     if (!data.state) return fail("Approva prima il piano finanziario.");
     const existing = data.entries.find((e) => e.id === p.id);

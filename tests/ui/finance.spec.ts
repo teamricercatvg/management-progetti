@@ -259,3 +259,58 @@ test("Hierarchy collapses without double counting and keeps source notes compact
     "1.800.000,00",
   );
 });
+
+test("Inline detail, persistent reminder, correction and soft deletion", async ({page, request}, testInfo) => {
+ await request.get(`${fixture}/fixture/reset?scenario=finance`);
+ await login(page);
+ await page.goto(`${base}/spese`);
+ const row = page.locator('tbody tr').filter({has:page.getByRole('button',{name:'EXPENSE-16',exact:true})});
+ await row.getByRole('button',{name:'EXPENSE-16',exact:true}).click();
+ const detail = page.locator('#movement-detail');
+ await expect(detail).toBeVisible();
+ expect(await detail.evaluate(el => el.closest('tr')?.previousElementSibling?.textContent)).toContain('EXPENSE-16');
+ await detail.getByLabel('Reminder per il rendiconto').fill('Verificare la ricevuta prima del rendiconto');
+ await detail.getByLabel('Priorità').selectOption('red');
+ await detail.getByRole('button',{name:'Salva reminder'}).click();
+ await expect(row.getByRole('img',{name:/Reminder urgente/})).toBeVisible();
+ await page.reload();
+ await expect(detail.getByLabel('Reminder per il rendiconto')).toHaveValue('Verificare la ricevuta prima del rendiconto');
+ await detail.getByRole('button',{name:'Modifica movimento',exact:true}).click();
+ await detail.getByLabel('Motivazione della correzione').fill('Correzione importo documento');
+ await detail.getByLabel('Importo EUR',{exact:true}).fill('120');
+ await detail.getByRole('button',{name:'Salva correzione',exact:true}).click();
+ await expect(page.locator('tbody')).toContainText('EXPENSE-16-R2');
+ await page.getByRole('button',{name:'EXPENSE-16-R2',exact:true}).click();
+ await expect(detail).toContainText('Correzione di EXPENSE-16');
+ await detail.getByRole('button',{name:'Elimina movimento',exact:true}).click();
+ await detail.getByLabel('Motivazione',{exact:true}).fill('Annullamento collaudo');
+ await detail.getByRole('button',{name:'Annulla movimento',exact:true}).click();
+ await expect(detail).toContainText('Annullato');
+ await page.setViewportSize({width:595,height:803});
+ await page.screenshot({path:testInfo.outputPath('reminder-inline-mobile.png')});
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await detail.getByRole('button',{name:'Chiudi',exact:true}).click();
+ await expect(detail).toHaveCount(0);
+});
+
+test("InforEuro is optional for EUR and shows requested monthly quotes and errors", async ({page, request}) => {
+ await request.get(`${fixture}/fixture/reset?scenario=finance`);
+ await login(page);
+ let calls = 0;
+ await page.route('**/inforeuro?**', async route => {
+  calls++;
+  const url = new URL(route.request().url());
+  await route.fulfill({json: url.searchParams.get('currency') === 'MWK'
+   ? {rate:'0.000500000000',currency:'MWK',month:url.searchParams.get('month')}
+   : {error:'Cambio non disponibile'}});
+ });
+ await page.goto(`${base}/conti`);
+ expect(calls).toBe(0);
+ await page.getByLabel('Valuta locale InforEuro').fill('MWK');
+ await page.getByLabel('Mese InforEuro',{exact:true}).fill('2026-10');
+ await expect(page.getByRole('status')).toContainText('1 MWK = 0.000500000000 EUR · 2026-10');
+ await expect(page.getByRole('button',{name:'Salva cambio del mese'})).toBeVisible();
+ await page.getByLabel('Valuta locale InforEuro').fill('XXX');
+ await expect(page.getByRole('status')).toContainText('Cambio non disponibile');
+ await expect(page.getByRole('button',{name:'Salva cambio del mese'})).toHaveCount(0);
+});

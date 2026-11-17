@@ -9,6 +9,7 @@ export function FinanceNavigation({ projectId }: { projectId: string }) {
     <nav className="finance-tabs" aria-label="Piano finanziario">
       {Object.entries(financeTabs).map(([path, label]) => (
         <Link
+          prefetch={true}
           key={path}
           href={`${base}${path ? `/${path}` : ""}`}
           aria-current={

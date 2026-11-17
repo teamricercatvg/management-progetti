@@ -1,6 +1,8 @@
 "use client";
-import Link from "next/link";
-import { useMemo, useState } from "react";
+import { FinanceMovementDetail } from "./finance-movement-detail";
+import type { Project } from "@/lib/project-data";
+import { useSearchParams } from "next/navigation";
+import { Fragment, useMemo, useState } from "react";
 import type { FinancialData, FinancialEntry } from "@/lib/finance-data";
 import {
   cents,
@@ -11,6 +13,7 @@ import {
   money,
 } from "@/lib/finance.mjs";
 export function FinanceRegister({
+  project, initialEntryId, creating, newId,
   projectId,
   data,
   kind,
@@ -19,6 +22,7 @@ export function FinanceRegister({
   end,
   readOnly,
 }: {
+  project: Project; initialEntryId?: string; creating: boolean; newId: string;
   projectId: string;
   data: FinancialData;
   kind: FinancialEntry["kind"];
@@ -27,12 +31,17 @@ export function FinanceRegister({
   end: string;
   readOnly: boolean;
 }) {
+  const searchParams = useSearchParams();
+  const selectedId = searchParams.get("entry");
+  function selectEntry(id?: string) {
+    window.history.replaceState(null, "", id ? `${base}?entry=${id}#movement-detail` : base);
+  }
   const [query, setQuery] = useState(""),
     [partner, setPartner] = useState(""),
     [status, setStatus] = useState(""),
     [from, setFrom] = useState(""),
     [to, setTo] = useState(""),
-    [page, setPage] = useState(0);
+    [page, setPage] = useState(() => Math.max(0, Math.floor(data.entries.filter(e => e.kind === kind).findIndex(e => e.id === initialEntryId) / 30)));
   const rows = useMemo(
     () =>
       data.entries.filter(
@@ -68,7 +77,8 @@ export function FinanceRegister({
   const accounts = new Map(data.accounts.map((a) => [a.id, a.name]));
   const items = new Map(data.items.map((i) => [i.id, i.code]));
   return (
-    <section className="finance-ledger">
+    <section className="finance-ledger finance-register">
+      {creating && searchParams.get("new") === "1" && <FinanceMovementDetail project={project} data={data} kind={kind} newId={newId} onClose={() => selectEntry()} />}
       <div className="finance-register-filters">
         <label>
           Cerca
@@ -179,12 +189,13 @@ export function FinanceRegister({
           </thead>
           <tbody>
             {rows.slice(safePage * 30, safePage * 30 + 30).map((e) => (
-              <tr key={e.id}>
+              <Fragment key={e.id}><tr>
                 <th scope="row">
-                  <Link href={`${base}?entry=${e.id}#movement-detail`}>
+                  <button type="button" className="finance-row-link" aria-expanded={selectedId === e.id} onClick={() => selectEntry(selectedId === e.id ? undefined : e.id)}>
                     {e.reference}
-                  </Link>
+                  </button>
                   <small>{e.description}</small>
+                  {e.reminder_text && <span className={`finance-reminder-icon ${e.reminder_priority}`} title={e.reminder_text} role="img" aria-label={`Reminder ${e.reminder_priority === "red" ? "urgente" : e.reminder_priority === "orange" ? "da verificare" : "promemoria"}: ${e.reminder_text}`}>●</span>}
                 </th>
                 <td className="finance-date">
                   {dateLabel(e.entry_date)}
@@ -248,13 +259,17 @@ export function FinanceRegister({
                   </span>
                 </td>
                 <td>
-                  <Link href={`${base}?entry=${e.id}#movement-detail`}>
+                  <button type="button" className="finance-row-link" aria-expanded={selectedId === e.id} onClick={() => selectEntry(selectedId === e.id ? undefined : e.id)}>
                     {e.status === "draft" && !readOnly
                       ? "Modifica"
                       : "Dettagli"}
-                  </Link>
+                  </button>
                 </td>
               </tr>
+              {selectedId === e.id && <tr className="finance-detail-row"><td colSpan={kind === "commitment" ? 9 : kind === "income" ? 6 : 7}>
+                <FinanceMovementDetail key={e.id} project={project} data={data} kind={kind} entry={e} newId={newId} onClose={() => selectEntry()} />
+              </td></tr>}
+              </Fragment>
             ))}
           </tbody>
         </table>

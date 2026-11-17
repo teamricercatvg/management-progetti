@@ -59,6 +59,9 @@ export type ExchangeRate = {
   reason: string | null;
 };
 export type FinancialEntry = {
+  correction_of_id?: string | null;
+  reminder_text?: string | null;
+  reminder_priority?: "green" | "orange" | "red" | null;
   id: string;
   kind: "income" | "commitment" | "expense" | "transfer";
   reference: string;
