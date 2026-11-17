@@ -235,7 +235,7 @@ export function FinanceRegister({
                   )
                 )}
                 <td className="finance-number">
-                  {money(e.amount, "").trim()}
+                  {e.amount === null ? "Cambio non disponibile" : money(e.amount, currency)}
                   {e.original_currency_code !== currency && (
                     <small>
                       {decimalLabel(e.original_amount)}{" "}

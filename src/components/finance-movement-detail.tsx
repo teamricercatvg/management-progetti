@@ -206,7 +206,7 @@ export function FinanceMovementDetail({ project, data, kind, entry, newId, onClo
             )}
           {entry?.correction_of_id && <p>Correzione di {data.entries.find(e => e.id === entry.correction_of_id)?.reference ?? entry.correction_of_id}</p>}
           {entry && data.entries.some(e => e.correction_of_id === entry.id) && <p>Sostituito da {data.entries.find(e => e.correction_of_id === entry.id)?.reference}</p>}
-          {entry?.kind === "expense" && <section className="finance-reminder"><h4>Reminder rendiconto</h4>
+          {entry?.kind === "expense" && <section className="finance-reminder"><h4>Reminder</h4>
             {editable ? <ExpenseReminderForm projectId={project.id} entry={entry} /> : <p>{entry.reminder_text ?? "Nessun reminder"}</p>}
           </section>}
         </section>

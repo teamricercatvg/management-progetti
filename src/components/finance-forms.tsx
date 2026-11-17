@@ -1,4 +1,5 @@
 "use client";
+import { ExpenseConversion } from "./expense-conversion";
 import { useState, useTransition, type ReactNode, type FormEvent } from "react";
 import {
   financeAction,
@@ -84,12 +85,14 @@ function Amount({
   value,
   min = "0.01",
   step = "0.01",
+  onChange,
 }: {
   name?: string;
   label?: string;
   value?: number | string | null;
   min?: string;
   step?: string;
+  onChange?: (value: string) => void;
 }) {
   return (
     <label>
@@ -103,6 +106,7 @@ function Amount({
         step={step}
         required
         defaultValue={value ?? ""}
+        onChange={event => onChange?.(event.target.value)}
       />
     </label>
   );
@@ -568,6 +572,8 @@ export function EntryForm({
   entry?: FinancialEntry;
   newId: string;
 }) {
+  const [paymentDate, setPaymentDate] = useState(entry?.entry_date ?? todayRome());
+  const [originalAmount, setOriginalAmount] = useState(entry?.original_amount ?? "");
   const correcting = !!entry && entry.status !== "draft";
   const [partner, setPartner] = useState(entry?.partner_id ?? "");
   const [destination, setDestination] = useState(
@@ -669,7 +675,8 @@ export function EntryForm({
             name="entry_date"
             required
             type="date"
-            defaultValue={entry?.entry_date ?? todayRome()}
+            value={paymentDate}
+            onChange={event => setPaymentDate(event.target.value)}
           />
         </label>
         <label>
@@ -774,6 +781,7 @@ export function EntryForm({
           name="original_amount"
           label={`Importo ${originalCurrency}`}
           value={entry?.original_amount}
+          onChange={setOriginalAmount}
           step={originalCurrency !== currency ? "0.000001" : "0.01"}
           min={originalCurrency !== currency ? "0.000001" : "0.01"}
         />
@@ -795,6 +803,7 @@ export function EntryForm({
           <Hidden name="original_currency_code" value={currency} />
         )}
       </div>
+      {kind === "expense" && currency === "EUR" && originalCurrency !== "EUR" && <ExpenseConversion projectId={projectId} currency={originalCurrency} amount={originalAmount} date={paymentDate} rates={data.rates} />}
       {originalCurrency !== currency && (
         <p className="finance-callout">
           La spesa sarà convertita con l’ultima versione del cambio del mese del pagamento.
@@ -919,7 +928,7 @@ export function EntryTransition({
 export function ExpenseReminderForm({projectId, entry}: {projectId: string; entry: FinancialEntry}) {
  return <FinanceForm projectId={projectId} command="save_reminder">
   <Hidden name="id" value={entry.id}/><Hidden name="row_version" value={entry.row_version}/>
-  <label>Reminder per il rendiconto<textarea name="reminder_text" maxLength={4000} rows={3} defaultValue={entry.reminder_text ?? ""}/></label>
+  <label>Reminder<textarea name="reminder_text" maxLength={4000} rows={3} defaultValue={entry.reminder_text ?? ""}/></label>
   <label>Priorità<select name="reminder_priority" defaultValue={entry.reminder_priority ?? "orange"}>
    <option value="green">Verde · promemoria</option><option value="orange">Arancione · da verificare</option><option value="red">Rosso · urgente</option>
   </select></label>

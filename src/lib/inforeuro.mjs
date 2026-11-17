@@ -19,3 +19,16 @@ export function inforEuroRate(rows, currency) {
   if (rounded === 0n) throw new Error("Cambio fuori precisione.");
   return `${rounded / 1000000000000n}.${String(rounded % 1000000000000n).padStart(12, "0")}`;
 }
+
+// Same positive-decimal rounding as SQL round(original_amount * rate, 2).
+export function convertedCents(amount, rate) {
+  const parse = (text, precision) => {
+    if (!new RegExp(`^\\d+(\\.\\d{1,${precision}})?$`).test(text)) return null;
+    const [whole, fraction = ""] = text.split(".");
+    return { value: BigInt(whole + fraction), scale: 10n ** BigInt(fraction.length) };
+  };
+  const a = parse(String(amount).replace(",", "."), 6), r = parse(String(rate), 12);
+  if (!a || !r || a.value <= 0n || r.value <= 0n) return null;
+  const denominator = a.scale * r.scale;
+  return (a.value * r.value * 100n + denominator / 2n) / denominator;
+}

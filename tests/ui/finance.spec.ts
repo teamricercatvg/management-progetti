@@ -269,12 +269,12 @@ test("Inline detail, persistent reminder, correction and soft deletion", async (
  const detail = page.locator('#movement-detail');
  await expect(detail).toBeVisible();
  expect(await detail.evaluate(el => el.closest('tr')?.previousElementSibling?.textContent)).toContain('EXPENSE-16');
- await detail.getByLabel('Reminder per il rendiconto').fill('Verificare la ricevuta prima del rendiconto');
+ await detail.getByLabel('Reminder').fill('Verificare la ricevuta prima del rendiconto');
  await detail.getByLabel('Priorità').selectOption('red');
  await detail.getByRole('button',{name:'Salva reminder'}).click();
  await expect(row.getByRole('img',{name:/Reminder urgente/})).toBeVisible();
  await page.reload();
- await expect(detail.getByLabel('Reminder per il rendiconto')).toHaveValue('Verificare la ricevuta prima del rendiconto');
+ await expect(detail.getByLabel('Reminder')).toHaveValue('Verificare la ricevuta prima del rendiconto');
  await detail.getByRole('button',{name:'Modifica movimento',exact:true}).click();
  await detail.getByLabel('Motivazione della correzione').fill('Correzione importo documento');
  await detail.getByLabel('Importo EUR',{exact:true}).fill('120');
@@ -313,4 +313,26 @@ test("InforEuro is optional for EUR and shows requested monthly quotes and error
  await page.getByLabel('Valuta locale InforEuro').fill('XXX');
  await expect(page.getByRole('status')).toContainText('Cambio non disponibile');
  await expect(page.getByRole('button',{name:'Salva cambio del mese'})).toHaveCount(0);
+});
+
+test("Foreign expense preview follows amount and payment month", async ({page, request}) => {
+ await request.get(`${fixture}/fixture/reset?scenario=finance`);
+ await login(page);
+ await page.route('**/inforeuro?**', async route => {
+  const month = new URL(route.request().url()).searchParams.get('month');
+  await route.fulfill({json:{rate:month === '2026-10' ? '0.0005' : '0.001'}});
+ });
+ await page.goto(`${base}/spese?new=1`);
+ await page.getByLabel('Valuta del pagamento').fill('MWK');
+ await expect(page.getByRole('region',{name:'Conversione in euro'})).toBeVisible();
+ await page.getByLabel('Data pagamento').fill('2026-10-10');
+ await page.getByLabel('Importo MWK',{exact:true}).fill('200000');
+ const quote = page.getByRole('region',{name:'Conversione in euro'});
+ await expect(quote).toContainText('100,00 EUR');
+ await page.getByLabel('Importo MWK',{exact:true}).fill('400000');
+ await expect(quote).toContainText('200,00 EUR');
+ await page.getByLabel('Data pagamento').fill('2026-11-10');
+ await expect(quote).toContainText('400,00 EUR');
+ await page.getByLabel('Valuta del pagamento').fill('EUR');
+ await expect(quote).toHaveCount(0);
 });

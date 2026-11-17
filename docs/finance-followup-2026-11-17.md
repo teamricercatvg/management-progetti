@@ -85,3 +85,35 @@ migration, test e documentazione di questo intervento. Esclusi documenti
 preesistenti, file di verifica e variazioni dei tipi generate dal server locale.
 Il deploy automatico da Git su `main` resta disabilitato in `vercel.json`: il push
 non pubblica il frontend né applica la migration al database operativo.
+
+## Rilascio in produzione — 17 novembre 2026
+
+Su richiesta esplicita dell’utente, pubblicato il commit `43343bd` da pacchetto
+pulito, senza env locali o dati di verifica. Deployment
+`dpl_tZcC86yWGaMrcRMxg7nvX6iYDcBk`, stato READY, alias
+https://www.ariadne-hub.it. Build remota Next.js 16.4.2 completata in 18 secondi.
+
+Accesso SSH ripristinato sbloccando la chiave esistente nell’agente locale;
+nessuna modifica alle autorizzazioni SSH del server. Migration
+`20261117100000_financial_followup.sql` applicata tramite wrapper dedicato,
+backup preventivo `/var/backups/ariadne-migrations/20261117T144617583047Z.dump`.
+Cronologia registrata nella stessa transazione; tutti i 17 movimenti precedenti
+invariati, verificati tramite impronta dei campi preesistenti. Fonte registrata
+identica al commit (MD5 `fe9df4e6ef6e2e09142f302e497ea6e8`).
+RLS attiva, RPC consentita ad authenticated e negata ad anon, UPDATE diretto negato.
+Le indicazioni di stato locale nelle sezioni precedenti descrivono la consegna
+iniziale e sono superate da questo rilascio. Collaudo autenticato dei nuovi flussi
+in produzione da eseguire dall’utente; nessun movimento operativo modificato.
+
+## Anteprima conversione spese — successiva modifica locale
+
+Aggiunto riquadro nel modulo spese estere per progetti in EUR: importo locale,
+cambio del mese del pagamento, fonte e controvalore EUR, aggiornati al variare
+di data/valuta/importo. Usa il cambio già salvato se presente, altrimenti legge
+InforEuro; non salva cambi durante la compilazione. Arrotondamento in centesimi
+con aritmetica intera coerente con SQL. Registro con valuta EUR esplicita accanto
+all’originale; importo sconosciuto segnalato invece di mostrare zero.
+Include la rinomina richiesta del riquadro e campo in “Reminder”.
+Verificati typecheck, lint, 34 test unitari e prova browser di importo/mese/valuta.
+Commit, push e deploy di queste ulteriori modifiche autorizzati dall’utente
+il 17 novembre 2026. Nessuna nuova migration richiesta.
