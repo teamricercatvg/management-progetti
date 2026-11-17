@@ -282,8 +282,8 @@ test("Inline detail, persistent reminder, correction and soft deletion", async (
  await expect(page.locator('tbody')).toContainText('EXPENSE-16-R2');
  await expect(page.getByRole('button',{name:'EXPENSE-16',exact:true})).toHaveCount(0);
  await page.getByRole('button',{name:'Chiudi cronologia',exact:true}).click();
- await page.getByRole('button',{name:'Cronologia EXPENSE-16-R2',exact:true}).click();
- const history = page.getByRole('region',{name:'Cronologia della spesa'});
+ await page.getByRole('button',{name:'Cronologia',exact:true}).click();
+ const history = page.getByRole('region',{name:'Cronologia del registro'});
  await expect(history).toContainText('EXPENSE-16');
  await history.locator('summary').click();
  await expect(history.getByRole('button',{name:'Modifica movimento',exact:true})).toHaveCount(0);
@@ -345,3 +345,26 @@ test("Foreign expense preview follows amount and payment month", async ({page, r
  await page.getByLabel('Valuta del pagamento').fill('EUR');
  await expect(quote).toHaveCount(0);
 });
+
+for (const [section, reference] of [['entrate','INCOME-13'],['impegni','COMMITMENT-14'],['spese','EXPENSE-16'],['trasferimenti','TRANSFER-17']]) {
+ test(`Top history hides replaced entries in ${section}`, async ({page,request}) => {
+  await request.get(`${fixture}/fixture/reset?scenario=finance-history`);
+  await login(page);
+  await page.goto(`${base}/${section}`);
+  await expect(page.getByRole('button',{name:reference,exact:true})).toBeVisible();
+  await expect(page.locator('tbody')).not.toContainText(`${reference}-OLD`);
+  const button = page.getByRole('button',{name:'Cronologia',exact:true});
+  expect(await button.evaluate(el => !!el.closest('table'))).toBe(false);
+  await button.click();
+  const history = page.getByRole('region',{name:'Cronologia del registro'});
+  await expect(history).toBeVisible();
+  expect(await history.evaluate(el => !!el.closest('table'))).toBe(false);
+  await history.getByLabel('Cerca nella cronologia').fill(`${reference}-OLD`);
+  await history.locator('summary').click();
+  await expect(history).toContainText('Versione sostituita');
+  await expect(history.getByRole('button',{name:'Modifica movimento',exact:true})).toHaveCount(0);
+  await page.getByRole('button',{name:'Chiudi cronologia',exact:true}).click();
+  await expect(history).toHaveCount(0);
+  await expect(page.locator('tbody')).not.toContainText(`${reference}-OLD`);
+ });
+}

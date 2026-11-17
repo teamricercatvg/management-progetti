@@ -135,6 +135,14 @@ export function resetFinance(scenario = "") {
       destination_account_id: uuid(6),
     }),
   ];
+  if (scenario === "finance-history") {
+    const originals = [...data.entries];
+    originals.forEach((current, index) => {
+      const old = {...current, id:uuid(500 + index), reference:`${current.reference}-OLD`, status:current.kind === "commitment" ? "cancelled" : "voided", void_reason:"Versione sostituita"};
+      current.correction_of_id = old.id;
+      data.entries.push(old);
+    });
+  }
   if (["finance-showcase", "finance-hierarchy"].includes(scenario)) {
     data.lines[0].planned_amount = 480000;
     data.allocations[0].amount = 300000;

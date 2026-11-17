@@ -1,6 +1,6 @@
 "use client";
 import { financialHistory } from "@/lib/finance-history.mjs";
-import { ExpenseHistory } from "./expense-history";
+import { FinanceHistory } from "./finance-history";
 import { UiIcon } from "./ui-icon";
 import { FinanceMovementDetail } from "./finance-movement-detail";
 import type { Project } from "@/lib/project-data";
@@ -35,20 +35,20 @@ export function FinanceRegister({
   readOnly: boolean;
 }) {
   const searchParams = useSearchParams();
-  const history = useMemo(() => financialHistory(data.entries.filter(e => e.kind === "expense")), [data.entries]);
-  const visibleEntries: FinancialEntry[] = kind === "expense" ? history.current : data.entries;
+  const history = useMemo(() => financialHistory(data.entries.filter(e => e.kind === kind)), [data.entries, kind]);
+  const visibleEntries: FinancialEntry[] = history.current;
   const requestedId = searchParams.get("entry");
-  const selectedId = kind === "expense" && requestedId ? history.currentId(requestedId) : requestedId;
-  const showHistory = kind === "expense" && (searchParams.get("history") === "1" || selectedId !== requestedId);
+  const selectedId = requestedId ? history.currentId(requestedId) : requestedId;
+  const showHistory = (searchParams.get("history") === "1" || selectedId !== requestedId);
   function selectEntry(id?: string, historyOpen = false) {
-    window.history.replaceState(null, "", id ? `${base}?entry=${id}${historyOpen ? "&history=1" : ""}#movement-detail` : base);
+    window.history.replaceState(null, "", historyOpen ? `${base}?history=1#movement-detail` : id ? `${base}?entry=${id}#movement-detail` : base);
   }
   const [query, setQuery] = useState(""),
     [partner, setPartner] = useState(""),
     [status, setStatus] = useState(""),
     [from, setFrom] = useState(""),
     [to, setTo] = useState(""),
-    [page, setPage] = useState(() => Math.max(0, Math.floor(visibleEntries.filter(e => e.kind === kind).findIndex(e => e.id === (kind === "expense" && initialEntryId ? history.currentId(initialEntryId) : initialEntryId)) / 30)));
+    [page, setPage] = useState(() => Math.max(0, Math.floor(visibleEntries.filter(e => e.kind === kind).findIndex(e => e.id === (initialEntryId ? history.currentId(initialEntryId) : initialEntryId)) / 30)));
   const rows = useMemo(
     () =>
       visibleEntries.filter(
@@ -85,6 +85,8 @@ export function FinanceRegister({
   const items = new Map(data.items.map((i) => [i.id, i.code]));
   return (
     <section className="finance-ledger finance-register">
+      <div className="finance-table-toolbar"><button type="button" className="secondary" aria-expanded={showHistory} aria-controls="financial-history" onClick={() => selectEntry(undefined, !showHistory)}><UiIcon name="clock" /> Cronologia</button></div>
+      {showHistory && <div id="financial-history"><FinanceHistory project={project} data={data} groups={visibleEntries.map(e => history.versions(e.id)).filter(versions => versions.length > 1)} selectedId={requestedId} onClose={() => selectEntry()} /></div>}
       {creating && searchParams.get("new") === "1" && <FinanceMovementDetail project={project} data={data} kind={kind} newId={newId} onClose={() => selectEntry()} />}
       <div className="finance-register-filters">
         <label>
@@ -202,7 +204,6 @@ export function FinanceRegister({
                     {e.reference}
                   </button>
                   <small>{e.description}</small>
-                  {kind === "expense" && history.versions(e.id).length > 1 && <button type="button" className="secondary" title="Cronologia della spesa" aria-label={`Cronologia ${e.reference}`} aria-expanded={selectedId === e.id && showHistory} onClick={() => selectEntry(selectedId === e.id && showHistory ? undefined : e.id, true)}><UiIcon name="clock" /></button>}
                   {e.reminder_text && <span className={`finance-reminder-icon ${e.reminder_priority}`} title={e.reminder_text} role="img" aria-label={`Reminder ${e.reminder_priority === "red" ? "urgente" : e.reminder_priority === "orange" ? "da verificare" : "promemoria"}: ${e.reminder_text}`}>●</span>}
                 </th>
                 <td className="finance-date">
@@ -274,8 +275,8 @@ export function FinanceRegister({
                   </button>
                 </td>
               </tr>
-              {selectedId === e.id && <tr className="finance-detail-row"><td colSpan={kind === "commitment" ? 9 : kind === "income" ? 6 : 7}>
-                <>{showHistory ? <ExpenseHistory project={project} data={data} versions={history.versions(e.id)} selectedId={requestedId} onClose={() => selectEntry()} /> : <FinanceMovementDetail key={e.id} project={project} data={data} kind={kind} entry={e} newId={newId} onClose={() => selectEntry()} />}</>
+              {!showHistory && selectedId === e.id && <tr className="finance-detail-row"><td colSpan={kind === "commitment" ? 9 : kind === "income" ? 6 : 7}>
+                <FinanceMovementDetail key={e.id} project={project} data={data} kind={kind} entry={e} newId={newId} onClose={() => selectEntry()} />
               </td></tr>}
               </Fragment>
             ))}

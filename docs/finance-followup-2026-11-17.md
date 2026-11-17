@@ -130,3 +130,16 @@ sostituzione restano consultabili nel registro. Nessuna nuova migration.
 Typecheck, lint, 36 test unitari e prova browser di correzione/cronologia superati.
 Commit, push e deploy della cronologia autorizzati dall’utente il 17 novembre
 2026. Nessuna modifica al database richiesta.
+
+## Cronologia in cima ai quattro registri — implementazione locale
+
+Estesa la selezione dell’ultima versione a entrate, impegni e trasferimenti,
+oltre alle spese. Un unico comando “Cronologia” sopra i filtri apre il pannello
+con tutte le catene corrette della sezione, anche se escluse dai filtri del
+registro. Ricerca dedicata su riferimenti e descrizioni delle versioni storiche.
+Rimosse le icone cronologia dalle righe. Dettagli precedenti in sola lettura;
+link storici compatibili; annullamenti senza sostituzione ancora consultabili.
+Nessuna migration o variazione alle regole di correzione degli impegni pagati.
+Typecheck, lint, 36 test unitari e cinque prove browser superati, inclusi tutti
+i quattro registri. Commit, push e deploy autorizzati dall’utente il 17 novembre
+2026; nessuna migration richiesta.
